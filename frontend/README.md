@@ -5,3 +5,4 @@ B-bet is a platform to predict NFL games for my friends and me. After writing 1.
 get more familiar with React, Typescript and Tailwindcss. Furthermore, the backend will be implemented 
 in PHP with Symfony. 
 
+
