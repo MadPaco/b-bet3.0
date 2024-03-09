@@ -1,10 +1,10 @@
 import './index.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Layout from './components/Layout';
 
 function App() {
   return (
     <>
-      
+      <Layout content={<h1>Content, YEAH!</h1>}/>
     </>
   )
 }
