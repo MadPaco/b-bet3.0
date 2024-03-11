@@ -44,17 +44,18 @@ const LoginPanel: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <div 
-                    className="absolute inset-y-0 right-0 pr-3 pb-3 flex items-center cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3 pb-4 flex items-center space-x-1 cursor-pointer"
                     onClick={() => setShowPassword(!showPassword)}
                 >
-                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye}/>
+                    <div className="text-gray-400 text-sm">{showPassword ? 'Hide' : 'Show'}</div>
                 </div>
             </div>
             <button
-                className="mb-4 w-full px-3 py-2 bg-blue-600 text-white rounded"
+                className="mb-4 w-full px-3 py-2 bg-gray-500 text-white rounded"
                 type='submit'
             >
-                Submit
+                Sign in
             </button>
             {errorMessage && <p className="text-red-500">{errorMessage}</p>}
             <a className="text-blue-500 hover:underline" href='/forgot-password'>Forgot Password?</a>
