@@ -26,19 +26,26 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('click', handleClickOutside);
     } else {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [isOpen, handleClickOutside]);
 
   return (
-    <div className="text-teal-500 relative">
-      <button onClick={onToggle}>{title}</button>
+    <div className="text-orange-500 relative">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle();
+        }}
+      >
+        {title}
+      </button>
       {isOpen && (
         <div
           ref={node}

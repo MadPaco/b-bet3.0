@@ -1,0 +1,18 @@
+Image attribution:
+
+Stadium pic:
+Photo by <a href="https://unsplash.com/@andrewgearhart?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Andrew Gearhart</a> on <a href="https://unsplash.com/photos/lots-of-people-watching-football-game-during-sunset-5k7B1Dv4r3E?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+
+Grassfield pic:
+Photo by <a href="https://unsplash.com/@blocksfletcher?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Blocks Fletcher</a> on <a href="https://unsplash.com/photos/green-and-white-football-field-XaGNO7bgZa8?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+
+
+
+"colors": 
+
+"primary": "bg-blue-900 text-blue-900",
+"secondary": "bg-orange-500 text-orange-500",
+"accent": "bg-blue-300 text-blue-300",
+"background": "bg-gray-900 text-gray-900",
+"text": "bg-gray-100 text-gray-100"
+

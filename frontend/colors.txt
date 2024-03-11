@@ -1,2 +1,0 @@
-Teal: teal-500
-Gray: gray-700

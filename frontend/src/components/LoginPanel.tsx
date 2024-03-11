@@ -28,11 +28,11 @@ const LoginPanel: React.FC = () => {
 
   return (
     <form
-      className="p-8 bg-black rounded shadow-md w-full"
+      className="p-8 bg-gray-900 bg-opacity-70 rounded-3xl shadow-md w-full"
       onSubmit={handleSubmit}
     >
-      <h2 className="text-2xl font-bold mb-8 text-teal-500 text-center">
-        Login
+      <h2 className="text-3xl font-bold mb-8 text-gray-100 text-center">
+        Sign in
       </h2>
       <input
         className="mb-4 w-full px-3 py-2 border border-gray-300 rounded"
@@ -57,16 +57,15 @@ const LoginPanel: React.FC = () => {
         </div>
       </div>
       <button
-        className="mb-4 w-full px-3 py-2 bg-gray-500 text-white rounded"
+        className="w-full px-3 py-2 bg-gray-500 text-white rounded"
         type="submit"
       >
         Sign in
       </button>
-      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      <a className="text-blue-500 hover:underline" href="/forgot-password">
-        Forgot Password?
-      </a>
-      <label className="flex items-center mt-4" htmlFor="rememberMeCheckbox">
+      <label
+        className="flex items-center mt-4 text-white"
+        htmlFor="rememberMeCheckbox"
+      >
         <input
           id="rememberMeCheckbox"
           type="checkbox"
@@ -75,6 +74,10 @@ const LoginPanel: React.FC = () => {
         />
         <span className="ml-2">Remember me</span>
       </label>
+      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+      <a className="text-white hover:underline" href="/forgot-password">
+        Forgot Password?
+      </a>
     </form>
   );
 };

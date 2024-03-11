@@ -2,7 +2,12 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: () => ({
+        grassfield: 'url(./src/assets/images/grassfield.jpg)',
+        stadium: 'url(./src/assets/images/stadium.jpg)',
+      }),
+    },
   },
   plugins: [],
 };
