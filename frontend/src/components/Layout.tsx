@@ -1,20 +1,20 @@
-import Header from "./Header";
-import Footer from "./Footer";
+import Header from './Header';
+import Footer from './Footer';
 
-interface LayoutProps{
-    content: React.ReactNode;
+interface LayoutProps {
+  content: React.ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ content }) =>{
-    return (
-        <div className="flex flex-col min-h-screen bg-gray-900 text-gray-800">
-            <Header/>
-            <main className="flex-grow flex items-center justify-center">
-                {content}
-            </main>
-            <Footer />
-        </div>
-    );
-}
+const Layout: React.FC<LayoutProps> = ({ content }) => {
+  return (
+    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-800">
+      <Header />
+      <main className="flex-grow flex items-center justify-center">
+        {content}
+      </main>
+      <Footer />
+    </div>
+  );
+};
 
 export default Layout;

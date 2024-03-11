@@ -1,13 +1,13 @@
-import './index.css'
+import './index.css';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
     <>
-      <Layout content={<LoginPage />}/>
+      <Layout content={<LoginPage />} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
