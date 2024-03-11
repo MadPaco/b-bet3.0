@@ -1,10 +1,11 @@
 import './index.css'
 import Layout from './components/Layout';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
     <>
-      <Layout content={<h1>Content, YEAH!</h1>}/>
+      <Layout content={<LoginPage />}/>
     </>
   )
 }

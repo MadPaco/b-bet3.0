@@ -7,13 +7,14 @@ interface LayoutProps{
 
 const Layout: React.FC<LayoutProps> = ({ content }) =>{
     return (
-        <div>
+        <div className="flex flex-col min-h-screen bg-gray-900 text-gray-800">
             <Header/>
-            {content}
+            <main className="flex-grow flex items-center justify-center">
+                {content}
+            </main>
             <Footer />
         </div>
     );
-
 }
 
 export default Layout;
