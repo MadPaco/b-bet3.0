@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import FormInput from './FormInput';
-import FormButton from './FormButton';
-import FormCard from './FormCard';
-import LoginHeaders from './LoginHeaders';
-import LoginFormLinks from './LoginFormLinks';
+import FormInput from './formComponents/FormInput';
+import FormButton from './formComponents/FormButton';
+import FormCard from './formComponents/FormCard';
+import LoginHeaders from './formComponents/LoginHeaders';
+import LoginFormLinks from './formComponents/LoginFormLinks';
 
 const LoginPanel: React.FC = () => {
   const [username, setUsername] = useState('');
