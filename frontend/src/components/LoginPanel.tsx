@@ -1,15 +1,15 @@
-import { useState } from 'react';
-
-//Icon imports
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import React, { useState } from 'react';
+import FormInput from './FormInput';
+import FormButton from './FormButton';
+import FormCard from './FormCard';
+import LoginHeaders from './LoginHeaders';
+import LoginFormLinks from './LoginFormLinks';
 
 const LoginPanel: React.FC = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   const areInputsNotEmpty = () => {
     if (username === '' || password === '') return false;
@@ -27,63 +27,28 @@ const LoginPanel: React.FC = () => {
   };
 
   return (
-    <form
-      className="data-spotlight p-8 bg-gray-900 bg-opacity-80 rounded-3xl shadow-md w-full relative overflow-hidden data-spotlight"
-      onSubmit={handleSubmit}
-    >
-      <h2 className="text-3xl font-bold mb-8 text-orange-500 text-center">
-        Sign in
-      </h2>
-      <input
-        className="mb-4 w-full px-3 py-2 border border-gray-300 rounded"
-        placeholder="enter username"
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <div className="relative">
-        <input
-          className="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
-          placeholder="enter password"
-          type={showPassword ? 'text' : 'password'}
-          onChange={(e) => setPassword(e.target.value)}
+    <FormCard>
+      <form onSubmit={handleSubmit}>
+        <LoginHeaders />
+        <FormInput
+          placeholder="Username"
+          type="text"
+          value={username}
+          setValue={setUsername}
         />
-        <div
-          className="absolute inset-y-0 right-0 pr-3 pb-4 flex items-center space-x-1 cursor-pointer"
-          onClick={() => setShowPassword(!showPassword)}
-        >
-          <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-          <div className="text-gray-400 text-sm">
-            {showPassword ? 'Hide' : 'Show'}
-          </div>
-        </div>
-      </div>
-      <button
-        className="w-full px-3 py-2 bg-gray-500 text-white rounded"
-        type="submit"
-      >
-        Sign in
-      </button>
-      <label
-        className="flex items-center mt-4 text-white"
-        htmlFor="rememberMeCheckbox"
-      >
-        <input
-          id="rememberMeCheckbox"
-          type="checkbox"
-          checked={rememberMe}
-          onChange={(e) => setRememberMe(e.target.checked)}
+        <FormInput
+          placeholder="Password"
+          type="password"
+          value={password}
+          setValue={setPassword}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
         />
-        <span className="ml-2">Remember me</span>
-      </label>
-      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      <div className="space-x-2">
-        <a className="text-white hover:underline" href="/register">
-          Register
-        </a>
-        <a className="text-white hover:underline" href="/forgot-password">
-          Forgot Password?
-        </a>
-      </div>
-    </form>
+        <FormButton buttonText="Login" />
+        <LoginFormLinks />
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+      </form>
+    </FormCard>
   );
 };
 
