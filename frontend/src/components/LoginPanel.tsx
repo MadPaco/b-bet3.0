@@ -28,10 +28,10 @@ const LoginPanel: React.FC = () => {
 
   return (
     <form
-      className="p-8 bg-gray-900 bg-opacity-70 rounded-3xl shadow-md w-full"
+      className="data-spotlight p-8 bg-gray-900 bg-opacity-80 rounded-3xl shadow-md w-full relative overflow-hidden data-spotlight"
       onSubmit={handleSubmit}
     >
-      <h2 className="text-3xl font-bold mb-8 text-gray-100 text-center">
+      <h2 className="text-3xl font-bold mb-8 text-orange-500 text-center">
         Sign in
       </h2>
       <input
