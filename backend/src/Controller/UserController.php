@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
+class UserController extends AbstractController
+{
+    #[Route('/backend/register', name: 'user_register', methods: ['POST'])]
+    public function register(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder): Response
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $user = new User();
+        $user->setEmail($data['email']);
+        $user->setPassword($passwordEncoder->hashPassword($user, $data['password']));
+        $user->setRoles(['USER']);
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new Response('User registered successfully', Response::HTTP_CREATED);
+    }
+}

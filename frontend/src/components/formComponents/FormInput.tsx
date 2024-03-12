@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 interface FormInputProps {
+  label: string;
   placeholder: string;
   type: string;
   value: string;
@@ -12,6 +13,7 @@ interface FormInputProps {
 }
 
 const FormInput: React.FC<FormInputProps> = ({
+  label,
   placeholder,
   type,
   value,
@@ -21,6 +23,7 @@ const FormInput: React.FC<FormInputProps> = ({
 }) => {
   return (
     <div className="relative">
+      <label className="text-gray-400">{label}</label>
       <input
         className="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
         placeholder={placeholder}
@@ -30,7 +33,7 @@ const FormInput: React.FC<FormInputProps> = ({
       />
       {type === 'password' && (
         <div
-          className="absolute inset-y-0 right-0 pr-3 pb-4 flex items-center space-x-1 cursor-pointer"
+          className="absolute inset-y-0 right-0 pr-3 pt-1 flex items-center space-x-1 cursor-pointer"
           onClick={() => setShowPassword && setShowPassword(!showPassword)}
         >
           <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />

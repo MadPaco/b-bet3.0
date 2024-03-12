@@ -31,12 +31,14 @@ const LoginPanel: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <LoginHeaders />
         <FormInput
+          label="Username: "
           placeholder="Username"
           type="text"
           value={username}
           setValue={setUsername}
         />
         <FormInput
+          label="Password: "
           placeholder="Password"
           type="password"
           value={password}

@@ -1,47 +1,67 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import FormCard from '../components/formComponents/FormCard';
+import FormInput from '../components/formComponents/FormInput';
+import FormButton from '../components/formComponents/FormButton';
+import RegisterHeaders from '../components/formComponents/RegisterHeaders';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [response, setResponse] = useState(null);
 
-  const handleRegister = () => {
-    // TODO: Implement registration logic
+  const handleRegister = async () => {
+    try {
+      const res = await fetch('/backend/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      setResponse(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
+  useEffect(() => {
+    if (response) {
+      // TODO: Handle the response from the backend
+    }
+  }, [response]);
+
   return (
-    <div>
-      <h1>Register Page</h1>
-      <form>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Confirm Password:</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
-        <button type="button" onClick={handleRegister}>
-          Register
-        </button>
-      </form>
-    </div>
+    <FormCard>
+      <RegisterHeaders />
+      <FormInput
+        placeholder="Enter Email"
+        label="Email:"
+        type="email"
+        value={email}
+        setValue={setEmail}
+      />
+      <FormInput
+        label="Password:"
+        placeholder="password"
+        type="password"
+        value={password}
+        setValue={setPassword}
+      />
+      <FormInput
+        label="Confirm Password:"
+        placeholder="confirm password"
+        type="password"
+        value={confirmPassword}
+        setValue={setConfirmPassword}
+      />
+      <FormButton
+        buttonText="Register"
+        type="button"
+        onClick={handleRegister}
+      />
+    </FormCard>
   );
 };
 
