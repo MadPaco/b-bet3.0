@@ -11,8 +11,9 @@ const RegisterPage: React.FC = () => {
   const [response, setResponse] = useState(null);
 
   const handleRegister = async () => {
+    console.log('Button clicked');
     try {
-      const res = await fetch('/backend/register', {
+      const res = await fetch('http://127.0.0.1:8000/backend/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
