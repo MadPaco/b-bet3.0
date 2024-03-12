@@ -75,9 +75,14 @@ const LoginPanel: React.FC = () => {
         <span className="ml-2">Remember me</span>
       </label>
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      <a className="text-white hover:underline" href="/forgot-password">
-        Forgot Password?
-      </a>
+      <div className="space-x-2">
+        <a className="text-white hover:underline" href="/register">
+          Register
+        </a>
+        <a className="text-white hover:underline" href="/forgot-password">
+          Forgot Password?
+        </a>
+      </div>
     </form>
   );
 };
