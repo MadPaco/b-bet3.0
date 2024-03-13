@@ -1,7 +1,7 @@
 interface FormButtonProps {
   buttonText: string;
   type: 'submit' | 'button';
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 const FormButton: React.FC<FormButtonProps> = ({

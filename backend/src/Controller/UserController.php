@@ -8,7 +8,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 
 class UserController extends AbstractController
 {
@@ -26,5 +29,27 @@ class UserController extends AbstractController
         $entityManager->flush();
 
         return new Response('User registered successfully', Response::HTTP_CREATED);
+    }
+
+    #[Route('/backend/login', name: 'user_login', methods: ['POST'])]
+    public function login(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder, JWTTokenManagerInterface $JWTManager): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return new JsonResponse(['message' => 'Invalid JSON']);
+        }
+
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+        if (!$user) {
+            return new JsonResponse(['message' => 'User not found']);
+        }
+
+        if (!$user || !$passwordEncoder->isPasswordValid($user, $data['password'])) {
+            return new Response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
+        }
+
+        $token = $JWTManager->create($user);
+
+        return new JsonResponse(['token' => $token]);
     }
 }

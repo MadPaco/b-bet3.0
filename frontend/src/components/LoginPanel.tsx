@@ -16,11 +16,24 @@ const LoginPanel: React.FC = () => {
     else return true;
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (areInputsNotEmpty()) {
-      //successfull login
-      //TODO implement submit with backend
+      const response = await fetch('http://127.0.0.1:8000/backend/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: username, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Token:', data.token);
+        // Here you can save the token to the local storage or state and redirect the user
+      } else {
+        setErrorMessage('Invalid credentials');
+      }
     } else {
       setErrorMessage('Please provide a username and a password.');
     }
@@ -46,7 +59,7 @@ const LoginPanel: React.FC = () => {
           showPassword={showPassword}
           setShowPassword={setShowPassword}
         />
-        <FormButton buttonText="Login" />
+        <FormButton buttonText="Login" type="submit" />
         <LoginFormLinks />
         {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       </form>
