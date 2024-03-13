@@ -1,42 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 import FormInput from './formComponents/FormInput';
 import FormButton from './formComponents/FormButton';
 import FormCard from './formComponents/FormCard';
 import LoginHeaders from './formComponents/LoginHeaders';
 import LoginFormLinks from './formComponents/LoginFormLinks';
 
-const LoginPanel: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+interface LoginPanelProps {
+  username: string;
+  setUsername: (username: string) => void;
+  password: string;
+  setPassword: (password: string) => void;
+  errorMessage: string;
+  handleLogin: () => void;
+}
 
-  const areInputsNotEmpty = () => {
-    if (username === '' || password === '') return false;
-    else return true;
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
+const LoginPanel: React.FC<LoginPanelProps> = ({
+  username,
+  setUsername,
+  password,
+  setPassword,
+  errorMessage,
+  handleLogin,
+}) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (areInputsNotEmpty()) {
-      const response = await fetch('http://127.0.0.1:8000/backend/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Token:', data.token);
-        // Here you can save the token to the local storage or state and redirect the user
-      } else {
-        setErrorMessage('Invalid credentials');
-      }
-    } else {
-      setErrorMessage('Please provide a username and a password.');
-    }
+    handleLogin();
   };
 
   return (
@@ -56,8 +44,6 @@ const LoginPanel: React.FC = () => {
           type="password"
           value={password}
           setValue={setPassword}
-          showPassword={showPassword}
-          setShowPassword={setShowPassword}
         />
         <FormButton buttonText="Login" type="submit" />
         <LoginFormLinks />
