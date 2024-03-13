@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import IndexPage from './pages/IndexPage';
 import RegisterPage from './pages/RegisterPage';
+import Dashboard from './components/Dashboard';
 
 const App: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={<IndexPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         }
       ></Layout>

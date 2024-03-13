@@ -23,8 +23,8 @@ const LoginPage: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Token:', data.token);
-        // Here you can save the token to the local storage or state and redirect the user
+        localStorage.setItem('token', data.token);
+        window.location.href = './dashboard';
       } else {
         setErrorMessage('Invalid credentials');
       }
