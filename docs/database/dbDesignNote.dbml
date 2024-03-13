@@ -1,0 +1,145 @@
+// Docs: https://dbml.dbdiagram.io/docs
+// Install a dbml extension for syntax highlighting
+
+
+// shorthandName is used quite often so in my opinion it 
+// makes sense to place this into it's own field
+// the logo will be a path pointing to the logo file
+Table nflTeams {
+  id integer [primary key]
+  name varchar
+  shorthandName varchar
+  logo varchar
+  location varchar
+  division varchar
+  conference varchar 
+}
+
+
+//weekNumber is a number representing the game week. 
+//A NFL season has 18 weeks, the playoffs are mapped like this:
+//Wildcard Round = 19
+//Divisional Round = 20
+//Conference Championship = 21
+//Pro Bowl Week = 22
+//Super Bowl = 23
+Table games {
+  id integer [primary key]
+  weekNumber integer
+  date date
+  location varchar
+  awayTeam integer
+  homeTeam integer
+}
+
+//I want to include some odds for users to quickly identify
+//the favored team and the underdog
+//For this, I will use the moneyline Odds which work as follows:
+//The team with a negative Number is favored. 
+//This negative number represents how much money you'd have to bet
+//in order to win 100 Dollars
+//The positive number represents the underdog. It shows how much money 
+//you'd win if you place a 100 Dollar Bets
+//Example: Eagles (-200) vs Rams (+250)
+//Eagles are favored and if you place a 200 Dollar Bet on them you'd win 100 Dollars
+//Rams are underdogs, If you place a 100 Dollar bet on them you'd win 250 Dollar
+//
+//overUnder represents the sum of point that are expected to be scored in this game
+//I include this to quickly show the user which games will be high scoring (aka good to watch)
+Table odds {
+  id integer [primary key]
+  gameID integer
+  homeOdds integer
+  awayOdds integer
+  overUnder decimal
+}
+
+Table results {
+  id integer [primary key]
+  gameID integer
+  homeScore integer
+  awayScore integer
+}
+
+//favTeam is used in different places, for example in the Profile or 
+//as an icon in the chat if no profile picture is set
+//the password field holds the HASHED password, not plain text
+Table users {
+  id integer [primary key]
+  username varchar
+  role varchar
+  password varchar
+  email varchar
+  favTeam integer
+  profilePicture varchar
+  createdAt timestamp
+}
+
+//image holds a url that points to a nice icon representing the achievement
+Table achievements{
+  id integer [primary key]
+  name varchar
+  description text
+  image varchar
+}
+
+//this table holds all earned achievements of all users
+Table userAchievements{
+  id integer [primary key]
+  userID integer
+  achievementID integer
+  dateEarned date
+}
+
+//Points are earned based on the prediction and result of the game
+//5 points if the awayPrediction = awayScore && homePrediction == homeScore
+//3 points if (homePrediction - awayPrediction) == (homeScore - awayScore) aka the margin is correct
+//1 point if the correct winner is picked
+//lastEdit and editCount are used for achievements
+Table Bets {
+  id integer [primary key]
+  gameID integer
+  userID integer
+  homePrediction integer
+  awayPrediction integer
+  points integer
+  lastEdit timestamp
+  editCount integer
+}
+
+//Allows a public chat and allows users to create private chat rooms
+Table chatrooms {
+  id integer [primary key]
+  name varchar
+}
+
+Table chatroom_messages {
+  id integer [primary key]
+  chatroom_id integer
+  sender_id integer
+  content text
+  sent_at timestamp
+}
+
+//a table for private messages, sent from one user to another 
+Table messages {
+  id integer [primary key]
+  sender_id integer
+  receiver_id integer
+  content text
+  sent_at timestamp
+}
+
+Ref: messages.sender_id > users.id
+Ref: messages.receiver_id > users.id
+REf: Bets.userID > users.id
+Ref: Bets.gameID > games.id
+Ref: nflTeams.id - users.favTeam
+Ref: games.id - odds.gameID
+Ref: games.id - results.gameID
+Ref: games.awayTeam - nflTeams.id
+Ref: games.homeTeam - nflTeams.id
+Ref: userAchievements.userID > users.id
+Ref: userAchievements.achievementID > achievements.id
+Ref: chatroom_messages.chatroom_id > chatrooms.id
+Ref: chatroom_messages.sender_id > users.id
