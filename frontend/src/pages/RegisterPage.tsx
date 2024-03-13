@@ -3,10 +3,13 @@ import FormCard from '../components/formComponents/FormCard';
 import FormInput from '../components/formComponents/FormInput';
 import FormButton from '../components/formComponents/FormButton';
 import RegisterHeaders from '../components/formComponents/RegisterHeaders';
+import nflTeams from '../data/nflTeams';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [favTeam, setFavTeam] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [response, setResponse] = useState(null);
 
@@ -18,7 +21,7 @@ const RegisterPage: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, username, password, favTeam }),
       });
       const data = await res.json();
       setResponse(data);
@@ -43,6 +46,27 @@ const RegisterPage: React.FC = () => {
         value={email}
         setValue={setEmail}
       />
+      <FormInput
+        placeholder="Enter username"
+        label="Username:"
+        type="text"
+        value={username}
+        setValue={setUsername}
+      />
+      <label className="text-gray-400">Favorite Team:</label>
+      <select
+        className="mb-2 w-full"
+        value={favTeam}
+        onChange={(e) => setFavTeam(e.target.value)}
+      >
+        <option value="">Select a team</option>
+        <option value="None">None</option>
+        {nflTeams.map((team: string) => (
+          <option key={team} value={team}>
+            {team}
+          </option>
+        ))}
+      </select>
       <FormInput
         label="Password:"
         placeholder="password"

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 const Dashboard: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);
 
-  const token = localStorage.getItem('token');
   interface JwtPayload extends DefaultJwtPayload {
     username: string;
     roles: string[];
