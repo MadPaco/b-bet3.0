@@ -1,6 +1,8 @@
 <?php
+
+namespace App\Entity;
+
 use Doctrine\ORM\Mapping as ORM;
-use DateTimeInterface;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 

@@ -1,6 +1,8 @@
 <?php
+
+namespace App\Entity;
+
 use Doctrine\ORM\Mapping as ORM;
-use DateTimeInterface;
 use App\Entity\NflTeam;
 use App\Entity\Bet;
 use App\Entity\Odd;
@@ -129,12 +131,12 @@ class Game
         return $this;
     }
 
-    public function getResults(): ?Results
+    public function getResults(): ?Result
     {
         return $this->results;
     }
 
-    public function setResults(Results $results): self
+    public function setResults(Result $results): self
     {
         if ($results->getGame() !== $this) {
             $results->setGame($this);

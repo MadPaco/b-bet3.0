@@ -1,7 +1,8 @@
 <?php
 
+namespace App\Entity;
+
 use Doctrine\ORM\Mapping as ORM;
-use DateTimeInterface;
 use App\Entity\User;
 use App\Entity\Achievement;
 
