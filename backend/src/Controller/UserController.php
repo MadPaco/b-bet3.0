@@ -51,18 +51,54 @@ class UserController extends AbstractController
         if (json_last_error() !== JSON_ERROR_NONE) {
             return new JsonResponse(['message' => 'Invalid JSON']);
         }
-
-        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+    
+        $userRepository = $entityManager->getRepository(User::class);
+        $user = $userRepository->findOneBy(['email' => $data['email']]);
+    
+        // If no user is found by email, try to find a user by username
+        if (!$user) {
+            $user = $userRepository->findOneBy(['username' => $data['email']]);
+        }
+    
         if (!$user) {
             return new JsonResponse(['message' => 'User not found']);
         }
-
-        if (!$user || !$passwordEncoder->isPasswordValid($user, $data['password'])) {
+    
+        if (!$passwordEncoder->isPasswordValid($user, $data['password'])) {
             return new Response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
         }
-
+    
         $token = $JWTManager->create($user);
-
+    
         return new JsonResponse(['token' => $token]);
+    }
+    #[Route('/backend/user', name: 'user', methods: ['GET'])]
+
+    public function getUserInfo(Request $request): Response
+    {
+        // Get the user from the security token
+        $user = $this->getUser();
+    
+        // If the user is not authenticated, return a 401 response
+        if (!$user) {
+            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
+        }
+    
+        // Get the user's favorite team
+        $favTeam = $user->getFavTeam();
+    
+        // If the user does not have a favorite team, return a 404 response
+        if (!$favTeam) {
+            return new JsonResponse(['message' => 'Favorite team not found'], Response::HTTP_NOT_FOUND);
+        }
+    
+        // Return the user's favorite team, email, createdAt, username, and roles
+        return new JsonResponse([
+            'favTeam' => $favTeam->getName(),
+            'email' => $user->getEmail(),
+            'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
+            'username' => $user->getUsername(),
+            'roles' => $user->getRoles(),
+        ]);
     }
 }
