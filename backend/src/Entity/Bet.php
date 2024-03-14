@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Game;
 use App\Entity\User;
 
-#[ORM\Entity(repositoryClass: BetsRepository::class)]
+#[ORM\Entity(repositoryClass: BetRepository::class)]
 
 class Bet
 {
