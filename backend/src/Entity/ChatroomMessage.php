@@ -1,5 +1,7 @@
 <?php
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Chatroom;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: ChatroomMessageRepository::class)]
 class ChatroomMessage
@@ -9,11 +11,13 @@ class ChatroomMessage
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'integer')]
-    private $chatroomID;
+    #[ORM\ManyToOne(targetEntity: Chatroom::class)]
+    #[ORM\JoinColumn(name: "chatroomID", referencedColumnName: "id")]
+    private $chatroom;
 
-    #[ORM\Column(type: 'integer')]
-    private $senderID;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "senderID", referencedColumnName: "id")]
+    private $sender;
 
     #[ORM\Column(type: 'text')]
     private $content;
@@ -26,25 +30,25 @@ class ChatroomMessage
         return $this->id;
     }
 
-    function getChatroomID(): ?int
+    public function getChatroom(): ?Chatroom
     {
-        return $this->chatroomID;
+        return $this->chatroom;
     }
 
-    function setChatroomID(int $chatroomID): self
+    public function setChatroom(?Chatroom $chatroom): self
     {
-        $this->chatroomID = $chatroomID;
+        $this->chatroom = $chatroom;
         return $this;
     }
 
-    function getSenderID(): ?int
+    public function getSender(): ?User
     {
-        return $this->senderID;
+        return $this->sender;
     }
 
-    function setSenderID(int $senderID): self
+    public function setSender(?User $sender): self
     {
-        $this->senderID = $senderID;
+        $this->sender = $sender;
         return $this;
     }
 

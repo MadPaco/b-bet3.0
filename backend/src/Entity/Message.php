@@ -11,11 +11,13 @@ class Message
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'integer')]
-    private $senderID;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "sender_id", referencedColumnName: "id")]
+    private $sender;
 
-    #[ORM\Column(type: 'integer')]
-    private $receiverID;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "receiver_id", referencedColumnName: "id")]
+    private $receiver;
 
     #[ORM\Column(type: 'text')]
     private $content;
@@ -28,25 +30,25 @@ class Message
         return $this->id;
     }
 
-    public function getReceiverID(): ?int
+    public function getReceiver(): ?User
     {
-        return $this->receiverID;
+        return $this->receiver;
     }
 
-    public function setReceiverID(int $receiverID): self
+    public function setReceiver(User $receiver): self
     {
-        $this->receiverID = $receiverID;
+        $this->receiver = $receiver;
         return $this;
     }
 
-    public function getSenderID(): ?int
+    public function getSender(): ?User
     {
-        return $this->senderID;
+        return $this->sender;
     }
 
-    public function setSenderID(int $senderID): self
+    public function setSender(User $sender): self
     {
-        $this->senderID = $senderID;
+        $this->sender = $sender;
         return $this;
     }
 

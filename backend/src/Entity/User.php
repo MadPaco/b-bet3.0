@@ -1,8 +1,18 @@
 <?php
 use Doctrine\ORM\Mapping as ORM;
 use DateTimeInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\NflTeam;
+use App\Entity\Message;
+use App\Entity\UserAchievement;
+use App\Entity\Bet;
+use App\Entity\ChatroomMessage;
+use Doctrine\Common\Collections\ArrayCollection;
 
-#[ORM\Entity]
+
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+
 class User
 {
     #[ORM\Id]
@@ -10,20 +20,36 @@ class User
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private $username;
 
-    #[ORM\Column(type: 'string')]
-    private $role;
+    #[ORM\Column(type: 'json')]
+    private $roles = [];
 
     #[ORM\Column(type: 'string')]
     private $password;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private $email;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\ManyToOne(targetEntity: NflTeam::class)]
+    #[ORM\JoinColumn(name: "favTeam", referencedColumnName: "id", nullable: false)]
     private $favTeam;
+    
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: "sender")]
+    private $sentMessages;
+
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: "receiver")]
+    private $receivedMessages;
+
+    #[ORM\OneToMany(targetEntity: Bet::class, mappedBy: "user")]
+    private $bets;
+
+    #[ORM\OneToMany(targetEntity: UserAchievement::class, mappedBy: "user")]
+    private $userAchievements;
+
+    #[ORM\OneToMany(targetEntity: ChatroomMessage::class, mappedBy: "sender")]
+    private $chatroomMessages;
 
     #[ORM\Column(type: 'string')]
     private $profilePicture;
@@ -47,14 +73,20 @@ class User
         return $this;
     }
 
-    public function getRole(): ?string
+    public function getRoles(): array
     {
-        return $this->role;
+        $roles = $this->roles;
+        if (empty($roles)) {
+            $roles[] = 'ROLE_USER';
+        }
+    
+        return array_unique($roles);
     }
-
-    public function setRole(string $role): self
+    
+    public function setRoles(array $roles): self
     {
-        $this->role = $role;
+        $this->roles = $roles;
+    
         return $this;
     }
 
@@ -80,17 +112,40 @@ class User
         return $this;
     }
 
-    public function getFavTeam(): ?int
+    public function getFavTeam(): ?NflTeam
     {
         return $this->favTeam;
     }
 
-    public function setFavTeam(int $favTeam): self
+    public function setFavTeam(?NflTeam $favTeam): self
     {
         $this->favTeam = $favTeam;
         return $this;
     }
 
+    public function __construct() {
+        $this->sentMessages = new ArrayCollection();
+        $this->receivedMessages = new ArrayCollection();
+        $this->bets = new ArrayCollection();
+        $this->userAchievements = new ArrayCollection();
+        $this->chatroomMessages = new ArrayCollection();
+    }
+    
+    public function getSentMessages(): Collection
+    {
+        return $this->sentMessages;
+    }
+
+    public function getReceivedMessages(): Collection
+    {
+        return $this->receivedMessages;
+    }
+
+    public function getBets(): Collection
+    {
+        return $this->bets;
+    }
+        
     public function getProfilePicture(): ?string
     {
         return $this->profilePicture;
@@ -111,6 +166,16 @@ class User
     {
         $this->createdAt = $createdAt;
         return $this;
+    }
+
+    public function getUserAchievements(): Collection
+    {
+        return $this->userAchievements;
+    }
+
+    public function getChatroomMessages(): Collection
+    {
+        return $this->chatroomMessages;
     }
 }  
 ?>

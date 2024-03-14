@@ -1,5 +1,6 @@
 <?php
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\ChatroomMessage;
 
 #[ORM\Entity(repositoryClass: ChatroomRepository::class)]
 
@@ -12,6 +13,9 @@ class Chatroom
 
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
+
+    #[ORM\OneToMany(targetEntity: ChatroomMessage::class, mappedBy: "chatroom")]
+    private $messages;
 
     public function getId(): ?int
     {
@@ -28,6 +32,16 @@ class Chatroom
         $this->name = $name;
         return $this;
     }
+
+    public function __construct() {
+        $this->messages = new ArrayCollection();
+    }
+
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
 }
 
 ?>

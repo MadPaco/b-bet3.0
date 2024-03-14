@@ -1,5 +1,6 @@
 <?php
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\UserAchievement;
 
 #[ORM\Entity(repositoryClass: AchievementRepository::class)]
 class Achievement
@@ -17,6 +18,10 @@ class Achievement
 
     #[ORM\Column(type: 'string', length: 255)]
     private $image;
+
+    #[ORM\OneToMany(targetEntity: UserAchievement::class, mappedBy: "achievement")]
+    private $userAchievements;
+
 
     public function getIt(): ?int
     {
@@ -54,6 +59,15 @@ class Achievement
     {
         $this->image = $image;
         return $this;
+    }
+
+    public function __construct() {
+        $this->userAchievements = new ArrayCollection();
+    }
+
+    public function getUserAchievements(): Collection
+    {
+        return $this->userAchievements;
     }
 }
 

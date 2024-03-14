@@ -1,5 +1,6 @@
 <?php
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Game;
 
 #[ORM\Entity(repositoryClass: ResultRepository::class)]
 class Result
@@ -9,8 +10,9 @@ class Result
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'integer')]
-    private $gameId;
+    #[ORM\ManyToOne(targetEntity: Game::class)]
+    #[ORM\JoinColumn(name: "gameID", referencedColumnName: "id")]
+    private $game;
 
     #[ORM\Column(type: 'integer')]
     private $homeScore;
@@ -23,14 +25,15 @@ class Result
         return $this->id;
     }
 
-    public function getGameId(): ?int
+    public function getGame(): ?Game
     {
-        return $this->gameId;
+        return $this->game;
     }
-
-    public function setGameId(int $gameId): self
+    
+    public function setGame(?Game $game): self
     {
-        $this->gameId = $gameId;
+        $this->game = $game;
+    
         return $this;
     }
 

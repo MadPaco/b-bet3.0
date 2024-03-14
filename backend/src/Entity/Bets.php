@@ -1,5 +1,7 @@
 <?php
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Game;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: BetsRepository::class)]
 
@@ -10,11 +12,13 @@ class Bet
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'integer')]
-    private $gameID;
+    #[ORM\ManyToOne(targetEntity: Game::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private $game;
 
-    #[ORM\Column(type: 'integer')]
-    private $userID;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private $user;
 
     #[ORM\Column(type: 'integer')]
     private $homePrediction;
@@ -36,25 +40,25 @@ class Bet
         return $this->id;
     }
 
-    public function getGameID(): ?int
+    public function getGame(): ?Game
     {
-        return $this->gameID;
+        return $this->game;
     }
 
-    public function setGameID(int $gameID): self
+    public function setGame(Game $game): self
     {
-        $this->gameID = $gameID;
+        $this->game = $game;
         return $this;
     }
 
-    public function getUserID(): ?int
+    public function getUser(): ?User
     {
-        return $this->userID;
+        return $this->user;
     }
 
-    public function setUserID(int $userID): self
+    public function setUser(User $user): self
     {
-        $this->userID = $userID;
+        $this->user = $user;
         return $this;
     }
 

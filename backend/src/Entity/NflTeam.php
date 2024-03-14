@@ -1,54 +1,84 @@
 <?php
-use Doctrine\ORM\Mapping as ORM;
-use DateTimeInterface;
+namespace App\Entity;
 
-#[ORM\Entity(repositoryClass: GameRepository::class)]
-class Game
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: "App\Repository\NflTeamRepository")]
+class NflTeam
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private $id;
 
-    #[ORM\Column(type: 'integer')]
-    private $weekNumber;
+    #[ORM\Column(type: "string", length: 255)]
+    private $name;
 
-    #[ORM\Column(type: 'date')]
-    private $date;
+    #[ORM\Column(type: "string", length: 255)]
+    private $shorthandName;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: "string", length: 255)]
+    private $logo;
+
+    #[ORM\Column(type: "string", length: 255)]
     private $location;
 
-    #[ORM\Column(type: 'integer')]
-    private $homeTeam;
+    #[ORM\Column(type: "string", length: 255)]
+    private $division;
 
-    #[ORM\Column(type: 'integer')]
-    private $awayTeam;
+    #[ORM\Column(type: "string", length: 255)]
+    private $conference;
+
+    #[ORM\OneToMany(targetEntity: User::class, mappedBy: "favTeam")]
+    private $users;
+
+    #[ORM\OneToMany(targetEntity: Game::class, mappedBy: "homeTeam")]
+    private $homeGames;
+
+    #[ORM\OneToMany(targetEntity: Game::class, mappedBy: "awayTeam")]
+    private $awayGames;
+
+    public function __construct() {
+        $this->users = new ArrayCollection();
+        $this->homeGames = new ArrayCollection();
+        $this->awayGames = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getWeekNumber(): ?int
+    public function getName(): ?string
     {
-        return $this->weekNumber;
+        return $this->name;
     }
 
-    public function setWeekNumber(int $weekNumber): self
+    public function setName(string $name): self
     {
-        $this->weekNumber = $weekNumber;
+        $this->name = $name;
         return $this;
     }
 
-    public function getDate(): ?DateTimeInterface
+    public function getShorthandName(): ?string
     {
-        return $this->date;
+        return $this->shorthandName;
     }
 
-    public function setDate(DateTimeInterface $date): self
+    public function setShorthandName(string $shorthandName): self
     {
-        $this->date = $date;
+        $this->shorthandName = $shorthandName;
+        return $this;
+    }
+
+    public function getLogo(): ?string
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(string $logo): self
+    {
+        $this->logo = $logo;
         return $this;
     }
 
@@ -63,25 +93,42 @@ class Game
         return $this;
     }
 
-    public function getHomeTeam(): ?int
+    public function getDivision(): ?string
     {
-        return $this->homeTeam;
+        return $this->division;
     }
 
-    public function setHomeTeam(int $homeTeam): self
+    public function setDivision(string $division): self
     {
-        $this->homeTeam = $homeTeam;
+        $this->division = $division;
         return $this;
     }
 
-    public function getAwayTeam(): ?int
+    public function getConference(): ?string
     {
-        return $this->awayTeam;
+        return $this->conference;
     }
 
-    public function setAwayTeam(int $awayTeam): self
+    public function setConference(string $conference): self
     {
-        $this->awayTeam = $awayTeam;
+        $this->conference = $conference;
         return $this;
     }
+
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function getHomeGames(): Collection
+    {
+        return $this->homeGames;
+    }
+
+    public function getAwayGames(): Collection
+    {
+        return $this->awayGames;
+    }
+    
 }
+?>

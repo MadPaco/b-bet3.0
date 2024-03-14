@@ -2,6 +2,8 @@
 
 use Doctrine\ORM\Mapping as ORM;
 use DateTimeInterface;
+use App\Entity\User;
+use App\Entity\Achievement;
 
 #[ORM\Entity(repositoryClass: UserAchievementRepository::class)]
 
@@ -12,11 +14,13 @@ class UserAchievement
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'integer')]
-    private $userId;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private $user;
 
-    #[ORM\Column(type: 'integer')]
-    private $achievementId;
+    #[ORM\ManyToOne(targetEntity: Achievement::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private $achievement;
 
     #[ORM\Column(type: 'datetime')]
     private $dateEarned;
@@ -26,36 +30,36 @@ class UserAchievement
         return $this->id;
     }
 
-    public function getUserId(): ?int
+    public function getUser(): ?User
     {
-        return $this->userId;
+        return $this->user;
     }
 
-    public function setUserId(int $userId): self
+    public function setUser(User $user): self
     {
-        $this->userId = $userId;
+        $this->user = $user;
         return $this;
     }
 
-    public function getAchievementId(): ?int
+    public function getAchievement(): ?Achievement
     {
-        return $this->achievementId;
+        return $this->achievement;
     }
 
-    public function setAchievementId(int $achievementId): self
+    public function setAchievement(Achievement $achievement): self
     {
-        $this->achievementId = $achievementId;
+        $this->achievement = $achievement;
         return $this;
     }
 
     public function getDateEarned(): ?DateTimeInterface
     {
-        return $this->date;
+        return $this->dateEarned;
     }
 
     public function setDateEarned(DateTimeInterface $date): self
     {
-        $this->date = $date;
+        $this->dateEarned = $date;
         return $this;
     }
 }
