@@ -73,6 +73,7 @@ Table users {
   favTeam integer
   profilePicture varchar
   createdAt timestamp
+  sentMessages string[]
 }
 
 //image holds a url that points to a nice icon representing the achievement
@@ -115,10 +116,10 @@ Table chatrooms {
 
 Table chatroom_messages {
   id integer [primary key]
-  chatroom_id integer
-  sender_id integer
+  chatroomID integer
+  senderID integer
   content text
-  sent_at timestamp
+  sentAt timestamp
 }
 
 //a table for private messages, sent from one user to another 
@@ -132,7 +133,7 @@ Table messages {
 
 Ref: messages.sender_id > users.id
 Ref: messages.receiver_id > users.id
-REf: Bets.userID > users.id
+Ref: Bets.userID > users.id
 Ref: Bets.gameID > games.id
 Ref: nflTeams.id - users.favTeam
 Ref: games.id - odds.gameID

@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface;
 use App\Entity\NflTeam;
 use App\Entity\Message;
 use App\Entity\UserAchievement;
@@ -15,7 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 
-class User
+class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -53,7 +55,7 @@ class User
     #[ORM\OneToMany(targetEntity: ChatroomMessage::class, mappedBy: "sender")]
     private $chatroomMessages;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', nullable: true)]
     private $profilePicture;
 
     #[ORM\Column(type: 'datetime')]
@@ -164,7 +166,7 @@ class User
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTimeInterface $createdAt): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
         return $this;
@@ -179,5 +181,18 @@ class User
     {
         return $this->chatroomMessages;
     }
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        // This method should return a string that uniquely identifies this user.
+        // For example, it could return the username, email, or a UUID.
+        return $this->username;
+    }
+    
 }  
 ?>

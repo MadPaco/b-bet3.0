@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FormCard from '../components/formComponents/FormCard';
 import FormInput from '../components/formComponents/FormInput';
 import FormButton from '../components/formComponents/FormButton';
@@ -12,9 +13,9 @@ const RegisterPage: React.FC = () => {
   const [favTeam, setFavTeam] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [response, setResponse] = useState(null);
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
-    console.log('Button clicked');
     try {
       const res = await fetch('http://127.0.0.1:8000/backend/register', {
         method: 'POST',
@@ -23,8 +24,13 @@ const RegisterPage: React.FC = () => {
         },
         body: JSON.stringify({ email, username, password, favTeam }),
       });
-      const data = await res.json();
-      setResponse(data);
+
+      if (res.ok) {
+        const data = await res.json();
+        setResponse(data);
+        localStorage.setItem('token', data.token);
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Error:', error);
     }
@@ -32,7 +38,7 @@ const RegisterPage: React.FC = () => {
 
   useEffect(() => {
     if (response) {
-      // TODO: Handle the response from the backend
+      console.log(response);
     }
   }, [response]);
 

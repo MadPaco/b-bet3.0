@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\NflTeam;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class UserController extends AbstractController
 {
     #[Route('/backend/register', name: 'user_register', methods: ['POST'])]
-    public function register(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder): Response
+    public function register(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder, JWTTokenManagerInterface $JWTManager): Response
     {
         $data = json_decode($request->getContent(), true);
 
@@ -24,11 +25,23 @@ class UserController extends AbstractController
         $user->setEmail($data['email']);
         $user->setPassword($passwordEncoder->hashPassword($user, $data['password']));
         $user->setRoles(['USER']);
+        $user->setUsername($data['username']);
+        $user->setCreatedAt(new \DateTime());
+        $teamName = $data['favTeam'];
+        $teamRepository = $entityManager->getRepository(NflTeam::class);
+        $favTeam = $teamRepository->findOneBy(['name' => $teamName]);
 
+        if (!$favTeam) {
+            throw $this->createNotFoundException(
+                'No team found for name '.$teamName
+            );
+        }
+
+        $user->setFavTeam($favTeam);
+        $token = $JWTManager->create($user);
         $entityManager->persist($user);
         $entityManager->flush();
-
-        return new Response('User registered successfully', Response::HTTP_CREATED);
+        return new JsonResponse(['token' => $token]);
     }
 
     #[Route('/backend/login', name: 'user_login', methods: ['POST'])]
