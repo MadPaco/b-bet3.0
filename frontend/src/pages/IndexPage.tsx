@@ -1,18 +1,18 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/AuthContext';
 
 const IndexPage: React.FC = () => {
   const navigate = useNavigate();
-  const isLoggedIn = false; // Placeholder
+  const username = useAuth();
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!username) {
       navigate('/login');
     } else {
-      // If the user is logged in, redirect them to the dashboard
-      // navigate('/dashboard');
+      navigate('/dashboard');
     }
-  }, [isLoggedIn, navigate]);
+  }, [username, navigate]);
 
   return null;
 };

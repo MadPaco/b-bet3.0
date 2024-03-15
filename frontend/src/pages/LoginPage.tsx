@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import LoginPanel from '../components/LoginPanel';
+import Layout from '../components/Layout';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -34,13 +35,17 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <LoginPanel
-      username={username}
-      setUsername={setUsername}
-      password={password}
-      setPassword={setPassword}
-      errorMessage={errorMessage}
-      handleLogin={handleLogin}
+    <Layout
+      content={
+        <LoginPanel
+          username={username}
+          setUsername={setUsername}
+          password={password}
+          setPassword={setPassword}
+          errorMessage={errorMessage}
+          handleLogin={handleLogin}
+        />
+      }
     />
   );
 };
