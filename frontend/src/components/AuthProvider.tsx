@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { jwtDecode, JwtPayload as DefaultJwtPayload } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 
 interface JwtPayload extends DefaultJwtPayload {
@@ -17,8 +16,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [favTeam, setFavTeam] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [createdAt, setCreatedAt] = useState<Date | null>(null);
-
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true); // add a loading state
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -40,27 +38,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             return response.json();
           })
           .then((data) => {
-            console.log(data);
             setFavTeam(data.favTeam);
             setEmail(data.email);
             setCreatedAt(new Date(data.createdAt));
+            setLoading(false); // set loading to false after the data is fetched
           })
           .catch((error) => {
             console.error(
               'There has been a problem with the fetch operation:',
               error,
             );
+            setLoading(false); // set loading to false even if the fetch operation fails
           });
       } catch (error) {
-        console.log(error);
-        console.log(token);
-        navigate('/login');
+        setLoading(false); // set loading to false if decoding the token fails
       }
     } else {
-      console.log('eat shit');
-      navigate('/login');
+      setLoading(false); // set loading to false if there is no token
     }
-  }, [navigate]);
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <AuthContext.Provider
