@@ -3,6 +3,7 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: "App\Repository\NflTeamRepository")]
@@ -28,21 +29,6 @@ class NflTeam
 
     #[ORM\Column(type: "string", length: 255)]
     private $conference;
-
-    #[ORM\OneToMany(targetEntity: User::class, mappedBy: "favTeam")]
-    private $users;
-
-    #[ORM\OneToMany(targetEntity: Game::class, mappedBy: "homeTeam")]
-    private $homeGames;
-
-    #[ORM\OneToMany(targetEntity: Game::class, mappedBy: "awayTeam")]
-    private $awayGames;
-
-    public function __construct() {
-        $this->users = new ArrayCollection();
-        $this->homeGames = new ArrayCollection();
-        $this->awayGames = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -113,21 +99,6 @@ class NflTeam
     {
         $this->conference = $conference;
         return $this;
-    }
-
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function getHomeGames(): Collection
-    {
-        return $this->homeGames;
-    }
-
-    public function getAwayGames(): Collection
-    {
-        return $this->awayGames;
     }
     
 }
