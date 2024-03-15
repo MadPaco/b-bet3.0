@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Dropdown from './Dropdown';
+import Dropdown from '../common/Dropdown';
 
 const Navigation: React.FC = () => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 import Header from './Header';
 import Footer from './Footer';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../auth/AuthContext';
 
 interface LayoutProps {
   content: React.ReactNode;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import LoginPanel from '../components/LoginPanel';
-import Layout from '../components/Layout';
+import LoginPanel from '../components/auth/LoginPanel';
+import Layout from '../components/layout/Layout';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');

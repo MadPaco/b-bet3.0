@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
-import FormCard from '../components/formComponents/FormCard';
-import FormInput from '../components/formComponents/FormInput';
-import FormButton from '../components/formComponents/FormButton';
-import RegisterHeaders from '../components/formComponents/RegisterHeaders';
+import Layout from '../components/layout/Layout';
+import FormCard from '../components/form/FormCard';
+import FormInput from '../components/form/FormInput';
+import FormButton from '../components/form/FormButton';
+import RegisterHeaders from '../components/form/RegisterHeaders';
 import nflTeams from '../data/nflTeams';
 
 const RegisterPage: React.FC = () => {

@@ -1,7 +1,8 @@
-import { useAuth } from '../components/AuthContext';
+import { useAuth } from '../components/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import Layout from '../components/layout/Layout';
 import { useEffect, useState } from 'react';
+import TeamInfo from '../components/TeamInfo';
 
 const Dashboard: React.FC = () => {
   const { favTeam, username, createdAt } = useAuth();
@@ -12,7 +13,7 @@ const Dashboard: React.FC = () => {
     shorthand_name: string;
     location: string;
     division: string;
-    conferece: string;
+    conference: string;
   } | null>(null);
 
   useEffect(() => {
@@ -20,10 +21,6 @@ const Dashboard: React.FC = () => {
       navigate('/login');
     }
   }, [username, navigate]);
-
-  function getTeamLogoPath(teamAbbreviation: string) {
-    return import.meta.env.BASE_URL + 'assets/images/teams/' + teamAbbreviation;
-  }
 
   useEffect(() => {
     if (favTeam) {
@@ -42,9 +39,7 @@ const Dashboard: React.FC = () => {
           <h1>hello {username}</h1>
           <h1>{favTeam}</h1>
           <h1>{createdAt ? createdAt.toString() : 'Not set'}</h1>
-          {teamInfo && (
-            <img src={getTeamLogoPath(teamInfo.logo)} alt={teamInfo.name} />
-          )}
+          <TeamInfo teamInfo={teamInfo} />
         </div>
       }
     />

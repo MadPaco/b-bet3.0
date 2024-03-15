@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage';
 import IndexPage from './pages/IndexPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import { AuthProvider } from './components/AuthProvider';
+import { AuthProvider } from './components/auth/AuthProvider';
 
 const App: React.FC = () => {
   return (

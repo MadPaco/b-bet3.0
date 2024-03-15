@@ -1,9 +1,9 @@
 import React from 'react';
-import FormInput from './formComponents/FormInput';
-import FormButton from './formComponents/FormButton';
-import FormCard from './formComponents/FormCard';
-import LoginHeaders from './formComponents/LoginHeaders';
-import LoginFormLinks from './formComponents/LoginFormLinks';
+import FormInput from '../form/FormInput';
+import FormButton from '../form/FormButton';
+import FormCard from '../form/FormCard';
+import LoginHeaders from '../form/LoginHeaders';
+import LoginFormLinks from '../form/LoginFormLinks';
 
 interface LoginPanelProps {
   username: string;
