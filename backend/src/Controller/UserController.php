@@ -91,6 +91,11 @@ class UserController extends AbstractController
         if (!$favTeam) {
             return new JsonResponse(['message' => 'Favorite team not found'], Response::HTTP_NOT_FOUND);
         }
+
+        $createdAt = $user->getCreatedAt();
+        if (!$createdAt) {
+            return new JsonResponse(['message' => 'Created at not found'], Response::HTTP_NOT_FOUND);
+        }
     
         // Return the user's favorite team, email, createdAt, username, and roles
         return new JsonResponse([

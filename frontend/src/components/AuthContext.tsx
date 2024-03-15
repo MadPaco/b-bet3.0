@@ -5,6 +5,10 @@ interface AuthContextProps {
   favTeam: string | null;
   setUsername: React.Dispatch<React.SetStateAction<string | null>>;
   setFavTeam: React.Dispatch<React.SetStateAction<string | null>>;
+  email: string | null;
+  setEmail: (email: string) => void;
+  createdAt: Date | null;
+  setCreatedAt: React.Dispatch<React.SetStateAction<Date | null>>;
 }
 
 export const AuthContext = createContext<AuthContextProps | undefined>(
