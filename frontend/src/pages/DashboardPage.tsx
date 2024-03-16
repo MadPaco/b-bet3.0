@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { useEffect, useState } from 'react';
 import TeamInfo from '../components/TeamInfo';
+import Sidebar from '../components/layout/Sidebar';
 
 const Dashboard: React.FC = () => {
   const { favTeam, username, createdAt } = useAuth();
@@ -33,16 +34,20 @@ const Dashboard: React.FC = () => {
   }, [favTeam]);
 
   return (
-    <Layout
-      content={
-        <div>
-          <h1>hello {username}</h1>
-          <h1>{favTeam}</h1>
-          <h1>{createdAt ? createdAt.toString() : 'Not set'}</h1>
-          <TeamInfo teamInfo={teamInfo} />
-        </div>
-      }
-    />
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-grow overflow-auto">
+        <Layout
+          content={
+            <>
+              <h1>hello {username}</h1>
+              <h1>{favTeam}</h1>
+              <h1>{createdAt ? createdAt.toString() : 'Not set'}</h1>
+            </>
+          }
+        />
+      </div>
+    </div>
   );
 };
 
