@@ -6,6 +6,7 @@ export default {
       backgroundImage: () => ({
         grassfield: 'url(./src/assets/images/grassfield.jpg)',
         stadium: 'url(./src/assets/images/stadium.jpg)',
+        stadiumTop: 'url(./src/assets/images/stadium2.jpg)',
       }),
     },
   },

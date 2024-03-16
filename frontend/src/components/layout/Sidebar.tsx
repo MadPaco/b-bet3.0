@@ -32,7 +32,7 @@ const Sidebar = () => {
 
   return (
     <div className="flex flex-col w-55 h-screen bg-transparent border-b border-transparent col-span-1">
-      <div className="flex flex-col h-screen w-full bg-blue-gray-800 text-gray-100">
+      <div className="flex flex-col h-screen w-full text-gray-200">
         <div className="flex items-center w-full justify-center h-14 border-b border-gray-700">
           <h1 className="text-xl font-bold">BBet</h1>
         </div>

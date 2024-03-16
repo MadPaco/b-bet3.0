@@ -7,7 +7,7 @@ interface SidebarItemProps {
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text }) => (
-  <li className="flex items-center px-5 py-1 ml-6 mt-3 hover:bg-gray-700 bg-gray-900 bg-opacity-60 cursor-pointer rounded-md mx-3 backdrop-blur-md">
+  <li className="flex items-center px-5 py-1 ml-6 mt-3 hover:bg-teal-300 bg-teal-400 bg-opacity-40 cursor-pointer rounded-md mx-3 backdrop-blur-sm">
     <div className="flex items-center">
       <div className="w-7 h-7 bg-transparent rounded-md flex items-center justify-center">
         <FontAwesomeIcon icon={icon} />
