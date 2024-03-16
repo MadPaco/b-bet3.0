@@ -6,6 +6,9 @@ Photo by <a href="https://unsplash.com/@andrewgearhart?utm_content=creditCopyTex
 Grassfield pic:
 Photo by <a href="https://unsplash.com/@blocksfletcher?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Blocks Fletcher</a> on <a href="https://unsplash.com/photos/green-and-white-football-field-XaGNO7bgZa8?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
 
+Default USer Profile Picture
+Image by <a href="https://pixabay.com/users/sergiosinc-4660572/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=2098873">Sergio Elizalde</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=2098873">Pixabay</a>
+
 
 
 "colors": 

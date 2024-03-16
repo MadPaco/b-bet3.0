@@ -27,7 +27,6 @@ const Panel: React.FC<PanelProps> = ({ children }) => {
     <div
       className={`flex flex-col p-5 m-6 ${colorClass} bg-opacity-40 cursor-pointer rounded-md backdrop-blur-sm`}
     >
-      <div className="flex items-center mb-4"></div>
       {children}
     </div>
   );
