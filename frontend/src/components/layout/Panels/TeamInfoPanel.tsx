@@ -26,7 +26,7 @@ const TeamInfoPanel: React.FC = () => {
   return (
     <Panel>
       {teamInfo ? (
-        <div className="flex items-center">
+        <div className="flex items-center text-gray-200">
           <img
             src={`/assets/images/teams/${teamInfo.logo}`}
             alt={teamInfo.name}

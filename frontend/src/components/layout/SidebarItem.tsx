@@ -3,6 +3,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { fetchTeamInfo } from '../../utility/api';
 import { useAuth } from '../auth/AuthContext';
 import { useState, useEffect } from 'react';
+import { colorClasses } from '../../data/colorClasses';
 
 interface SidebarItemProps {
   icon: IconDefinition;
@@ -20,13 +21,6 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text }) => {
         .catch((error) => console.error(error));
     }
   }, [favTeam]);
-
-  const colorClasses = {
-    red: 'bg-red-400 hover:bg-red-300',
-    green: 'bg-green-400 hover:bg-green-300',
-    blue: 'bg-blue-400 hover:bg-blue-300',
-    gray: 'bg-gray-400 hover:bg-gray-300',
-  };
 
   const colorClass = primaryColor
     ? colorClasses[primaryColor as keyof typeof colorClasses]
