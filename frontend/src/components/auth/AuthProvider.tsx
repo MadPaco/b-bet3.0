@@ -23,6 +23,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode<JwtPayload>(token);
+        const current_time = Date.now().valueOf() / 1000;
+        if (decoded.exp && decoded.exp < current_time) {
+          console.log('Token is expired');
+          localStorage.removeItem('token'); // remove the token from local storage
+          setLoading(false);
+          return;
+        }
         setUsername(decoded.username);
 
         // Fetch user data from the backend
