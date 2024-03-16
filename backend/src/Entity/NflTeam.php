@@ -30,6 +30,9 @@ class NflTeam
     #[ORM\Column(type: "string", length: 255)]
     private $conference;
 
+    #[ORM\Column(type: "string", length: 255)]
+    private $primaryColor;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -100,6 +103,19 @@ class NflTeam
         $this->conference = $conference;
         return $this;
     }
+
+    public function getPrimaryColor(): ?string
+    {
+        return $this->primaryColor;
+    }
+
+    public function setPrimaryColor(string $primaryColor): self
+    {
+        $this->primaryColor = $primaryColor;
+        return $this;
+    }
+
+    
     
 }
 ?>
