@@ -14,12 +14,59 @@ const ChatPanel: React.FC = () => {
   const [primaryColor, setPrimaryColor] = useState<string | null>(null);
   const { favTeam } = useAuth();
 
-  const handleSendMessage = () => {
-    // Add the new message to the messages array
-    setMessages([...messages, { sender: 'You', content: newMessage }]);
-    // Clear the input field
-    setNewMessage('');
+  const handleSendMessage = async () => {
+    if (newMessage.trim() !== '') {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/chatroom/1', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({ content: newMessage }),
+        });
+
+        if (!response.ok) {
+          throw new Error('HTTP error ' + response.status);
+        }
+
+        setMessages([...messages, { sender: 'You', content: newMessage }]);
+        setNewMessage('');
+      } catch (error) {
+        console.error(error);
+      }
+    }
   };
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/chatroom/1', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('HTTP error ' + response.status);
+        }
+
+        const data = await response.json();
+
+        // Map the fetched data to the Message structure
+        const fetchedMessages: Message[] = data.map((message: any) => ({
+          sender: message.sender, // Corrected mapping
+          content: message.content,
+        }));
+
+        setMessages(fetchedMessages);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchMessages();
+  }, []); // Add dependencies if any
 
   useEffect(() => {
     if (favTeam) {
@@ -48,12 +95,12 @@ const ChatPanel: React.FC = () => {
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="border-2 border-gray-300 rounded-md p-2 flex-grow"
-          placeholder="Type your message here..."
+          className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black"
         />
         <button
-          onClick={handleSendMessage}
-          className={`ml-2 p-2 text-white rounded-md h-full ${colorClass}`}
+          onClick={handleSendMessage} // Corrected handler
+          disabled={!newMessage}
+          className={`ml-2 p-2 rounded-md ${colorClass}`}
         >
           Send
         </button>
@@ -61,4 +108,5 @@ const ChatPanel: React.FC = () => {
     </div>
   );
 };
+
 export default ChatPanel;

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Chatroom;
 use App\Entity\User;
 
-#[ORM\Entity(repositoryClass: ChatroomMessageRepository::class)]
+#[ORM\Entity(repositoryClass: 'App\Repository\ChatroomMessageRepository')]
 class ChatroomMessage
 {
     #[ORM\Id]
@@ -66,12 +66,12 @@ class ChatroomMessage
         return $this;
     }
 
-    function getSentAt(): ?DateTimeInterface
+    function getSentAt(): ?\DateTimeInterface
     {
         return $this->sentAt;
     }
 
-    function setSentAt(DateTimeInterface $sentAt): self
+    function setSentAt(\DateTimeInterface $sentAt): self
     {
         $this->sentAt = $sentAt;
         return $this;

@@ -4,8 +4,11 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\ChatroomMessage;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
-#[ORM\Entity(repositoryClass: ChatroomRepository::class)]
+
+#[ORM\Entity(repositoryClass: 'App\Repository\ChatroomRepository')]
 
 class Chatroom
 {
