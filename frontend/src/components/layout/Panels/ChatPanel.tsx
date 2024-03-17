@@ -92,7 +92,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black"
+          className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black sm:text-xs md:text-sm lg:text-base"
         />
         <button
           onClick={handleSendMessage}
