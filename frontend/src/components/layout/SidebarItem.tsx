@@ -1,30 +1,22 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { fetchTeamInfo } from '../../utility/api';
-import { useAuth } from '../auth/AuthContext';
-import { useState, useEffect } from 'react';
 import { colorClasses } from '../../data/colorClasses';
 
 interface SidebarItemProps {
   icon: IconDefinition;
   text: string;
   onClick?: () => void;
+  color: string;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, onClick }) => {
-  const { favTeam } = useAuth();
-  const [primaryColor, setPrimaryColor] = useState('');
-
-  useEffect(() => {
-    if (favTeam) {
-      fetchTeamInfo(favTeam)
-        .then((data) => setPrimaryColor(data.primaryColor))
-        .catch((error) => console.error(error));
-    }
-  }, [favTeam]);
-
-  const colorClass = primaryColor
-    ? colorClasses[primaryColor as keyof typeof colorClasses]
+const SidebarItem: React.FC<SidebarItemProps> = ({
+  icon,
+  text,
+  onClick,
+  color,
+}) => {
+  const colorClass = color
+    ? colorClasses[color as keyof typeof colorClasses]
     : 'bg-gray-400 hover:bg-gray-300';
 
   return (

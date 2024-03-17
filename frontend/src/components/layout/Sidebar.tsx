@@ -19,20 +19,29 @@ const handleLogout = (): void => {
   window.location.href = '/';
 };
 
-const Sidebar = () => {
+interface SidebarProps {
+  color: string;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ color }) => {
   const sidebarItems = [
-    { icon: faHome, text: 'Home' },
-    { icon: faFootballBall, text: 'Predictions' },
-    { icon: faRankingStar, text: 'Leaderboard' },
-    { icon: faGlobe, text: 'All Bets' },
-    { icon: faChartLine, text: 'Stats' },
-    { icon: faCalendar, text: 'Schedule' },
-    { icon: faBolt, text: '1 vs. 1' },
-    { icon: faUser, text: 'Profile' },
-    { icon: faUsers, text: 'Users' },
-    { icon: faComments, text: 'Chat' },
-    { icon: faBook, text: 'Rules' },
-    { icon: faRightFromBracket, text: 'Logout', onClick: handleLogout },
+    { icon: faHome, text: 'Home', color: color },
+    { icon: faFootballBall, text: 'Predictions', color: color },
+    { icon: faRankingStar, text: 'Leaderboard', color: color },
+    { icon: faGlobe, text: 'All Bets', color: color },
+    { icon: faChartLine, text: 'Stats', color: color },
+    { icon: faCalendar, text: 'Schedule', color: color },
+    { icon: faBolt, text: '1 vs. 1', color: color },
+    { icon: faUser, text: 'Profile', color: color },
+    { icon: faUsers, text: 'Users', color: color },
+    { icon: faComments, text: 'Chat', color: color },
+    { icon: faBook, text: 'Rules', color: color },
+    {
+      icon: faRightFromBracket,
+      text: 'Logout',
+      onClick: handleLogout,
+      color: color,
+    },
   ];
 
   return (

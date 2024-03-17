@@ -11,7 +11,11 @@ interface TeamInfo {
   primaryColor: string;
 }
 
-const TeamInfoPanel: React.FC = () => {
+interface TeamInfoPanelProps {
+  color: string;
+}
+
+const TeamInfoPanel: React.FC<TeamInfoPanelProps> = ({ color }) => {
   const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
   const { favTeam } = useAuth();
 
@@ -24,7 +28,7 @@ const TeamInfoPanel: React.FC = () => {
   }, [favTeam]);
 
   return (
-    <Panel>
+    <Panel color={color}>
       {teamInfo ? (
         <div className="flex items-center text-gray-200">
           <img

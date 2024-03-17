@@ -1,11 +1,17 @@
 import Panel from '../../common/Panel';
 import { useAuth } from '../../auth/AuthContext';
 
-const MessageOverviewPanel: React.FC = () => {
-  const { username, createdAt } = useAuth();
+interface MessageOverviewPanelProps {
+  color: string;
+}
+
+const MessageOverviewPanel: React.FC<MessageOverviewPanelProps> = ({
+  color,
+}) => {
+  const { username } = useAuth();
 
   return (
-    <Panel>
+    <Panel color={color}>
       {username ? (
         <div className="flex items-center text-gray-200">
           <img
@@ -16,7 +22,6 @@ const MessageOverviewPanel: React.FC = () => {
           <div className="flex items-center">
             <div>
               <p>New Messages for {username} : 0</p>
-              <p>Member since: {createdAt?.toString().split('GMT')[0]}</p>
             </div>
           </div>
         </div>

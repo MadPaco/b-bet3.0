@@ -1,11 +1,15 @@
 import Panel from '../../common/Panel';
 import { useAuth } from '../../auth/AuthContext';
 
-const UserInfoPanel: React.FC = () => {
+interface UserInfoPanelProps {
+  color: string;
+}
+
+const UserInfoPanel: React.FC<UserInfoPanelProps> = ({ color }) => {
   const { username, createdAt } = useAuth();
 
   return (
-    <Panel>
+    <Panel color={color}>
       {username ? (
         <div className="flex items-center text-gray-200">
           <img

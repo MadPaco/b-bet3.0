@@ -2,11 +2,15 @@ import React from 'react';
 import Panel from '../../common/Panel';
 import { useAuth } from '../../auth/AuthContext';
 
-const ActivityPanel: React.FC = () => {
+interface ActivityPanelProps {
+  color: string;
+}
+
+const ActivityPanel: React.FC<ActivityPanelProps> = ({ color }) => {
   const { username } = useAuth();
 
   return (
-    <Panel>
+    <Panel color={color}>
       {username ? (
         <div className="flex items-center text-gray-200">
           <img

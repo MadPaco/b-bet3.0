@@ -1,17 +1,27 @@
 import Layout from '../components/layout/Layout';
 import Sidebar from '../components/layout/Sidebar';
 import { useAuth } from '../components/auth/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TeamInfoPanel from '../components/layout/Panels/TeamInfoPanel';
 import UserInfoPanel from '../components/layout/Panels/UserInfoPanel';
 import MessageOverviewPanel from '../components/layout/Panels/MessageOverviewPanel';
 import ChatPanel from '../components/layout/Panels/ChatPanel';
 import ActivityPanel from '../components/layout/Panels/ActivityPanel';
+import { fetchTeamInfo } from '../utility/api';
 
 const Dashboard: React.FC = () => {
   const { username, favTeam } = useAuth();
   const navigate = useNavigate();
+  const [primaryColor, setPrimaryColor] = useState<string>('gray');
+
+  useEffect(() => {
+    if (favTeam) {
+      fetchTeamInfo(favTeam)
+        .then((data) => setPrimaryColor(data.primaryColor))
+        .catch((error) => console.error(error));
+    }
+  }, [favTeam]);
 
   useEffect(() => {
     if (!username) {
@@ -23,23 +33,23 @@ const Dashboard: React.FC = () => {
     <Layout
       content={
         <div className="grid grid-cols-7 h-full w-full">
-          <Sidebar />
+          <Sidebar color={primaryColor} />
           <div className="col-span-6 h-full">
             <div className="grid grid-cols-3 grid-rows-3 gap-4 h-full">
               <div className="col-span-1 row-span-1 h-full">
-                <TeamInfoPanel />
+                <TeamInfoPanel color={primaryColor} />
               </div>
               <div className="col-span-1 row-span-1 h-full">
-                <UserInfoPanel />
+                <UserInfoPanel color={primaryColor} />
               </div>
               <div className="col-span-1 row-span-1 h-full">
-                <MessageOverviewPanel />
+                <MessageOverviewPanel color={primaryColor} />
               </div>
               <div className="col-span-2 row-span-2 h-full">
-                <ChatPanel />
+                <ChatPanel color={primaryColor} />
               </div>
               <div className="col-span-1 row-span-2 h-full">
-                <ActivityPanel />
+                <ActivityPanel color={primaryColor} />
               </div>
             </div>
           </div>

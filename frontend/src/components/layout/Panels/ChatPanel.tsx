@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { colorClasses } from '../../../data/colorClasses';
-import { useAuth } from '../../auth/AuthContext';
-import { fetchTeamInfo } from '../../../utility/api';
 
 interface Message {
   sender?: string;
@@ -9,11 +7,13 @@ interface Message {
   sentAt?: string;
 }
 
-const ChatPanel: React.FC = () => {
+interface ChatPanelProps {
+  color: string;
+}
+
+const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [primaryColor, setPrimaryColor] = useState<string | null>(null);
-  const { favTeam } = useAuth();
 
   const handleSendMessage = async () => {
     if (newMessage.trim() !== '') {
@@ -69,16 +69,9 @@ const ChatPanel: React.FC = () => {
 
     fetchMessages();
   }, []);
-  useEffect(() => {
-    if (favTeam) {
-      fetchTeamInfo(favTeam)
-        .then((data) => setPrimaryColor(data.primaryColor))
-        .catch((error) => console.error(error));
-    }
-  }, [favTeam]);
 
-  const colorClass = primaryColor
-    ? colorClasses[primaryColor as keyof typeof colorClasses]
+  const colorClass = color
+    ? colorClasses[color as keyof typeof colorClasses]
     : 'bg-gray-400 hover:bg-gray-300';
 
   return (
@@ -102,7 +95,7 @@ const ChatPanel: React.FC = () => {
           className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black"
         />
         <button
-          onClick={handleSendMessage} // Corrected handler
+          onClick={handleSendMessage}
           disabled={!newMessage}
           className={`ml-2 p-2 rounded-md ${colorClass}`}
         >
