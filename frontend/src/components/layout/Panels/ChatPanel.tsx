@@ -88,7 +88,7 @@ const ChatPanel: React.FC = () => {
         {messages.map((message, index) => (
           <p key={index}>
             <strong>
-              {message.sender}({message.sentAt.toLocaleString()}):
+              {message.sender}({message.sentAt}):
             </strong>{' '}
             {message.content}
           </p>

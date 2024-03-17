@@ -14,6 +14,11 @@ import {
   faBook,
 } from '@fortawesome/free-solid-svg-icons';
 
+const handleLogout = (): void => {
+  localStorage.removeItem('token');
+  window.location.href = '/';
+};
+
 const Sidebar = () => {
   const sidebarItems = [
     { icon: faHome, text: 'Home' },
@@ -27,7 +32,7 @@ const Sidebar = () => {
     { icon: faUsers, text: 'Users' },
     { icon: faComments, text: 'Chat' },
     { icon: faBook, text: 'Rules' },
-    { icon: faRightFromBracket, text: 'Logout' },
+    { icon: faRightFromBracket, text: 'Logout', onClick: handleLogout },
   ];
 
   return (
