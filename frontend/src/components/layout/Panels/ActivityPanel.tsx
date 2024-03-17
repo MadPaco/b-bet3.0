@@ -25,13 +25,6 @@ const ActivityPanel: React.FC<ActivityPanelProps> = ({ color }) => {
               <ul>
                 <li>Placeholder activity 1</li>
                 <li>Placeholder activity 2</li>
-                <li>Placeholder activity 3</li>
-                <li>Placeholder activity 3</li>
-                <li>Placeholder activity 3</li>
-                <li>Placeholder activity 3</li>
-                <li>Placeholder activity 3</li>
-                <li>Placeholder activity 3</li>
-                <li>Placeholder activity 3</li>
               </ul>
             </div>
           </div>

@@ -25,8 +25,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         onClick={onClick}
         className={`${colorClass} flex items-center px-1 py-1 bg-opacity-40 cursor-pointer rounded-md backdrop-blur-sm w-full lg:px-3 lg:ml-2`}
       >
-        <div className="flex items-center">
-          <div className="bg-transparent rounded-md flex items-center justify-center h-10 w-10">
+        <div className="flex items-center lg:bg-gray-700 rounded-md">
+          <div className="bg-transparent flex items-center justify-center h-10 w-10">
             <FontAwesomeIcon icon={icon} />
           </div>
         </div>
