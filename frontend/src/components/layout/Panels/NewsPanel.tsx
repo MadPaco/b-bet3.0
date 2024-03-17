@@ -1,14 +1,11 @@
 import React from 'react';
 import Panel from '../../common/Panel';
-import { useAuth } from '../../auth/AuthContext';
 
 interface NewsPanelProps {
   color: string;
 }
 
 const NewsPanel: React.FC<NewsPanelProps> = ({ color }) => {
-  const { username } = useAuth();
-
   return (
     <Panel color={color}>
       <div className="flex items-center h-full text-gray-200">
