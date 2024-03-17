@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import FormInput from '../form/FormInput';
 import FormButton from '../form/FormButton';
 import FormCard from '../form/FormCard';
@@ -27,6 +27,8 @@ const LoginPanel: React.FC<LoginPanelProps> = ({
     handleLogin();
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <FormCard>
       <form onSubmit={handleSubmit}>
@@ -44,6 +46,8 @@ const LoginPanel: React.FC<LoginPanelProps> = ({
           type="password"
           value={password}
           setValue={setPassword}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
         />
         <FormButton buttonText="Login" type="submit" />
         <LoginFormLinks />

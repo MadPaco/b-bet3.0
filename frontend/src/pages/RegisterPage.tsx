@@ -14,9 +14,17 @@ const RegisterPage: React.FC = () => {
   const [favTeam, setFavTeam] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [response, setResponse] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  const toggleShowPassword = () => setShowPassword(!showPassword);
+
   const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match');
+      return;
+    }
     try {
       const res = await fetch('http://127.0.0.1:8000/backend/register', {
         method: 'POST',
@@ -82,6 +90,8 @@ const RegisterPage: React.FC = () => {
             type="password"
             value={password}
             setValue={setPassword}
+            showPassword={showPassword}
+            setShowPassword={toggleShowPassword}
           />
           <FormInput
             label="Confirm Password:"
@@ -89,12 +99,15 @@ const RegisterPage: React.FC = () => {
             type="password"
             value={confirmPassword}
             setValue={setConfirmPassword}
+            showPassword={showPassword}
+            setShowPassword={toggleShowPassword}
           />
           <FormButton
             buttonText="Register"
             type="button"
             onClick={handleRegister}
           />
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         </FormCard>
       }
     />
