@@ -4,8 +4,9 @@ import { useAuth } from '../../auth/AuthContext';
 import { fetchTeamInfo } from '../../../utility/api';
 
 interface Message {
-  sender: string;
+  sender?: string;
   content: string;
+  sentAt?: string;
 }
 
 const ChatPanel: React.FC = () => {
@@ -30,7 +31,7 @@ const ChatPanel: React.FC = () => {
           throw new Error('HTTP error ' + response.status);
         }
 
-        setMessages([...messages, { sender: 'You', content: newMessage }]);
+        setMessages([...messages, { content: newMessage }]);
         setNewMessage('');
       } catch (error) {
         console.error(error);
@@ -55,8 +56,9 @@ const ChatPanel: React.FC = () => {
 
         // Map the fetched data to the Message structure
         const fetchedMessages: Message[] = data.map((message: any) => ({
-          sender: message.sender, // Corrected mapping
+          sender: message.sender,
           content: message.content,
+          sentAt: message.sentAt.date.split('.')[0],
         }));
 
         setMessages(fetchedMessages);
@@ -66,8 +68,7 @@ const ChatPanel: React.FC = () => {
     };
 
     fetchMessages();
-  }, []); // Add dependencies if any
-
+  }, []);
   useEffect(() => {
     if (favTeam) {
       fetchTeamInfo(favTeam)
@@ -86,7 +87,10 @@ const ChatPanel: React.FC = () => {
       <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md">
         {messages.map((message, index) => (
           <p key={index}>
-            <strong>{message.sender}:</strong> {message.content}
+            <strong>
+              {message.sender}({message.sentAt.toLocaleString()}):
+            </strong>{' '}
+            {message.content}
           </p>
         ))}
       </div>

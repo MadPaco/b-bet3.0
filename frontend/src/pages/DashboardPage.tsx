@@ -10,7 +10,7 @@ import ChatPanel from '../components/layout/Panels/ChatPanel';
 import ActivityPanel from '../components/layout/Panels/ActivityPanel';
 
 const Dashboard: React.FC = () => {
-  const { username } = useAuth();
+  const { username, favTeam } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
