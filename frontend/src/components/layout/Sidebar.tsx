@@ -49,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ color }) => {
       <div className=" hidden lg:block items-center justify-center h-14 border-b border-gray-700 lg:w-full lg:justify-start lg:border-b-0 lg:pl-4">
         <h1 className="text-xl font-bold">BBet</h1>
       </div>
-      <ul className="flex flex-row flex-wrap w-full h-full pt-3 px-2 space-x-1 justify-center items-center lg:flex-col lg:justify-start lg:pr-0 lg:space-x-0 lg:space-y-4">
+      <ul className="flex flex-row flex-wrap w-full h-full pt-3 px-2 space-x-1 justify-center items-center lg:flex-col lg:justify-start lg:pr-0 lg:space-x-0 lg:space-y-3">
         {sidebarItems.map((item) => (
           <SidebarItem key={item.text} {...item} />
         ))}

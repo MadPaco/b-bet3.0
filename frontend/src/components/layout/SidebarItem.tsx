@@ -20,10 +20,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     : 'bg-gray-400 hover:bg-gray-300';
 
   return (
-    <li className="mt-1 lg:mt-3 lg:mx-8 lg:w-40">
+    <li className="mt-1 lg:mt-0 lg:mx-0 lg:w-40 lg:h-10">
       <button
         onClick={onClick}
-        className={`${colorClass} flex items-center px-1 py-1 bg-opacity-40 cursor-pointer rounded-md backdrop-blur-sm w-full lg:px-5 lg:ml-6`}
+        className={`${colorClass} flex items-center px-1 py-1 bg-opacity-40 cursor-pointer rounded-md backdrop-blur-sm w-full lg:px-3 lg:ml-2`}
       >
         <div className="flex items-center">
           <div className="bg-transparent rounded-md flex items-center justify-center h-10 w-10">
