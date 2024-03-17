@@ -45,17 +45,15 @@ const Sidebar: React.FC<SidebarProps> = ({ color }) => {
   ];
 
   return (
-    <div className="flex flex-col w-55 h-screen bg-transparent border-b border-transparent col-span-1">
-      <div className="flex flex-col h-screen w-full text-gray-200">
-        <div className="flex items-center w-full justify-center h-14 border-b border-gray-700">
-          <h1 className="text-xl font-bold">BBet</h1>
-        </div>
-        <ul>
-          {sidebarItems.map((item) => (
-            <SidebarItem key={item.text} {...item} />
-          ))}
-        </ul>
+    <div className="flex flex-row w-auto text-gray-200 items-center lg:flex-col lg:h-screen lg:items-start">
+      <div className=" hidden lg:block items-center justify-center h-14 border-b border-gray-700 lg:w-full lg:justify-start lg:border-b-0 lg:pl-4">
+        <h1 className="text-xl font-bold">BBet</h1>
       </div>
+      <ul className="flex flex-row flex-wrap w-full pt-3 space-x-1 justify-center items-center lg:flex-col lg:justify-start lg:pr-0 lg:space-x-0 lg:space-y-4">
+        {sidebarItems.map((item) => (
+          <SidebarItem key={item.text} {...item} />
+        ))}
+      </ul>
     </div>
   );
 };

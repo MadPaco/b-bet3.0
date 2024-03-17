@@ -20,17 +20,17 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     : 'bg-gray-400 hover:bg-gray-300';
 
   return (
-    <li className="mt-3 mx-8">
+    <li className="mt-1 lg:mt-3 lg:mx-8 lg:w-40">
       <button
         onClick={onClick}
-        className={`${colorClass} flex items-center px-5 py-1 ml-6 bg-opacity-40 cursor-pointer rounded-md backdrop-blur-sm w-full`}
+        className={`${colorClass} flex items-center px-1 py-1 bg-opacity-40 cursor-pointer rounded-md backdrop-blur-sm w-full lg:px-5 lg:ml-6`}
       >
         <div className="flex items-center">
-          <div className="w-7 h-7 bg-transparent rounded-md flex items-center justify-center">
+          <div className="bg-transparent rounded-md flex items-center justify-center">
             <FontAwesomeIcon icon={icon} />
           </div>
         </div>
-        <div className="ml-2">{text}</div>
+        <div className="hidden lg:block lg:ml-2">{text}</div>
       </button>
     </li>
   );

@@ -32,23 +32,23 @@ const Dashboard: React.FC = () => {
   return (
     <Layout
       content={
-        <div className="grid grid-cols-7 h-full w-full">
+        <div className="flex flex-col lg:grid lg:grid-cols-7 h-full w-full">
           <Sidebar color={primaryColor} />
           <div className="col-span-6 h-full">
-            <div className="grid grid-cols-3 grid-rows-3 gap-4 h-full">
-              <div className="col-span-1 row-span-1 h-full">
+            <div className="flex flex-col lg:grid lg:grid-cols-3 lg:grid-rows-3 gap-4 h-full">
+              <div className="h-full">
                 <TeamInfoPanel color={primaryColor} />
               </div>
-              <div className="col-span-1 row-span-1 h-full">
+              <div className="h-full">
                 <UserInfoPanel color={primaryColor} />
               </div>
-              <div className="col-span-1 row-span-1 h-full">
+              <div className="h-full">
                 <MessageOverviewPanel color={primaryColor} />
               </div>
-              <div className="col-span-2 row-span-2 h-full">
+              <div className="flex-grow h-full">
                 <ChatPanel color={primaryColor} />
               </div>
-              <div className="col-span-1 row-span-2 h-full">
+              <div className="h-full">
                 <ActivityPanel color={primaryColor} />
               </div>
             </div>
