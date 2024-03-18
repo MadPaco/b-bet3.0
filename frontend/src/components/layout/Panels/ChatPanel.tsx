@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { colorClasses } from '../../../data/colorClasses';
 
 interface Message {
@@ -14,6 +14,7 @@ interface ChatPanelProps {
 const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const chatBottom = useRef<null | HTMLDivElement>(null);
 
   const handleSendMessage = async () => {
     if (newMessage.trim() !== '') {
@@ -32,6 +33,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
         }
 
         setNewMessage('');
+
+        //scroll to bottom if new message is sent
+        //the timeout is a workaround to ensure
+        //that the fetch request has completed before scrolling
+
+        if (chatBottom.current) {
+          setTimeout(() => {
+            if (chatBottom.current) {
+              chatBottom.current.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 100);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -89,6 +102,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
     ? colorClasses[color as keyof typeof colorClasses]
     : 'bg-gray-400 hover:bg-gray-300';
 
+  useEffect(() => {
+    if (chatBottom.current) {
+      chatBottom.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
   return (
     <div className="p-5 m-6 cursor-pointer rounded-md backdrop-blur-sm text-white">
       <h2>Chat Panel</h2>
@@ -98,8 +117,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
             <strong>{message.sender}:</strong> {message.content}
           </p>
         ))}
+        <div ref={chatBottom} />
       </div>
-      <div className="flex">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSendMessage();
+        }}
+        className="flex"
+      >
         <input
           type="text"
           value={newMessage}
@@ -107,13 +133,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
           className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black sm:text-xs md:text-sm lg:text-base"
         />
         <button
-          onClick={handleSendMessage}
+          type="submit"
           disabled={!newMessage}
           className={`ml-2 p-2 rounded-md ${colorClass}`}
         >
           Send
         </button>
-      </div>
+      </form>
     </div>
   );
 };
