@@ -31,7 +31,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
           throw new Error('HTTP error ' + response.status);
         }
 
-        setMessages([...messages, { content: newMessage }]);
         setNewMessage('');
       } catch (error) {
         console.error(error);
@@ -68,6 +67,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
     };
 
     fetchMessages();
+
+    // Subscribe to updates from the Mercure hub
+    const url = new URL('http://localhost:3000/.well-known/mercure');
+    url.searchParams.append('topic', '/chatroom/1'); // The topic to subscribe to
+    const eventSource = new EventSource(url);
+
+    eventSource.onmessage = (event) => {
+      // When a new update is received, add the new message to the state
+      const newMessage = JSON.parse(event.data);
+      setMessages((messages) => [...messages, newMessage]);
+    };
+
+    // Clean up the EventSource when the component is unmounted
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   const colorClass = color
@@ -80,10 +95,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
       <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md">
         {messages.map((message, index) => (
           <p key={index}>
-            <strong>
-              {message.sender}({message.sentAt}):
-            </strong>{' '}
-            {message.content}
+            <strong>{message.sender}:</strong> {message.content}
           </p>
         ))}
       </div>

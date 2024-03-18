@@ -12,14 +12,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\Chatroom;
 use App\Entity\ChatroomMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mercure\PublisherInterface;
+use Symfony\Component\Mercure\Update;
 
 class ChatController extends AbstractController
 {
     private $entityManager;
+    private $publisher;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, PublisherInterface $publisher)
     {
         $this->entityManager = $entityManager;
+        $this->publisher = $publisher;
     }
     #[Route("/chatroom/{id}", methods: ["GET"])]
     public function getChatroomMessages($id): Response
@@ -77,6 +81,12 @@ class ChatController extends AbstractController
     
         $this->entityManager->persist($message);
         $this->entityManager->flush();
+
+        $update = new Update(
+            "/chatroom/{$chatroom->getId()}", // The topic that the frontend will subscribe to
+            json_encode(['content' => $content, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt()]) // The data to send
+        );
+        $this->publisher->__invoke($update);
     
         return new Response('Message saved with id '.$message->getId());
     }
