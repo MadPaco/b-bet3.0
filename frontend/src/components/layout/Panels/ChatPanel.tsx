@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { colorClasses } from '../../../data/colorClasses';
+import DOMPurify from 'dompurify';
 
 interface Message {
   sender?: string;
@@ -17,7 +18,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
   const chatBottom = useRef<null | HTMLDivElement>(null);
 
   const handleSendMessage = async () => {
+    // filter out empty messages
     if (newMessage.trim() !== '') {
+      //sanitize to avoid malicious shenaningans
+      const sanitizedMessage = DOMPurify.sanitize(newMessage);
       try {
         const response = await fetch('http://127.0.0.1:8000/chatroom/1', {
           method: 'POST',
@@ -25,7 +29,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-          body: JSON.stringify({ content: newMessage }),
+          body: JSON.stringify({ content: sanitizedMessage }),
         });
 
         if (!response.ok) {
