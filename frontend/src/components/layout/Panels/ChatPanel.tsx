@@ -5,7 +5,11 @@ import DOMPurify from 'dompurify';
 interface Message {
   sender?: string;
   content: string;
-  sentAt?: string;
+  sentAt?: {
+    date: string;
+    timezone_type: number;
+    timezone: string;
+  };
 }
 
 interface ChatPanelProps {
@@ -71,11 +75,16 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
         const data = await response.json();
 
         // Map the fetched data to the Message structure
-        const fetchedMessages: Message[] = data.map((message: any) => ({
-          sender: message.sender,
-          content: message.content,
-          sentAt: message.sentAt.date.split('.')[0],
-        }));
+        const fetchedMessages: Message[] = data.map((message: Message) => {
+          if (!message.sentAt) {
+            throw new Error('Message does not have a sentAt property');
+          }
+          return {
+            sender: message.sender,
+            content: message.content,
+            sentAt: message.sentAt.date.split('.')[0],
+          };
+        });
 
         setMessages(fetchedMessages);
       } catch (error) {
