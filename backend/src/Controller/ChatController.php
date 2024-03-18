@@ -73,6 +73,9 @@ class ChatController extends AbstractController
             throw new \Exception('Content cannot be null');
         }
 
+        // Sanitize the content
+        $content = filter_var($content, FILTER_SANITIZE_STRING);
+
         $message = new ChatroomMessage();
         $message->setContent($content);
         $message->setSentAt(new \DateTime());
@@ -82,8 +85,10 @@ class ChatController extends AbstractController
         $this->entityManager->persist($message);
         $this->entityManager->flush();
 
+        //push the message to the chatroom vie websockets
+
         $update = new Update(
-            "/chatroom/{$chatroom->getId()}", // The topic that the frontend will subscribe to
+            "/chatroom/{$chatroom->getId()}", 
             json_encode(['content' => $content, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt()]) // The data to send
         );
         $this->publisher->__invoke($update);
