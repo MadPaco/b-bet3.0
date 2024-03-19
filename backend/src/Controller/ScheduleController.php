@@ -23,6 +23,7 @@ class ScheduleController extends AbstractController
     #[Route('/backend/schedule', name: 'get_schedule', methods: ['GET'])]
     public function getSchedule(Request $request): Response
     {
+        
         $weekNumber = $request->query->get('weekNumber');
         //get the games from a specific week is we have submitted a weekNumber, else get all games
         //order the by date for the frontend

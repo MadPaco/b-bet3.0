@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { useColor } from '../../context/ColorContext';
 import { useState } from 'react';
-import { colorClasses } from '../../data/colorClasses';
 import {
   faFootballBall,
   faRankingStar,
@@ -119,10 +118,6 @@ const Sidebar: React.FC<SidebarProps> = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-
-  const colorClass = primaryColor
-    ? colorClasses[primaryColor as keyof typeof colorClasses]
-    : 'bg-gray-400 hover:bg-gray-300';
 
   return (
     <div
