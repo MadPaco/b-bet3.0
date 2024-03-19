@@ -9,6 +9,7 @@ use App\Entity\Odd;
 use App\Entity\Result;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Repository\GameRepository;
 
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
@@ -22,7 +23,7 @@ class Game
     #[ORM\Column(type: 'integer')]
     private $weekNumber;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'datetime')]
     private $date;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -39,19 +40,19 @@ class Game
     #[ORM\OneToMany(targetEntity: Bet::class, mappedBy: "game")]
     private $bets;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'homeOdds', type: 'integer', nullable: true)]
     private $homeOdds;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'awayOdds', type: 'integer', nullable: true)]
     private $awayOdds;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'overUnder', type: 'integer', nullable: true)]
     private $overUnder;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'homeScore', type: 'integer', nullable: true)]
     private $homeScore;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'awayScore', type: 'integer', nullable: true)]
     private $awayScore; 
 
     public function getId(): ?int
@@ -70,12 +71,12 @@ class Game
         return $this;
     }
 
-    public function getDate(): ?DateTimeInterface
+    public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(DateTimeInterface $date): self
+    public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
         return $this;
@@ -116,8 +117,6 @@ class Game
 
     public function __construct() {
         $this->bets = new ArrayCollection();
-        $this->odds = new ArrayCollection();
-        $this->results = new ArrayCollection();
     }
     
     public function getBets(): Collection
@@ -125,33 +124,60 @@ class Game
         return $this->bets;
     }
 
-    public function getOdds(): ?Odd
+    public function getAwayOdds(): ?int
     {
-        return $this->odds;
+        return $this->awayOdds;
     }
 
-    public function setOdds(Odd $odds): self
+    public function setAwayOdds(int $awayOdds): self
     {
-        if ($odds->getGame() !== $this) {
-            $odds->setGame($this);
-        }
-
-        $this->odds = $odds;
+        $this->awayOdds = $awayOdds;
         return $this;
     }
 
-    public function getResults(): ?Result
+    public function getHomeOdds(): ?int
     {
-        return $this->results;
+        return $this->homeOdds;
     }
 
-    public function setResults(Result $results): self
+    public function setHomeOdds(int $homeOdds): self
     {
-        if ($results->getGame() !== $this) {
-            $results->setGame($this);
-        }
-
-        $this->results = $results;
+        $this->homeOdds = $homeOdds;
         return $this;
     }
+
+    public function getOverUnder(): ?int
+    {
+        return $this->overUnder;
+    }
+
+    public function setOverUnder(int $overUnder): self
+    {
+        $this->overUnder = $overUnder;
+        return $this;
+    }
+
+    public function getHomeScore(): ?int
+    {
+        return $this->homeScore;
+    }
+
+    public function setHomeScore(int $homeScore): self
+    {
+        $this->homeScore = $homeScore;
+        return $this;
+    }
+
+    public function getAwayScore(): ?int
+    {
+        return $this->awayScore;
+    }
+
+    public function setAwayScore(int $awayScore): self
+    {
+        $this->awayScore = $awayScore;
+        return $this;
+    }
+
+
 }

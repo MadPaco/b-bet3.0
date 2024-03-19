@@ -12,9 +12,9 @@ const LoggedInLayout: React.FC<LoggedInLayoutProps> = ({ children }) => {
   return (
     <Layout
       content={
-        <div className="flex flex-col lg:grid lg:grid-cols-7 w-full">
+        <div className="flex flex-col lg:flex-row w-full">
           <Sidebar color={primaryColor} />
-          <div className="grid col-span-6 ">{children}</div>
+          <div className="flex-grow">{children}</div>
         </div>
       }
     />

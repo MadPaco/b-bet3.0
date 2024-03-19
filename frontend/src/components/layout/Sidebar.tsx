@@ -2,6 +2,8 @@ import SidebarItem from './SidebarItem';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { useColor } from '../../context/ColorContext';
+import { useState } from 'react';
+import { colorClasses } from '../../data/colorClasses';
 import {
   faFootballBall,
   faRankingStar,
@@ -112,12 +114,29 @@ const Sidebar: React.FC<SidebarProps> = () => {
     ];
   }
 
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const colorClass = primaryColor
+    ? colorClasses[primaryColor as keyof typeof colorClasses]
+    : 'bg-gray-400 hover:bg-gray-300';
+
   return (
-    <div className="flex flex-row w-auto h-full text-gray-200 items-center lg:flex-col lg:h-screen lg:items-start">
-      <div className=" hidden lg:block items-center justify-center h-10 border-b border-gray-700 lg:w-full lg:justify-start lg:border-b-0 lg:pl-4 lg:mg-3">
-        <h1 className="text-xl font-bold text-center">BBet</h1>
-      </div>
-      <ul className="flex flex-row flex-wrap w-full h-full pt-3 px-2 space-x-1 justify-center items-center lg:flex-col lg:justify-start lg:pr-0 lg:space-x-0 lg:space-y-3">
+    <div
+      className={`z-10 flex lg:bg-transparent ${colorClass} sticky top-0 flex-row w-auto h-full text-gray-200 items-center lg:flex-col lg:h-screen lg:items-start`}
+    >
+      <button onClick={toggleDropdown} className="lg:hidden">
+        {isOpen ? 'Close Menu' : 'Open Menu'}
+      </button>
+      <div
+        className={`lg:flex ${isOpen ? 'flex' : 'hidden'} lg:block items-center justify-center h-10 border-b border-gray-700 lg:w-full lg:justify-start lg:border-b-0 lg:pl-4 lg:mg-3`}
+      ></div>
+      <ul
+        className={`lg:flex ${isOpen ? 'flex' : 'hidden'} flex-row flex-wrap w-full h-full pt-3 px-2 space-x-1 justify-center items-center lg:flex-col lg:justify-start lg:pr-0 lg:space-x-0 lg:space-y-3`}
+      >
         {sidebarItems.map((item) => (
           <SidebarItem key={item.text} {...item} />
         ))}
