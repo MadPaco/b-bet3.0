@@ -1,5 +1,5 @@
 import SidebarItem from './SidebarItem';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { useColor } from '../../context/ColorContext';
 import { useState } from 'react';
@@ -38,66 +38,77 @@ const Sidebar: React.FC<SidebarProps> = () => {
       text: 'Home',
       color: primaryColor,
       onClick: () => navigate('/'),
+      path: '/dashboard',
     },
     {
       icon: faFootballBall,
       text: 'Predictions',
       color: primaryColor,
       onClick: () => navigate('/predictions'),
+      path: '/predictions',
     },
     {
       icon: faRankingStar,
       text: 'Leaderboard',
       color: primaryColor,
       onClick: () => navigate('/leaderboard'),
+      path: '/leaderboard',
     },
     {
       icon: faGlobe,
       text: 'All Bets',
       color: primaryColor,
       onClick: () => navigate('/allBets'),
+      path: '/allBets',
     },
     {
       icon: faChartLine,
       text: 'Stats',
       color: primaryColor,
       onClick: () => navigate('/stats'),
+      path: '/stats',
     },
     {
       icon: faCalendar,
       text: 'Schedule',
       color: primaryColor,
       onClick: () => navigate('/schedule'),
+      path: '/schedule',
     },
     {
       icon: faBolt,
       text: '1 vs. 1',
       color: primaryColor,
       onClick: () => navigate('/1vs1'),
+      path: '/1vs1',
     },
     {
       icon: faUser,
       text: 'Profile',
       color: primaryColor,
       onClick: () => navigate('/myProfile'),
+      path: '/myProfile',
     },
     {
       icon: faUsers,
       text: 'Users',
       color: primaryColor,
       onClick: () => navigate('/allUsers'),
+      path: '/allUsers',
     },
     {
       icon: faBook,
       text: 'Rules',
       color: primaryColor,
       onClick: () => navigate('/rules'),
+      path: '/rules',
     },
     {
       icon: faRightFromBracket,
       text: 'Logout',
       onClick: handleLogout,
       color: primaryColor,
+      path: '/login',
     },
   ];
 
@@ -109,6 +120,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
         text: 'Admin Panel',
         color: primaryColor,
         onClick: () => navigate('/admin'),
+        path: '/admin',
       },
     ];
   }
@@ -118,6 +130,8 @@ const Sidebar: React.FC<SidebarProps> = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
+  const location = useLocation();
 
   return (
     <div
@@ -133,7 +147,11 @@ const Sidebar: React.FC<SidebarProps> = () => {
         className={`lg:flex ${isOpen ? 'flex' : 'hidden'} flex-row flex-wrap w-full h-full pt-3 pb-3 px-2 space-x-1 justify-center items-center lg:flex-col lg:justify-start lg:pr-0 lg:space-x-0 lg:space-y-3`}
       >
         {sidebarItems.map((item) => (
-          <SidebarItem key={item.text} {...item} />
+          <SidebarItem
+            key={item.text}
+            {...item}
+            active={location.pathname === item.path}
+          />
         ))}
       </ul>
     </div>
