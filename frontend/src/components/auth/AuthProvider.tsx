@@ -16,7 +16,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [favTeam, setFavTeam] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [createdAt, setCreatedAt] = useState<Date | null>(null);
-  const [loading, setLoading] = useState(true); // add a loading state
+  const [roles, setRoles] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -31,6 +32,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return;
         }
         setUsername(decoded.username);
+        setRoles(decoded.roles);
 
         // Fetch user data from the backend
         fetch('http://127.0.0.1:8000/backend/user/', {
@@ -48,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setFavTeam(data.favTeam);
             setEmail(data.email);
             setCreatedAt(new Date(data.createdAt));
-            setLoading(false); // set loading to false after the data is fetched
+            setLoading(false);
           })
           .catch((error) => {
             console.error(
@@ -80,6 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setEmail,
         createdAt,
         setCreatedAt,
+        roles,
       }}
     >
       {children}

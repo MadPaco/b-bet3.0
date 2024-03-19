@@ -1,4 +1,6 @@
 import SidebarItem from './SidebarItem';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 import {
   faFootballBall,
   faRankingStar,
@@ -9,33 +11,80 @@ import {
   faHome,
   faUser,
   faBolt,
-  faComments,
   faRightFromBracket,
   faBook,
+  faUserShield,
 } from '@fortawesome/free-solid-svg-icons';
-
-const handleLogout = (): void => {
-  localStorage.removeItem('token');
-  window.location.href = '/';
-};
 
 interface SidebarProps {
   color: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ color }) => {
-  const sidebarItems = [
-    { icon: faHome, text: 'Home', color: color },
-    { icon: faFootballBall, text: 'Predictions', color: color },
-    { icon: faRankingStar, text: 'Leaderboard', color: color },
-    { icon: faGlobe, text: 'All Bets', color: color },
-    { icon: faChartLine, text: 'Stats', color: color },
-    { icon: faCalendar, text: 'Schedule', color: color },
-    { icon: faBolt, text: '1 vs. 1', color: color },
-    { icon: faUser, text: 'Profile', color: color },
-    { icon: faUsers, text: 'Users', color: color },
-    { icon: faComments, text: 'Chat', color: color },
-    { icon: faBook, text: 'Rules', color: color },
+  const { roles } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
+  let sidebarItems = [
+    { icon: faHome, text: 'Home', color: color, onClick: () => navigate('/') },
+    {
+      icon: faFootballBall,
+      text: 'Predictions',
+      color: color,
+      onClick: () => navigate('/predictions'),
+    },
+    {
+      icon: faRankingStar,
+      text: 'Leaderboard',
+      color: color,
+      onClick: () => navigate('/leaderboard'),
+    },
+    {
+      icon: faGlobe,
+      text: 'All Bets',
+      color: color,
+      onClick: () => navigate('/allBets'),
+    },
+    {
+      icon: faChartLine,
+      text: 'Stats',
+      color: color,
+      onClick: () => navigate('/stats'),
+    },
+    {
+      icon: faCalendar,
+      text: 'Schedule',
+      color: color,
+      onClick: () => navigate('/schedule'),
+    },
+    {
+      icon: faBolt,
+      text: '1 vs. 1',
+      color: color,
+      onClick: () => navigate('/1vs1'),
+    },
+    {
+      icon: faUser,
+      text: 'Profile',
+      color: color,
+      onClick: () => navigate('/myProfile'),
+    },
+    {
+      icon: faUsers,
+      text: 'Users',
+      color: color,
+      onClick: () => navigate('/allUsers'),
+    },
+    {
+      icon: faBook,
+      text: 'Rules',
+      color: color,
+      onClick: () => navigate('/rules'),
+    },
     {
       icon: faRightFromBracket,
       text: 'Logout',
@@ -43,6 +92,18 @@ const Sidebar: React.FC<SidebarProps> = ({ color }) => {
       color: color,
     },
   ];
+
+  if (roles.includes('ADMIN')) {
+    sidebarItems = [
+      ...sidebarItems,
+      {
+        icon: faUserShield,
+        text: 'Admin Panel',
+        color: color,
+        onClick: () => navigate('/admin'),
+      },
+    ];
+  }
 
   return (
     <div className="flex flex-row w-auto h-full text-gray-200 items-center lg:flex-col lg:h-screen lg:items-start">

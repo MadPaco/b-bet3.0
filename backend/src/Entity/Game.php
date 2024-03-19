@@ -39,11 +39,20 @@ class Game
     #[ORM\OneToMany(targetEntity: Bet::class, mappedBy: "game")]
     private $bets;
 
-    #[ORM\OneToOne(targetEntity: Odd::class, mappedBy: "game")]
-    private $odds;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $homeOdds;
 
-    #[ORM\OneToOne(targetEntity: Result::class, mappedBy: "game")]
-    private $results;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $awayOdds;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $overUnder;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $homeScore;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $awayScore; 
 
     public function getId(): ?int
     {

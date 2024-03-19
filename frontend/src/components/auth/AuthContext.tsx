@@ -9,6 +9,7 @@ interface AuthContextProps {
   setEmail: (email: string) => void;
   createdAt: Date | null;
   setCreatedAt: React.Dispatch<React.SetStateAction<Date | null>>;
+  roles: string[];
 }
 
 export const AuthContext = createContext<AuthContextProps | undefined>(
