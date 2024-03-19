@@ -1,9 +1,7 @@
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
 
-interface MessageOverviewPanelProps {
-  color: string;
-}
+interface MessageOverviewPanelProps {}
 
 const MessageOverviewPanel: React.FC<MessageOverviewPanelProps> = () => {
   const { username } = useAuth();

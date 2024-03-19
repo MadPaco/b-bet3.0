@@ -11,9 +11,7 @@ interface TeamInfo {
   primaryColor: string;
 }
 
-interface TeamInfoPanelProps {
-  color: string;
-}
+interface TeamInfoPanelProps {}
 
 const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
   const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);

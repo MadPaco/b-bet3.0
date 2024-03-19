@@ -1,9 +1,7 @@
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
 
-interface UserInfoPanelProps {
-  color: string;
-}
+interface UserInfoPanelProps {}
 
 const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
   const { username, createdAt } = useAuth();

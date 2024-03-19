@@ -1,7 +1,5 @@
 import Panel from '../common/Panel';
-interface NewsPanelProps {
-  color: string;
-}
+interface NewsPanelProps {}
 
 const NewsPanel: React.FC<NewsPanelProps> = () => {
   return (

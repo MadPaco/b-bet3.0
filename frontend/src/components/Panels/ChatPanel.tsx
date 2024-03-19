@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { colorClasses } from '../../data/colorClasses';
 import DOMPurify from 'dompurify';
+import { useColor } from '../../context/ColorContext';
 
 interface Message {
   sender?: string;
@@ -12,11 +13,9 @@ interface Message {
   };
 }
 
-interface ChatPanelProps {
-  color: string;
-}
+interface ChatPanelProps {}
 
-const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
+const ChatPanel: React.FC<ChatPanelProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatBottom = useRef<null | HTMLDivElement>(null);
@@ -110,9 +109,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ color }) => {
       eventSource.close();
     };
   }, []);
-
-  const colorClass = color
-    ? colorClasses[color as keyof typeof colorClasses]
+  const { primaryColor } = useColor();
+  const colorClass = primaryColor
+    ? colorClasses[primaryColor as keyof typeof colorClasses]
     : 'bg-gray-400 hover:bg-gray-300';
 
   useEffect(() => {

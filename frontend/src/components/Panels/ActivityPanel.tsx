@@ -1,9 +1,7 @@
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
 
-interface ActivityPanelProps {
-  color: string;
-}
+interface ActivityPanelProps {}
 
 const ActivityPanel: React.FC<ActivityPanelProps> = () => {
   const { username } = useAuth();
