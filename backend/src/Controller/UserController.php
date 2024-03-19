@@ -8,17 +8,24 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\UserRepository;
 
 
 class UserController extends AbstractController
 {
+    private $userRepository;
+
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
 
     #[Route('/backend/user', name: 'user', methods: ['GET'])]
 
     public function getUserInfo(Request $request): Response
     {
-        // Get the user from the security token
-        $user = $this->getUser();
+        $username = $request->query->get('username');
+        $user = $this->userRepository->findOneBy(['username' => $username]);
     
         // If the user is not authenticated, return a 401 response
         if (!$user) {

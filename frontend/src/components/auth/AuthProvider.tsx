@@ -35,11 +35,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setRoles(decoded.roles);
 
         // Fetch user data from the backend
-        fetch('http://127.0.0.1:8000/backend/user/', {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        fetch(
+          `http://127.0.0.1:8000/backend/user/?username=${decoded.username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        })
+        )
           .then((response) => {
             if (!response.ok) {
               throw new Error('Network response was not ok');
