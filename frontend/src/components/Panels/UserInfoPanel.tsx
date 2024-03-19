@@ -5,11 +5,11 @@ interface UserInfoPanelProps {
   color: string;
 }
 
-const UserInfoPanel: React.FC<UserInfoPanelProps> = ({ color }) => {
+const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
   const { username, createdAt } = useAuth();
 
   return (
-    <Panel color={color}>
+    <Panel>
       {username ? (
         <div className="flex items-center text-gray-200">
           <img

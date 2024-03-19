@@ -1,26 +1,14 @@
 import { ReactNode } from 'react';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
-import { useAuth } from '../auth/AuthContext';
-import { useEffect, useState } from 'react';
-import { fetchTeamInfo } from '../../utility/api';
+import { useColor } from '../../context/ColorContext';
 
 interface LoggedInLayoutProps {
   children: ReactNode;
 }
 
 const LoggedInLayout: React.FC<LoggedInLayoutProps> = ({ children }) => {
-  const [primaryColor, setPrimaryColor] = useState<string>('gray');
-  const { favTeam } = useAuth();
-
-  useEffect(() => {
-    if (favTeam) {
-      fetchTeamInfo(favTeam)
-        .then((data) => setPrimaryColor(data.primaryColor))
-        .catch((error) => console.error(error));
-    }
-  }, [favTeam]);
-
+  const { primaryColor } = useColor();
   return (
     <Layout
       content={

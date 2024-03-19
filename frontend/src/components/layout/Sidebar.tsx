@@ -1,6 +1,7 @@
 import SidebarItem from './SidebarItem';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useColor } from '../../context/ColorContext';
 import {
   faFootballBall,
   faRankingStar,
@@ -20,7 +21,8 @@ interface SidebarProps {
   color: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ color }) => {
+const Sidebar: React.FC<SidebarProps> = () => {
+  const { primaryColor } = useColor();
   const { roles } = useAuth();
   const navigate = useNavigate();
 
@@ -30,66 +32,71 @@ const Sidebar: React.FC<SidebarProps> = ({ color }) => {
   };
 
   let sidebarItems = [
-    { icon: faHome, text: 'Home', color: color, onClick: () => navigate('/') },
+    {
+      icon: faHome,
+      text: 'Home',
+      color: primaryColor,
+      onClick: () => navigate('/'),
+    },
     {
       icon: faFootballBall,
       text: 'Predictions',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/predictions'),
     },
     {
       icon: faRankingStar,
       text: 'Leaderboard',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/leaderboard'),
     },
     {
       icon: faGlobe,
       text: 'All Bets',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/allBets'),
     },
     {
       icon: faChartLine,
       text: 'Stats',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/stats'),
     },
     {
       icon: faCalendar,
       text: 'Schedule',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/schedule'),
     },
     {
       icon: faBolt,
       text: '1 vs. 1',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/1vs1'),
     },
     {
       icon: faUser,
       text: 'Profile',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/myProfile'),
     },
     {
       icon: faUsers,
       text: 'Users',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/allUsers'),
     },
     {
       icon: faBook,
       text: 'Rules',
-      color: color,
+      color: primaryColor,
       onClick: () => navigate('/rules'),
     },
     {
       icon: faRightFromBracket,
       text: 'Logout',
       onClick: handleLogout,
-      color: color,
+      color: primaryColor,
     },
   ];
 
@@ -99,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ color }) => {
       {
         icon: faUserShield,
         text: 'Admin Panel',
-        color: color,
+        color: primaryColor,
         onClick: () => navigate('/admin'),
       },
     ];

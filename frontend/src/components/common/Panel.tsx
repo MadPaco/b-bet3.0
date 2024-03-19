@@ -1,13 +1,14 @@
 import { colorClasses } from '../../data/colorClasses';
+import { useColor } from '../../context/ColorContext';
 
 interface PanelProps {
   children: React.ReactNode;
-  color: string;
 }
 
-const Panel: React.FC<PanelProps> = ({ children, color }) => {
-  const colorClass = color
-    ? colorClasses[color as keyof typeof colorClasses]
+const Panel: React.FC<PanelProps> = ({ children }) => {
+  const { primaryColor } = useColor();
+  const colorClass = primaryColor
+    ? colorClasses[primaryColor as keyof typeof colorClasses]
     : 'bg-gray-400 hover:bg-gray-300';
 
   return (

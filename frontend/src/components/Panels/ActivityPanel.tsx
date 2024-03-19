@@ -5,11 +5,11 @@ interface ActivityPanelProps {
   color: string;
 }
 
-const ActivityPanel: React.FC<ActivityPanelProps> = ({ color }) => {
+const ActivityPanel: React.FC<ActivityPanelProps> = () => {
   const { username } = useAuth();
 
   return (
-    <Panel color={color}>
+    <Panel>
       {username ? (
         <div className="flex items-center text-gray-200">
           <img

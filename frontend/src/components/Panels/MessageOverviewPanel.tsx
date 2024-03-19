@@ -5,13 +5,11 @@ interface MessageOverviewPanelProps {
   color: string;
 }
 
-const MessageOverviewPanel: React.FC<MessageOverviewPanelProps> = ({
-  color,
-}) => {
+const MessageOverviewPanel: React.FC<MessageOverviewPanelProps> = () => {
   const { username } = useAuth();
 
   return (
-    <Panel color={color}>
+    <Panel>
       {username ? (
         <div className="flex items-center text-gray-200">
           <img
