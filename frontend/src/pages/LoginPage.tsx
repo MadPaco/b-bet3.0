@@ -37,14 +37,16 @@ const LoginPage: React.FC = () => {
   return (
     <Layout
       content={
-        <LoginPanel
-          username={username}
-          setUsername={setUsername}
-          password={password}
-          setPassword={setPassword}
-          errorMessage={errorMessage}
-          handleLogin={handleLogin}
-        />
+        <div className="flex items-center align-middle pt-10">
+          <LoginPanel
+            username={username}
+            setUsername={setUsername}
+            password={password}
+            setPassword={setPassword}
+            errorMessage={errorMessage}
+            handleLogin={handleLogin}
+          />
+        </div>
       }
     />
   );

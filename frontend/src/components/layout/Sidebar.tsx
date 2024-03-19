@@ -126,7 +126,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
   return (
     <div
-      className={`z-10 flex lg:bg-transparent ${colorClass} sticky top-0 flex-row w-auto h-full text-gray-200 items-center lg:flex-col lg:h-screen lg:items-start`}
+      className={`z-10 flex lg:bg-transparent bg-black sticky top-0 flex-row w-auto h-full text-gray-200 items-center lg:flex-col lg:h-screen lg:items-start`}
     >
       <button onClick={toggleDropdown} className="lg:hidden">
         {isOpen ? 'Close Menu' : 'Open Menu'}
@@ -135,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
         className={`lg:flex ${isOpen ? 'flex' : 'hidden'} lg:block items-center justify-center h-10 border-b border-gray-700 lg:w-full lg:justify-start lg:border-b-0 lg:pl-4 lg:mg-3`}
       ></div>
       <ul
-        className={`lg:flex ${isOpen ? 'flex' : 'hidden'} flex-row flex-wrap w-full h-full pt-3 px-2 space-x-1 justify-center items-center lg:flex-col lg:justify-start lg:pr-0 lg:space-x-0 lg:space-y-3`}
+        className={`lg:flex ${isOpen ? 'flex' : 'hidden'} flex-row flex-wrap w-full h-full pt-3 pb-3 px-2 space-x-1 justify-center items-center lg:flex-col lg:justify-start lg:pr-0 lg:space-x-0 lg:space-y-3`}
       >
         {sidebarItems.map((item) => (
           <SidebarItem key={item.text} {...item} />
