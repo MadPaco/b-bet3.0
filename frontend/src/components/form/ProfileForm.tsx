@@ -10,19 +10,59 @@ const ProfileForm: React.FC = () => {
     createdAt,
   } = useAuth();
 
-  const [usernameState, setUsername] = useState({ initialUsername });
-  const [favTeamState, setFavTeam] = useState({ initialFavTeam });
-  const [emailState, setEmail] = useState({ initialEmail });
+  const [usernameState, setUsername] = useState<string | null>(initialUsername);
+  const [favTeamState, setFavTeam] = useState<string | null>(initialFavTeam);
+  const [emailState, setEmail] = useState<string | null>(initialEmail);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [editMode, setEditMode] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // handle submit
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    const postBody: { [key: string]: string | null } = {};
+    if (password !== '') {
+      postBody['password'] = password;
+    }
+
+    if (emailState !== '' && emailState !== initialEmail) {
+      postBody['email'] = emailState;
+    }
+    if (favTeamState !== '' && favTeamState !== initialFavTeam) {
+      postBody['favTeam'] = favTeamState;
+    }
+    if (usernameState !== '' && usernameState !== initialUsername) {
+      postBody['username'] = usernameState;
+    }
+
+    const response = await fetch('http://127.0.0.1:8000/backend/editUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+      body: JSON.stringify({
+        ...postBody,
+      }),
+    });
+
+    if (!response.ok) {
+      const message = `An error has occured: ${response.status}`;
+      throw new Error(message);
+    }
+
+    const data = await response.json();
+    console.log(data);
   };
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     switch (event.target.name) {
       case 'username':
         setUsername(event.target.value);
@@ -59,7 +99,7 @@ const ProfileForm: React.FC = () => {
     >
       <p className="text-lg font-bold">
         {' '}
-        Member since: {createdAt.toLocaleDateString()}
+        Member since: {createdAt ? createdAt.toLocaleDateString() : 'N/A'}
       </p>
       <label className="block">
         <span className="text-gray-700">Username:</span>
@@ -67,7 +107,7 @@ const ProfileForm: React.FC = () => {
           type="text"
           name="username"
           onChange={handleInputChange}
-          value={usernameState}
+          value={usernameState || ''}
           readOnly={!editMode}
           className="mt-1  text-black px-2 block w-full rounded-md border-gray-300 shadow-sm"
         />
@@ -77,7 +117,7 @@ const ProfileForm: React.FC = () => {
         <select
           name="favTeam"
           onChange={handleInputChange}
-          value={favTeamState}
+          value={favTeamState || ''}
           //opacity is a workaround to prevent the default behavious of disabled to darken the field
           className={`text-black ${editMode ? '' : 'opacity-100 cursor-not-allowed'}`}
           disabled={!editMode}
@@ -93,7 +133,7 @@ const ProfileForm: React.FC = () => {
           type="email"
           name="email"
           onChange={handleInputChange}
-          value={emailState}
+          value={emailState || ''}
           readOnly={!editMode}
           className="mt-1 text-black px-2 block w-full rounded-md border-gray-300 shadow-sm"
         />

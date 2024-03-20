@@ -9,15 +9,21 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\UserRepository;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 class UserController extends AbstractController
 {
     private $userRepository;
+    private $entityManager;
+    private $passwordEncoder;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordEncoder, EntityManagerInterface $entityManager)
     {
         $this->userRepository = $userRepository;
+        $this->passwordEncoder = $passwordEncoder;
+        $this->entityManager = $entityManager;
     }
 
     #[Route('/backend/user', name: 'get_user', methods: ['GET'])]
@@ -75,5 +81,57 @@ class UserController extends AbstractController
             ]);
         }
         return new JsonResponse($userArray);
+    }
+
+    #[Route('backend/editUser', name: 'edit_user', methods: ['POST'])]
+    public function editUser(Request $request): Response
+    {
+        $authenticatedUser = $this->getUser();
+    
+        if (!$authenticatedUser) {
+            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        
+        $newUsername = filter_var($data['username'], FILTER_SANITIZE_STRING);
+        $newEmail = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
+        $newFavTeam = filter_var($data['favTeam'], FILTER_SANITIZE_STRING);
+        $newPassword = filter_var($data['password'], FILTER_SANITIZE_STRING);
+
+        $exisitingUsername = $this->userRepository->findOneBy(['username' => $newUsername]);
+        if($exisitingUsername){
+            return new JsonResponse(['message' => 'Username already exists'], Response::HTTP_CONFLICT);
+        }
+
+        $newEmail = $data['email'];
+        $existingEmail = $this->userRepository->findOneBy(['email' => $newEmail]);
+        if($existingEmail){
+            return new JsonResponse(['message' => 'Email already exists'], Response::HTTP_CONFLICT);
+        }
+
+
+        try {
+            if ($newUsername != null){
+                $authenticatedUser->setUsername($newUsername);
+            }
+            if ($newEmail != null){
+                $authenticatedUser->setEmail($newEmail);
+            }
+            if ($newFavTeam != null){
+                $authenticatedUser->setFavTeam($newFavTeam);
+            }
+            if ($newPassword != null){
+                $hashedPassword = $this->passwordEncoder->encodePassword($authenticatedUser, $newPassword);
+                $authenticatedUser->setPassword($hashedPassword);
+            }
+
+            $this->entityManager->persist($authenticatedUser);
+            $this->entityManager->flush();
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'An error occurred while updating the user', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        
+        return new JsonResponse(['message' => 'User updated'], Response::HTTP_OK);
     }
 }
