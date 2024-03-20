@@ -1,6 +1,7 @@
 import { useAuth } from '../auth/AuthContext';
 import { useEffect, useState } from 'react';
 import nflTeams from '../../data/nflTeams';
+import { useNavigate } from 'react-router';
 
 const ProfileForm: React.FC = () => {
   const {
@@ -9,7 +10,7 @@ const ProfileForm: React.FC = () => {
     email: initialEmail,
     createdAt,
   } = useAuth();
-
+  const navigate = useNavigate();
   const [usernameState, setUsername] = useState<string | null>(initialUsername);
   const [favTeamState, setFavTeam] = useState<string | null>(initialFavTeam);
   const [emailState, setEmail] = useState<string | null>(initialEmail);
@@ -55,9 +56,8 @@ const ProfileForm: React.FC = () => {
       const message = `An error has occured: ${response.status}`;
       throw new Error(message);
     }
-
-    const data = await response.json();
-    console.log(data);
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   const handleInputChange = (

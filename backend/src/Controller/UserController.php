@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\UserRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 
 class UserController extends AbstractController
@@ -18,12 +19,19 @@ class UserController extends AbstractController
     private $userRepository;
     private $entityManager;
     private $passwordEncoder;
+    private $tokenManager;
 
-    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordEncoder, EntityManagerInterface $entityManager)
+    public function __construct(
+        UserRepository $userRepository, 
+        UserPasswordHasherInterface $passwordEncoder, 
+        EntityManagerInterface $entityManager, 
+        JWTTokenManagerInterface $tokenManager
+        )
     {
         $this->userRepository = $userRepository;
         $this->passwordEncoder = $passwordEncoder;
         $this->entityManager = $entityManager;
+        $this->tokenManager = $tokenManager;
     }
 
     #[Route('/backend/user', name: 'get_user', methods: ['GET'])]
@@ -128,10 +136,11 @@ class UserController extends AbstractController
 
             $this->entityManager->persist($authenticatedUser);
             $this->entityManager->flush();
+
         } catch (\Exception $e) {
             return new JsonResponse(['message' => 'An error occurred while updating the user', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         
-        return new JsonResponse(['message' => 'User updated'], Response::HTTP_OK);
+        return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
 }
