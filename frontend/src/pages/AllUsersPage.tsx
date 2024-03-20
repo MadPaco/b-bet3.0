@@ -1,12 +1,45 @@
 import LoggedInLayout from '../components/layout/LoggedInLayout';
+import { fetchAllUsers } from '../utility/api';
+import { useState, useEffect } from 'react';
+import Panel from '../components/common/Panel';
 
 const AllUsersPage: React.FC = () => {
+  const [userList, setUserList] = useState([]);
+
+  useEffect(() => {
+    async function getUsers() {
+      const users = await fetchAllUsers();
+      setUserList(users);
+    }
+
+    getUsers();
+  }, []);
+
+  console.log(userList);
+
+  interface User {
+    username: string;
+    favTeam: string;
+  }
+
   return (
     <LoggedInLayout>
-      <div className="flex flex-col lg:pt-10 lg:grid lg:grid-cols-3 lg:grid-rows-3">
-        <div className="lg:col-span-1 lg:row-span-1">
-          <h1>AllUsers Page</h1>
-        </div>
+      <div className="flex items-center align-middle flex-wrap">
+        {userList.map((user: User) => {
+          return (
+            <div className="flex flex-1">
+              <Panel
+                children={
+                  <div key={user.username}>
+                    <p>{user.username}</p>
+                    <p>{user.favTeam}</p>
+                  </div>
+                }
+              />
+            </div>
+          );
+        })}
+        ;
       </div>
     </LoggedInLayout>
   );

@@ -20,38 +20,60 @@ class UserController extends AbstractController
         $this->userRepository = $userRepository;
     }
 
-    #[Route('/backend/user', name: 'user', methods: ['GET'])]
+    #[Route('/backend/user', name: 'get_user', methods: ['GET'])]
 
     public function getUserInfo(Request $request): Response
     {
-        $username = $request->query->get('username');
-        $user = $this->userRepository->findOneBy(['username' => $username]);
+        $requestedUsername = $request->query->get('username');
+        $requestedUser = $this->userRepository->findOneBy(['username' => $requestedUsername]);
     
         // If the user is not authenticated, return a 401 response
-        if (!$user) {
+        if (!$requestedUser) {
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
+
+        $authenticatedUser = $this->getUser();
     
-        // Get the user's favorite team
-        $favTeam = $user->getFavTeam();
-    
-        // If the user does not have a favorite team, return a 404 response
-        if (!$favTeam) {
-            return new JsonResponse(['message' => 'Favorite team not found'], Response::HTTP_NOT_FOUND);
+        if (!$authenticatedUser) {
+            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
 
-        $createdAt = $user->getCreatedAt();
-        if (!$createdAt) {
-            return new JsonResponse(['message' => 'Created at not found'], Response::HTTP_NOT_FOUND);
+        if ($authenticatedUser->getUsername() === $requestedUser->getUsername()) {
+            return new JsonResponse([
+                'favTeam' => $requestedUser->getFavTeam()->getName(),
+                'email' => $requestedUser->getEmail(),
+                'createdAt' => $requestedUser->getCreatedAt()->format('Y-m-d H:i:s'),
+                'username' => $requestedUser->getUsername(),
+                'roles' => $requestedUser->getRoles(),
+            ]);
         }
+        else {
+            return new JsonResponse([
+                'favTeam' => $requestedUser->getFavTeam()->getName(),
+                'username' => $requestedUser->getUsername(),
+                'roles' => $requestedUser->getRoles(),
+            
+            ]);
+        }
+    }
+
+    #[Route('/backend/fetchUsers', name: 'get_all_user', methods: ['GET'])]
+    public function getAllUsers(Request $request): Response{
+
+        $authenticatedUser = $this->getUser();
     
-        // Return the user's favorite team, email, createdAt, username, and roles
-        return new JsonResponse([
-            'favTeam' => $favTeam->getName(),
-            'email' => $user->getEmail(),
-            'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
-            'username' => $user->getUsername(),
-            'roles' => $user->getRoles(),
-        ]);
+        if (!$authenticatedUser) {
+            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $users = $this->userRepository->findAll();
+        $userArray = [];
+        foreach($users as $user){
+            array_push($userArray, [
+                'username' => $user->getUsername(),
+                'favTeam' => $user->getFavTeam()->getName(),
+            ]);
+        }
+        return new JsonResponse($userArray);
     }
 }
