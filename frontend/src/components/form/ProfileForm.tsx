@@ -56,6 +56,11 @@ const ProfileForm: React.FC = () => {
       const message = `An error has occured: ${response.status}`;
       throw new Error(message);
     }
+    // I know this is nasty, but enough for a MVP
+    alert(
+      'Your account information has been updated. You will be redirected to the login page to log in again.',
+    );
+
     localStorage.removeItem('token');
     navigate('/login');
   };
