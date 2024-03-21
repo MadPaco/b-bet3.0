@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class AuthController extends AbstractController
 {
 
-#[Route('/register', name: 'user_register', methods: ['POST'])]
+#[Route('/api/register', name: 'user_register', methods: ['POST'])]
     public function register(
         Request $request, 
         EntityManagerInterface $entityManager, 
@@ -51,7 +51,7 @@ class AuthController extends AbstractController
         return new JsonResponse(['token' => $token]);
     }
 
-    #[Route('/login', name: 'user_login', methods: ['POST'])]
+    #[Route('/api/login', name: 'user_login', methods: ['POST'])]
     public function login(
         Request $request, 
         EntityManagerInterface $entityManager, 
