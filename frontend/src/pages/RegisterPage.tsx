@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import FormCard from '../components/form/FormCard';
@@ -13,7 +13,6 @@ const RegisterPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [favTeam, setFavTeam] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [response, setResponse] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -26,7 +25,7 @@ const RegisterPage: React.FC = () => {
       return;
     }
     try {
-      const res = await fetch('http://127.0.0.1:8000/backend/register', {
+      const res = await fetch('http://127.0.0.1:8000/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,21 +34,13 @@ const RegisterPage: React.FC = () => {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        setResponse(data);
-        localStorage.setItem('token', data.token);
+        alert('Registration successful, redirecting to login page');
         navigate('/dashboard');
       }
     } catch (error) {
       console.error('Error:', error);
     }
   };
-
-  useEffect(() => {
-    if (response) {
-      console.log(response);
-    }
-  }, [response]);
 
   return (
     <Layout

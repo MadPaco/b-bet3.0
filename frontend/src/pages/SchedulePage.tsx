@@ -28,7 +28,7 @@ const SchedulePage: React.FC = () => {
   useEffect(() => {
     const fetchSchedule = async () => {
       const response = await fetch(
-        `http://127.0.0.1:8000/backend/schedule?weekNumber=${weekNumber}`,
+        `http://127.0.0.1:8000/api/schedule?weekNumber=${weekNumber}`,
       );
       const data = await response.json();
       setSchedule(data);

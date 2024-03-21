@@ -34,7 +34,7 @@ class UserController extends AbstractController
         $this->tokenManager = $tokenManager;
     }
 
-    #[Route('/backend/user', name: 'get_user', methods: ['GET'])]
+    #[Route('api/user/getUser', name: 'get_user', methods: ['GET'])]
 
     public function getUserInfo(Request $request): Response
     {
@@ -71,15 +71,10 @@ class UserController extends AbstractController
         }
     }
 
-    #[Route('/backend/fetchUsers', name: 'get_all_user', methods: ['GET'])]
+    #[Route('/api/user/fetchAll', name: 'get_all_user', methods: ['GET'])]
     public function getAllUsers(Request $request): Response{
 
         $authenticatedUser = $this->getUser();
-    
-        if (!$authenticatedUser) {
-            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
-        }
-
         $users = $this->userRepository->findAll();
         $userArray = [];
         foreach($users as $user){
@@ -91,7 +86,7 @@ class UserController extends AbstractController
         return new JsonResponse($userArray);
     }
 
-    #[Route('backend/editUser', name: 'edit_user', methods: ['POST'])]
+    #[Route('api/user/edit', name: 'edit_user', methods: ['POST'])]
     public function editUser(Request $request): Response
     {
         $authenticatedUser = $this->getUser();

@@ -1,7 +1,7 @@
 export async function fetchTeamInfo(team: string) {
   const token = localStorage.getItem('token');
   const response = await fetch(
-    `http://127.0.0.1:8000/backend/team/?favTeam=${team}`,
+    `http://127.0.0.1:8000/api/team/?favTeam=${team}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -23,7 +23,7 @@ export async function fetchPrimaryColor(team: string | null): Promise<string> {
   const token = localStorage.getItem('token');
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/backend/team/?favTeam=${team}`,
+      `http://127.0.0.1:8000/api/team/?favTeam=${team}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -44,7 +44,7 @@ export async function fetchPrimaryColor(team: string | null): Promise<string> {
 export async function fetchUserInfo(username: string) {
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/backend/user?username=${username}`,
+      `http://127.0.0.1:8000/api/user?username=${username}`,
     );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -59,7 +59,7 @@ export async function fetchUserInfo(username: string) {
 
 export async function fetchAllUsers() {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/backend/fetchUsers`, {
+    const response = await fetch(`http://127.0.0.1:8000/api/fetchUsers`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },

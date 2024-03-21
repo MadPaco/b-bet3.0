@@ -26,7 +26,7 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
       //sanitize to avoid malicious shenaningans
       const sanitizedMessage = DOMPurify.sanitize(newMessage);
       try {
-        const response = await fetch('http://127.0.0.1:8000/chatroom/1', {
+        const response = await fetch('http://127.0.0.1:8000/api/chatroom/1', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/chatroom/1', {
+        const response = await fetch('http://127.0.0.1:8000/api/chatroom/1', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },

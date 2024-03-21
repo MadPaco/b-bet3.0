@@ -29,6 +29,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     navigate('/login');
   };
 

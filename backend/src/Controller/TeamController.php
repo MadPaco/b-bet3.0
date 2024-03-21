@@ -11,7 +11,7 @@ use App\Repository\NflTeamRepository;
 
 class TeamController extends AbstractController
 {
-    #[Route('/backend/team', name: 'get_team_info', methods: ['GET'])]
+    #[Route('/api/team', name: 'get_team_info', methods: ['GET'])]
     public function getTeamInfo(Request $request, NflTeamRepository $teamRepository, SerializerInterface $serializer): Response
     {
         $favTeam = $request->query->get('favTeam');

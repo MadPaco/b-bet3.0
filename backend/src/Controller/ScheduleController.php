@@ -20,7 +20,7 @@ class ScheduleController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/backend/schedule', name: 'get_schedule', methods: ['GET'])]
+    #[Route('/api/schedule', name: 'get_schedule', methods: ['GET'])]
     public function getSchedule(Request $request): Response
     {
         

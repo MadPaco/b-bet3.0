@@ -25,7 +25,7 @@ class ChatController extends AbstractController
         $this->entityManager = $entityManager;
         $this->publisher = $publisher;
     }
-    #[Route("/chatroom/{id}", methods: ["GET"])]
+    #[Route("/api/chatroom/{id}", methods: ["GET"])]
     public function getChatroomMessages($id): Response
     {
         $chatroom = $this->entityManager->getRepository(Chatroom::class)->find($id);
@@ -49,7 +49,7 @@ class ChatController extends AbstractController
         return new JsonResponse($formattedMessages);
     }
 
-    #[Route("/chatroom/{id}", methods: ["POST"])]
+    #[Route("/api/chatroom/{id}", methods: ["POST"])]
     public function postChatroomMessage(Request $request)
     {
         /* For now, I just implement a public chatroom with this
@@ -88,7 +88,7 @@ class ChatController extends AbstractController
         //push the message to the chatroom vie websockets
 
         $update = new Update(
-            "/chatroom/{$chatroom->getId()}", 
+            "/api/chatroom/{$chatroom->getId()}", 
             json_encode(['content' => $content, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt()]) // The data to send
         );
         $this->publisher->__invoke($update);

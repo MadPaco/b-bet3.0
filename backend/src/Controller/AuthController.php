@@ -16,8 +16,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class AuthController extends AbstractController
 {
 
-#[Route('/backend/register', name: 'user_register', methods: ['POST'])]
-    public function register(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder, JWTTokenManagerInterface $JWTManager): Response
+#[Route('/register', name: 'user_register', methods: ['POST'])]
+    public function register(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        UserPasswordHasherInterface $passwordEncoder, 
+        JWTTokenManagerInterface $JWTManager,
+        ): Response
     {
         $data = json_decode($request->getContent(), true);
 
@@ -41,11 +46,18 @@ class AuthController extends AbstractController
         $token = $JWTManager->create($user);
         $entityManager->persist($user);
         $entityManager->flush();
+
+
         return new JsonResponse(['token' => $token]);
     }
 
-    #[Route('/backend/login', name: 'user_login', methods: ['POST'])]
-    public function login(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder, JWTTokenManagerInterface $JWTManager): Response
+    #[Route('/login', name: 'user_login', methods: ['POST'])]
+    public function login(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        UserPasswordHasherInterface $passwordEncoder, 
+        JWTTokenManagerInterface $JWTManager,
+        ): Response
     {
         $data = json_decode($request->getContent(), true);
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -67,9 +79,8 @@ class AuthController extends AbstractController
         if (!$passwordEncoder->isPasswordValid($user, $data['password'])) {
             return new Response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
         }
-    
+        
         $token = $JWTManager->create($user);
-    
         return new JsonResponse(['token' => $token]);
     }
 }

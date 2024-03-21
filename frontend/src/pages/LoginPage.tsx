@@ -14,7 +14,7 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async () => {
     if (areInputsNotEmpty()) {
-      const response = await fetch('http://127.0.0.1:8000/backend/login', {
+      const response = await fetch('http://127.0.0.1:8000/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,7 +24,10 @@ const LoginPage: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         localStorage.setItem('token', data.token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        //change to navigate later
         window.location.href = './dashboard';
       } else {
         setErrorMessage('Invalid credentials');
