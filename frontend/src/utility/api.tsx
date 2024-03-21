@@ -59,7 +59,7 @@ export async function fetchUserInfo(username: string) {
 
 export async function fetchAllUsers() {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/api/fetchUsers`, {
+    const response = await fetch(`http://127.0.0.1:8000/api/user/fetchAll`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },

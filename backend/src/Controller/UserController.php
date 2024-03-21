@@ -40,11 +40,6 @@ class UserController extends AbstractController
     {
         $requestedUsername = $request->query->get('username');
         $requestedUser = $this->userRepository->findOneBy(['username' => $requestedUsername]);
-    
-        // If the user is not authenticated, return a 401 response
-        if (!$requestedUser) {
-            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
-        }
 
         $authenticatedUser = $this->getUser();
     
