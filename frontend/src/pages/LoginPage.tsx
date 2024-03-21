@@ -14,12 +14,12 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async () => {
     if (areInputsNotEmpty()) {
-      const response = await fetch('http://127.0.0.1:8000/api/login', {
+      const response = await fetch('http://127.0.0.1:8000/api/login_check', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: username, password }),
+        body: JSON.stringify({ username: username, password }),
       });
 
       if (response.ok) {

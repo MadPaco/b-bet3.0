@@ -51,37 +51,37 @@ class AuthController extends AbstractController
         return new JsonResponse(['token' => $token]);
     }
 
-    #[Route('/api/login', name: 'user_login', methods: ['POST'])]
-    public function login(
-        Request $request, 
-        EntityManagerInterface $entityManager, 
-        UserPasswordHasherInterface $passwordEncoder, 
-        JWTTokenManagerInterface $JWTManager,
-        ): Response
-    {
-        $data = json_decode($request->getContent(), true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return new JsonResponse(['message' => 'Invalid JSON']);
-        }
+    // #[Route('/login', name: 'user_login', methods: ['POST'])]
+    // public function login(
+    //     Request $request, 
+    //     EntityManagerInterface $entityManager, 
+    //     UserPasswordHasherInterface $passwordEncoder, 
+    //     JWTTokenManagerInterface $JWTManager,
+    //     ): Response
+    // {
+    //     $data = json_decode($request->getContent(), true);
+    //     if (json_last_error() !== JSON_ERROR_NONE) {
+    //         return new JsonResponse(['message' => 'Invalid JSON']);
+    //     }
     
-        $userRepository = $entityManager->getRepository(User::class);
-        $user = $userRepository->findOneBy(['email' => $data['email']]);
+    //     $userRepository = $entityManager->getRepository(User::class);
+    //     $user = $userRepository->findOneBy(['email' => $data['email']]);
     
-        // If no user is found by email, try to find a user by username
-        if (!$user) {
-            $user = $userRepository->findOneBy(['username' => $data['email']]);
-        }
+    //     // If no user is found by email, try to find a user by username
+    //     if (!$user) {
+    //         $user = $userRepository->findOneBy(['username' => $data['email']]);
+    //     }
     
-        if (!$user) {
-            return new JsonResponse(['message' => 'User not found']);
-        }
+    //     if (!$user) {
+    //         return new JsonResponse(['message' => 'User not found']);
+    //     }
     
-        if (!$passwordEncoder->isPasswordValid($user, $data['password'])) {
-            return new Response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
-        }
+    //     if (!$passwordEncoder->isPasswordValid($user, $data['password'])) {
+    //         return new Response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
+    //     }
         
-        $token = $JWTManager->create($user);
-        return new JsonResponse(['token' => $token]);
-    }
+    //     $token = $JWTManager->create($user);
+    //     return new JsonResponse(['token' => $token]);
+    // }
 }
     ?>

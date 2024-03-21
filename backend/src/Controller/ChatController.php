@@ -88,7 +88,7 @@ class ChatController extends AbstractController
         //push the message to the chatroom vie websockets
 
         $update = new Update(
-            "/api/chatroom/{$chatroom->getId()}", 
+            "/chatroom/{$chatroom->getId()}", 
             json_encode(['content' => $content, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt()]) // The data to send
         );
         $this->publisher->__invoke($update);
