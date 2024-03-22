@@ -38,7 +38,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
       icon: faHome,
       text: 'Home',
       color: primaryColor,
-      onClick: () => navigate('/'),
+      onClick: () => navigate('/dashboard'),
       path: '/dashboard',
     },
     {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { jwtDecode, JwtPayload as DefaultJwtPayload } from 'jwt-decode';
 import { AuthContext } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface JwtPayload extends DefaultJwtPayload {
   username: string;
@@ -18,18 +19,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [createdAt, setCreatedAt] = useState<Date | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const refreshToken = localStorage.getItem('refresh_token');
     if (token) {
       try {
         const decoded = jwtDecode<JwtPayload>(token);
         const current_time = Date.now().valueOf() / 1000;
         if (decoded.exp && decoded.exp < current_time) {
-          console.log('Token is expired');
-          localStorage.removeItem('token'); // remove the token from local storage
-          setLoading(false);
-          return;
+          if (!refreshToken) {
+            setLoading(false);
+            //navigate('/login');
+            return;
+          } else {
+            fetch('http://127.0.0.1:8000/api/token/refresh', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: `refresh_token=${encodeURIComponent(refreshToken)}`,
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+                return response.json();
+              })
+              .then((data) => {
+                localStorage.setItem('token', data.token);
+                // Decode the new token and set the username and roles
+                const newDecoded = jwtDecode<JwtPayload>(data.token);
+                setUsername(newDecoded.username);
+                setRoles(newDecoded.roles);
+                setLoading(false);
+              })
+              .catch((error) => {
+                console.error(
+                  'There has been a problem with your fetch operation:',
+                  error,
+                );
+                // localStorage.removeItem('token'); // remove the token from local storage
+                // localStorage.removeItem('refresh_token'); // remove the refresh token from local storage
+                // setLoading(false);
+                // navigate('/login');
+              });
+          }
         }
         setUsername(decoded.username);
         setRoles(decoded.roles);
@@ -68,7 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else {
       setLoading(false); // set loading to false if there is no token
     }
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return <div>Loading...</div>;
