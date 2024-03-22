@@ -28,18 +28,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const decoded = jwtDecode<JwtPayload>(token);
         const current_time = Date.now().valueOf() / 1000;
+
+        // check if the token has expired
         if (decoded.exp && decoded.exp < current_time) {
+          // log the user out if no token and no refresh token are found
           if (!refreshToken) {
             setLoading(false);
-            //navigate('/login');
+            navigate('/login');
             return;
-          } else {
+          }
+          // else refresh the token
+          else {
             fetch('http://127.0.0.1:8000/api/token/refresh', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
               },
-              body: `refresh_token=${encodeURIComponent(refreshToken)}`,
+              body: `refresh_token=${refreshToken}`,
             })
               .then((response) => {
                 if (!response.ok) {
@@ -49,10 +54,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               })
               .then((data) => {
                 localStorage.setItem('token', data.token);
-                // Decode the new token and set the username and roles
-                const newDecoded = jwtDecode<JwtPayload>(data.token);
-                setUsername(newDecoded.username);
-                setRoles(newDecoded.roles);
                 setLoading(false);
               })
               .catch((error) => {

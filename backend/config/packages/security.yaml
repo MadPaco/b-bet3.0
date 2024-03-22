@@ -18,13 +18,20 @@ security:
         success_handler: lexik_jwt_authentication.handler.authentication_success
         failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
+    api_token_refresh:
+      pattern: /token/refresh
+      stateless: true
+      provider: app_user_provider # provider in database
+      refresh_jwt:
+        check_path: api_refresh_token
+
     api:
       pattern: ^/api
       stateless: true
       jwt: ~
 
   access_control:
-    - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
+    - { path: ^/token/refresh, roles: PUBLIC_ACCESS }
     - { path: ^/api/login, roles: PUBLIC_ACCESS }
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
