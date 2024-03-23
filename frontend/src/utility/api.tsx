@@ -55,7 +55,6 @@ export async function fetchUserInfo(username: string) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const userInfo = await response.json();
-    console.log(userInfo);
     return userInfo;
   } catch (error) {
     console.error('Failed to fetch user info:', error);

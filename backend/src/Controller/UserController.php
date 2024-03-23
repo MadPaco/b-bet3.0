@@ -52,7 +52,8 @@ class UserController extends AbstractController
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
 
-        if ($authenticatedUser->getUsername() === $requestedUser->getUsername()) {
+        if (($authenticatedUser->getUsername() === $requestedUser->getUsername()) 
+        || in_array('ADMIN', $authenticatedUser->getRoles())) {
             return new JsonResponse([
                 'favTeam' => $requestedUser->getFavTeam()->getName(),
                 'email' => $requestedUser->getEmail(),

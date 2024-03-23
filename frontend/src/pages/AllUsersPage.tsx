@@ -15,8 +15,6 @@ const AllUsersPage: React.FC = () => {
     getUsers();
   }, []);
 
-  console.log(userList);
-
   interface User {
     username: string;
     favTeam: string;
@@ -24,7 +22,7 @@ const AllUsersPage: React.FC = () => {
 
   return (
     <LoggedInLayout>
-      <div className="flex items-center align-middle flex-wrap">
+      <div className="flex items-center align-mid flex-wrap">
         {userList.map((user: User) => {
           return (
             <div className="flex flex-1">

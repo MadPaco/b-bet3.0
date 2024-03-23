@@ -1,22 +1,45 @@
-import Layout from '../components/layout/Layout';
-import Sidebar from '../components/layout/Sidebar';
+import { useEffect, useState } from 'react';
+import LoggedInLayout from '../components/layout/LoggedInLayout';
+import { fetchAllUsers } from '../utility/api';
+import UserSelect from '../components/adminComponents/UserSelect';
+import UserEdit from '../components/adminComponents/UserEdit';
+import AdminSelectEdit from '../components/adminComponents/AdminSelectEdit';
+
+interface User {
+  username: string;
+  favTeam: string;
+}
 
 const AdminPage: React.FC = () => {
+  const [userList, setUserList] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<string>('');
+
+  useEffect(() => {
+    const getUserList = async () => {
+      const users = await fetchAllUsers();
+      setUserList(users);
+    };
+
+    getUserList();
+  }, []);
+
+  const handleSave = () => {
+    // todo
+  };
+
   return (
-    <Layout
-      content={
-        <div className="flex flex-col lg:grid lg:grid-cols-7 w-full">
-          <Sidebar color={'black'} />
-          <div className="grid col-span-6 ">
-            <div className="flex flex-col lg:pt-10 lg:grid lg:grid-cols-3 lg:grid-rows-3">
-              <div className="lg:col-span-1 lg:row-span-1">
-                <h1>Admin Panel</h1>
-              </div>
-            </div>
+    <LoggedInLayout
+      children={
+        <div className="flex items-center align-middle flex-col h-screen">
+          <AdminSelectEdit />
+          <div className="text-white pt-5">
+            <UserSelect userList={userList} onUserSelect={setSelectedUser} />
+            <UserEdit username={selectedUser} onSave={handleSave} />
           </div>
         </div>
       }
-    />
+    ></LoggedInLayout>
   );
 };
+
 export default AdminPage;
