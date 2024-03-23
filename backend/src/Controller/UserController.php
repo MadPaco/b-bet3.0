@@ -3,12 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\NflTeam;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\UserRepository;
+use App\Repository\NflTeamRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -17,18 +19,21 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 class UserController extends AbstractController
 {
     private $userRepository;
+    private $nflTeamRepository;
     private $entityManager;
     private $passwordEncoder;
     private $tokenManager;
 
     public function __construct(
         UserRepository $userRepository, 
+        NflTeamRepository $nflTeamRepository,
         UserPasswordHasherInterface $passwordEncoder, 
         EntityManagerInterface $entityManager, 
         JWTTokenManagerInterface $tokenManager
         )
     {
         $this->userRepository = $userRepository;
+        $this->nflTeamRepository = $nflTeamRepository;
         $this->passwordEncoder = $passwordEncoder;
         $this->entityManager = $entityManager;
         $this->tokenManager = $tokenManager;
@@ -94,7 +99,11 @@ class UserController extends AbstractController
         
         $newUsername = filter_var($data['username'], FILTER_SANITIZE_STRING);
         $newEmail = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
-        $newFavTeam = filter_var($data['favTeam'], FILTER_SANITIZE_STRING);
+
+
+
+        $newFavTeam = $data['favTeam'];
+        $newFavTeamID = $this->nflTeamRepository->findOneBy(['name' => $newFavTeam]);
         $newPassword = filter_var($data['password'], FILTER_SANITIZE_STRING);
 
         $exisitingUsername = $this->userRepository->findOneBy(['username' => $newUsername]);
@@ -116,8 +125,8 @@ class UserController extends AbstractController
             if ($newEmail != null){
                 $authenticatedUser->setEmail($newEmail);
             }
-            if ($newFavTeam != null){
-                $authenticatedUser->setFavTeam($newFavTeam);
+            if ($newFavTeamID != null){
+                $authenticatedUser->setFavTeam($newFavTeamID);
             }
             if ($newPassword != null){
                 $hashedPassword = $this->passwordEncoder->encodePassword($authenticatedUser, $newPassword);

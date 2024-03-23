@@ -3,6 +3,7 @@ import { jwtDecode, JwtPayload as DefaultJwtPayload } from 'jwt-decode';
 import { AuthContext } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { fetchUserInfo, fetchNewToken } from '../../utility/api';
+import SyncLoader from 'react-spinners/SyncLoader';
 interface JwtPayload extends DefaultJwtPayload {
   username: string;
   roles: string[];
@@ -45,8 +46,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUsername(decoded.username);
         setRoles(decoded.roles);
 
+        // Fetch user data from the backend
         const fetchUserData = async () => {
-          // Fetch user data from the backend
           try {
             const data = await fetchUserInfo(decoded.username);
             setFavTeam(data.favTeam);
@@ -58,8 +59,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setLoading(false);
           }
         };
-
-        fetchUserData();
+        //this is a dirty workaround to handle the case where the server is slightly ahead of the client
+        //previously the client had to refresh twice to load the user data
+        //if a new token has beeen issued
+        //fix this later with adding a leeway
+        setTimeout(fetchUserData, 200);
       } catch (error) {
         setLoading(false); // set loading to false if decoding the token fails
       }
@@ -69,7 +73,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [navigate]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <SyncLoader color="#36d7b7" />
+      </div>
+    );
   }
 
   return (
