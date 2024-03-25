@@ -23,6 +23,7 @@ const UserSelect: React.FC<UserSelectProps> = ({ userList, onUserSelect }) => {
         }
       }}
     >
+      <option value="">None</option>
       {userList.map((user: User) => {
         return (
           <option key={user.username} value={user.username}>

@@ -1,7 +1,7 @@
 export async function fetchTeamInfo(team: string) {
   const token = localStorage.getItem('token');
   const response = await fetch(
-    `http://127.0.0.1:8000/api/team/?favTeam=${team}`,
+    `http://127.0.0.1:8000/api/team/teaminfo/?favTeam=${team}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -23,7 +23,7 @@ export async function fetchPrimaryColor(team: string | null): Promise<string> {
   const token = localStorage.getItem('token');
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/team/?favTeam=${team}`,
+      `http://127.0.0.1:8000/api/team/teaminfo/?favTeam=${team}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -74,6 +74,27 @@ export async function fetchAllUsers() {
     }
     const users = await response.json();
     return users;
+  } catch (error) {
+    console.error('Failed to fetch all users:', error);
+    return null;
+  }
+}
+
+export async function fetchAllTeamNames() {
+  try {
+    const response = await fetch(
+      'http://127.0.0.1:8000/api/team/allTeams/names/',
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const teams = await response.json();
+    return teams;
   } catch (error) {
     console.error('Failed to fetch all users:', error);
     return null;

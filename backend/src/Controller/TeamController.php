@@ -11,8 +11,8 @@ use App\Repository\NflTeamRepository;
 
 class TeamController extends AbstractController
 {
-    #[Route('/api/team', name: 'get_team_info', methods: ['GET'])]
-    public function getTeamInfo(Request $request, NflTeamRepository $teamRepository, SerializerInterface $serializer): Response
+    #[Route('/api/team/teaminfo/', name: 'get_team_info', methods: ['GET'])]
+    public function getTeamInfo(Request $request, NflTeamRepository $teamRepository): Response
     {
         $favTeam = $request->query->get('favTeam');
 
@@ -28,5 +28,15 @@ class TeamController extends AbstractController
 
         return $this->json($team, 200);
     }
-}
+
+    #[Route('api/team/allTeams/names/', name: 'get_all_team_names', methods: ['GET'])]
+    public function getAllTeamNames(Request $request, NflTeamRepository $teamRepository): Response
+    {
+        $nflTeamsCollection = $teamRepository->findAll();
+        $teamNames = array_map(function($nflTeam){
+            return $nflTeam->getName();
+        }, $nflTeamsCollection);
+        return $this->json($teamNames, 200);
+    }
+}   
 ?>
