@@ -2,6 +2,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useEffect, useState } from 'react';
 import nflTeams from '../../data/nflTeams';
 import { useNavigate } from 'react-router';
+import { updateUser } from '../../utility/api';
 
 const ProfileForm: React.FC = () => {
   const {
@@ -40,29 +41,13 @@ const ProfileForm: React.FC = () => {
     if (usernameState !== '' && usernameState !== initialUsername) {
       postBody['username'] = usernameState;
     }
-
-    const response = await fetch('http://127.0.0.1:8000/api/user/edit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-      body: JSON.stringify({
-        ...postBody,
-      }),
-    });
-
-    if (!response.ok) {
-      const message = `An error has occured: ${response.status}`;
-      throw new Error(message);
+    try {
+      console.log(initialUsername);
+      await updateUser(initialUsername, postBody);
+      navigate('/login');
+    } catch (error) {
+      console.error(error);
     }
-    // I know this is nasty, but enough for a MVP
-    alert(
-      'Your account information has been updated. You will be redirected to the login page to log in again.',
-    );
-
-    localStorage.removeItem('token');
-    navigate('/login');
   };
 
   const handleInputChange = (

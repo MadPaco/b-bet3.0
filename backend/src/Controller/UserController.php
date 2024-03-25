@@ -72,7 +72,7 @@ class UserController extends AbstractController
         }
     }
 
-    #[Route('/api/user/fetchAll', name: 'get_all_user', methods: ['GET'])]
+    #[Route('api/user/fetchAll', name: 'get_all_user', methods: ['GET'])]
     public function getAllUsers(Request $request): Response{
 
         $authenticatedUser = $this->getUser();
@@ -87,54 +87,59 @@ class UserController extends AbstractController
         return new JsonResponse($userArray);
     }
 
-    #[Route('api/user/edit', name: 'edit_user', methods: ['POST'])]
+    #[Route('api/user/editUser', name: 'edit_user', methods: ['POST'])]
     public function editUser(Request $request): Response
     {
+        $userToChange = $this->userRepository->findOneBy(['username' => $request->query->get('username')]);
         $authenticatedUser = $this->getUser();
-    
-        if (!$authenticatedUser) {
+        //some guard clauses
+        if (!$userToChange){
+            return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+        if (!$authenticatedUser){
+            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
+        }
+        //only allow to change a users info if the user is doing it themself or if the user is an admin
+        if ($authenticatedUser->getUsername() !== $userToChange->getUsername() && !in_array('ADMIN', $authenticatedUser->getRoles())){
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
 
         $data = json_decode($request->getContent(), true);
         
-        $newUsername = filter_var($data['username'], FILTER_SANITIZE_STRING);
-        $newEmail = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
+        //sanitize 
+        $newUsername = isset($data['username']) ? filter_var($data['username'], FILTER_SANITIZE_STRING) : null;
+        $newEmail = isset($data['email']) ? filter_var($data['email'], FILTER_SANITIZE_EMAIL) : null;
+        $newFavTeam = isset($data['favTeam']) ? filter_var($data['favTeam'], FILTER_SANITIZE_STRING) : null;
+        $newFavTeamID = $newFavTeam ? $this->nflTeamRepository->findOneBy(['name' => $newFavTeam]) : null;
+        $newPassword = isset($data['password']) ? filter_var($data['password'], FILTER_SANITIZE_STRING) : null;
 
-
-
-        $newFavTeam = $data['favTeam'];
-        $newFavTeamID = $this->nflTeamRepository->findOneBy(['name' => $newFavTeam]);
-        $newPassword = filter_var($data['password'], FILTER_SANITIZE_STRING);
-
+        // keep username and email unqiue
         $exisitingUsername = $this->userRepository->findOneBy(['username' => $newUsername]);
         if($exisitingUsername){
             return new JsonResponse(['message' => 'Username already exists'], Response::HTTP_CONFLICT);
         }
-
-        $newEmail = $data['email'];
         $existingEmail = $this->userRepository->findOneBy(['email' => $newEmail]);
         if($existingEmail){
             return new JsonResponse(['message' => 'Email already exists'], Response::HTTP_CONFLICT);
         }
 
-
+        //set values and update the user, but only if the values differ from saved values
         try {
-            if ($newUsername != null){
-                $authenticatedUser->setUsername($newUsername);
+            if ($newUsername != null && $newUsername !== $userToChange->getUsername()){
+                $userToChange->setUsername($newUsername);
             }
-            if ($newEmail != null){
-                $authenticatedUser->setEmail($newEmail);
+            if ($newEmail != null && $newEmail !== $userToChange->getEmail()){
+                $userToChange->setEmail($newEmail);
             }
-            if ($newFavTeamID != null){
-                $authenticatedUser->setFavTeam($newFavTeamID);
+            if ($newFavTeamID != null && $newFavTeamID !== $userToChange->getFavTeam()){
+                $userToChange->setFavTeam($newFavTeamID);
             }
-            if ($newPassword != null){
-                $hashedPassword = $this->passwordEncoder->encodePassword($authenticatedUser, $newPassword);
-                $authenticatedUser->setPassword($hashedPassword);
+            if ($newPassword != null && $newPassword !== $userToChange->getPassword()){
+                $hashedPassword = $this->passwordEncoder->hashPassword($userToChange, $newPassword);
+                $userToChange->setPassword($hashedPassword);
             }
 
-            $this->entityManager->persist($authenticatedUser);
+            $this->entityManager->persist($userToChange);
             $this->entityManager->flush();
 
         } catch (\Exception $e) {

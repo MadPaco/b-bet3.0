@@ -1,21 +1,56 @@
 import { useEffect, useState } from 'react';
-import { fetchUserInfo, fetchAllTeamNames } from '../../utility/api';
+import {
+  fetchUserInfo,
+  fetchAllTeamNames,
+  updateUser,
+} from '../../utility/api';
 interface UserEditProps {
   username: string;
-  onSave: () => void;
 }
 
-const UserEdit: React.FC<UserEditProps> = ({ username, onSave }) => {
+interface User {
+  username: string;
+  favTeam: string;
+  email: string;
+  roles: string[];
+}
+
+const UserEdit: React.FC<UserEditProps> = ({ username }) => {
+  const [initalUser, setInitialUser] = useState({} as User);
   const [favTeam, setFavTeam] = useState('');
   const [usernameState, setUsernameState] = useState(username || '');
   const [email, setEmail] = useState('');
   const [roles, setRoles] = useState<string[]>([]);
   const [teamNameList, setTeamNameList] = useState<string[]>([]);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const saveChanges = async () => {
+    const postBody: { [key: string]: string | string[] } = {};
+    if (usernameState !== initalUser.username) {
+      postBody['username'] = usernameState;
+    }
+    if (favTeam !== initalUser.favTeam) {
+      postBody['favTeam'] = favTeam;
+    }
+    if (email !== initalUser.email) {
+      postBody['email'] = email;
+    }
+    if (roles !== initalUser.roles) {
+      postBody['roles'] = roles;
+    }
+    if (password !== '' && password === confirmPassword) {
+      postBody['password'] = password;
+    }
+    console.log(postBody);
+    await updateUser(username, postBody);
+  };
 
   useEffect(() => {
     if (username != '') {
       fetchUserInfo(username).then((userInfo) => {
         if (userInfo) {
+          setInitialUser(userInfo);
           setUsernameState(userInfo.username);
           setFavTeam(userInfo.favTeam);
           setEmail(userInfo.email);
@@ -36,7 +71,7 @@ const UserEdit: React.FC<UserEditProps> = ({ username, onSave }) => {
   return (
     <div>
       {username ? (
-        <div>
+        <div className="flex flex-col flex-1">
           <label>
             Username:
             <input
@@ -48,7 +83,13 @@ const UserEdit: React.FC<UserEditProps> = ({ username, onSave }) => {
           </label>
           <label>
             Favorite Team:
-            <select className="text-black" value={favTeam}>
+            <select
+              className="text-black"
+              value={favTeam}
+              onChange={(e) => {
+                setFavTeam(e.target.value);
+              }}
+            >
               {teamNameList.map((team: string) => {
                 return (
                   <option key={team} value={team}>
@@ -69,19 +110,60 @@ const UserEdit: React.FC<UserEditProps> = ({ username, onSave }) => {
           </label>
           <label>
             Roles:
-            <input
-              type="text"
-              className="text-black"
-              value={roles.join(', ')}
-              onChange={(e) =>
-                setRoles(
-                  e.target.value.split(', ').filter((role) => role != ''),
-                )
-              }
-            />
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={roles.includes('ADMIN')}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setRoles([...roles, 'ADMIN']);
+                    } else {
+                      setRoles(roles.filter((role) => role !== 'ADMIN'));
+                    }
+                  }}
+                />
+                Admin
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={roles.includes('USER')}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setRoles([...roles, 'USER']);
+                    } else {
+                      setRoles(roles.filter((role) => role !== 'USER'));
+                    }
+                  }}
+                />
+                User
+              </label>
+            </div>
           </label>
-          <label></label>
-          <button onClick={() => onSave()}>Save</button>
+          <div>
+            {' '}
+            <label>
+              Password:
+              <input
+                className="text-black"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+              ></input>
+            </label>
+            <label>
+              Confirm Password:
+              <input
+                className="text-black"
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                }}
+              ></input>
+            </label>
+          </div>
+
+          <button onClick={() => saveChanges()}>Save</button>
         </div>
       ) : (
         <p>No user selected</p>

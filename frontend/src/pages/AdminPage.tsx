@@ -23,10 +23,6 @@ const AdminPage: React.FC = () => {
     getUserList();
   }, []);
 
-  const handleSave = () => {
-    // todo
-  };
-
   return (
     <LoggedInLayout
       children={
@@ -34,7 +30,7 @@ const AdminPage: React.FC = () => {
           <AdminSelectEdit />
           <div className="text-white pt-5">
             <UserSelect userList={userList} onUserSelect={setSelectedUser} />
-            <UserEdit username={selectedUser} onSave={handleSave} />
+            <UserEdit username={selectedUser} />
           </div>
         </div>
       }
