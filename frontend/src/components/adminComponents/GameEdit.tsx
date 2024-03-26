@@ -18,6 +18,7 @@ const GameEdit = () => {
   const [awayOddsInput, setAwayOddsInput] = useState<number | null>(null);
   const [overUnderInput, setOverUnderInput] = useState<number | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   type Game = {
     id: number;
@@ -75,6 +76,28 @@ const GameEdit = () => {
       return;
     }
 
+    if (
+      weekNumberInput === 0 ||
+      weekNumberInput === null ||
+      dateInput === '' ||
+      dateInput === null ||
+      locationInput === 'null' ||
+      locationInput === null ||
+      homeTeamInput === '' ||
+      homeTeamInput === null ||
+      awayTeamInput === '' ||
+      awayTeamInput === null ||
+      homeOddsInput === 0 ||
+      homeOddsInput === null ||
+      awayOddsInput === 0 ||
+      awayOddsInput === null ||
+      overUnderInput === 0 ||
+      overUnderInput === null
+    ) {
+      setErrorMessage('All fields must be filled out');
+      return;
+    }
+
     const postBody = {
       weekNumber: weekNumberInput,
       date: dateInput,
@@ -88,6 +111,7 @@ const GameEdit = () => {
 
     await updateGame(selectedGame.id, postBody);
     setEditMode(false);
+    setErrorMessage('');
   };
 
   const options = [];
@@ -289,6 +313,7 @@ const GameEdit = () => {
             >
               {editMode ? 'Save' : 'Edit'}
             </button>
+            {errorMessage != '' && <p>{errorMessage}</p>}
           </div>
         </Modal>
       )}
