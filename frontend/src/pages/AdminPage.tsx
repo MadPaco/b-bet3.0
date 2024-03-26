@@ -4,6 +4,7 @@ import { fetchAllUsers } from '../utility/api';
 import UserSelect from '../components/adminComponents/UserSelect';
 import UserEdit from '../components/adminComponents/UserEdit';
 import AdminSelectEdit from '../components/adminComponents/AdminSelectEdit';
+import GameEdit from '../components/adminComponents/GameEdit';
 
 interface User {
   username: string;
@@ -44,6 +45,7 @@ const AdminPage: React.FC = () => {
                 <UserEdit username={selectedUser} />
               </div>
             )}
+            {selectedButton === 'Edit Game' && <GameEdit />}
           </div>
         </div>
       }

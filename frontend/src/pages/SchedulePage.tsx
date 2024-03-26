@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import LoggedInLayout from '../components/layout/LoggedInLayout';
 import { useColor } from '../context/ColorContext';
 import { colorClasses } from '../data/colorClasses';
+import { fetchSchedule } from '../utility/api';
 
 const SchedulePage: React.FC = () => {
+  const NFLWEEKS = 22;
+
   type Game = {
     id: number;
     weekNumber: number;
@@ -26,24 +29,17 @@ const SchedulePage: React.FC = () => {
     : 'bg-gray-400 hover:bg-gray-300';
 
   useEffect(() => {
-    const fetchSchedule = async () => {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/game/fetchWeek?weekNumber=${weekNumber}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        },
-      );
+    const getSchedule = async () => {
+      const response = await fetchSchedule(weekNumber);
       const data = await response.json();
       setSchedule(data);
     };
 
-    fetchSchedule();
+    getSchedule();
   }, [weekNumber]);
 
   const options = [];
-  for (let i = 1; i <= 17; i++) {
+  for (let i = 1; i <= NFLWEEKS; i++) {
     options.push(<option value={i}>Week {i}</option>);
   }
   return (

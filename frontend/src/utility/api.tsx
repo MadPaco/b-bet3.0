@@ -161,3 +161,47 @@ export async function updateUser(
     throw new Error(message);
   }
 }
+
+export async function fetchSchedule(weekNumber: number) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/game/fetchWeek?weekNumber=${weekNumber}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
+
+interface GameUpdateBody {
+  weekNumber: number;
+  date: string;
+  location: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeOdds: number;
+  awayOdds: number;
+  overUnder: number;
+}
+
+export async function updateGame(id: number, postBody: GameUpdateBody) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/game/editGame?gameID=${id}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+      body: JSON.stringify({
+        ...postBody,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const message = `An error has occured: ${response.status}`;
+    throw new Error(message);
+  }
+}

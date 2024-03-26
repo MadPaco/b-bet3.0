@@ -9,9 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
-class GameController extends AbstractController
+class ScheduleController extends AbstractController
 {
     private $entityManager;
     private $request;
@@ -21,12 +20,12 @@ class GameController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/api/game/fetchWeek', name: 'fetch_schedule', methods: ['GET'])]
-    public function fetchSchedule(Request $request): Response
+    #[Route('/api/schedule', name: 'get_schedule', methods: ['GET'])]
+    public function getSchedule(Request $request): Response
     {
         
         $weekNumber = $request->query->get('weekNumber');
-        //fetch the games from a specific week is we have submitted a weekNumber, else fetch all games
+        //get the games from a specific week is we have submitted a weekNumber, else get all games
         //order the by date for the frontend
         if ($weekNumber !== null) {
             $games = $this->entityManager->getRepository(Game::class)->findBy(['weekNumber' => $weekNumber], ['date' => 'ASC']);
@@ -55,40 +54,6 @@ class GameController extends AbstractController
         }
 
         return $this->json($schedule);
-    }
-
-    #[Route('/api/game/fetchGame', name: 'fetch_game', methods: ['GET'])]
-    public function fetchGame(Request $request): Response
-    {
-        
-        $gameID = $request->query->get('gameID');
-        $game = $this->entityManager->getRepository(Game::class)->find($gameID);
-        return $this->json($game);
-    }
-
-    #[Route('/api/game/editGame', name: 'edit_game', methods: ['POST'])]
-    public function editGame(Request $request): Response
-    {
-        $gameID = $request->query->get('gameID');
-        $game = $this->entityManager->getRepository(Game::class)->find($gameID);
-        $data = json_decode($request->getContent(), true);
-        $game->setWeekNumber($data['weekNumber']);
-        $game->setDate(new \DateTime($data['date']));
-        $game->setLocation($data['location']);
-
-        $homeTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $data['homeTeam']]);
-        $game->setHomeTeam($homeTeam);
-        $awayTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $data['awayTeam']]);
-        $game->setAwayTeam($awayTeam);
-
-        $game->setHomeOdds($data['homeOdds']);
-        $game->setAwayOdds($data['awayOdds']);
-        $game->setOverUnder($data['overUnder']);
-
-        $this->entityManager->persist($game);
-        $this->entityManager->flush();
-
-        return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
 }
 
