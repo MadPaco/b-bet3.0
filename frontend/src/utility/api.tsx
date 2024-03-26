@@ -1,7 +1,7 @@
 export async function fetchTeamInfo(team: string) {
   const token = localStorage.getItem('token');
   const response = await fetch(
-    `http://127.0.0.1:8000/api/team/teaminfo/?favTeam=${team}`,
+    `http://127.0.0.1:8000/api/team/fetchTeaminfo/?favTeam=${team}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -23,7 +23,7 @@ export async function fetchPrimaryColor(team: string | null): Promise<string> {
   const token = localStorage.getItem('token');
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/team/teaminfo/?favTeam=${team}`,
+      `http://127.0.0.1:8000/api/team/fetchTeaminfo/?favTeam=${team}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -44,7 +44,7 @@ export async function fetchPrimaryColor(team: string | null): Promise<string> {
 export async function fetchUserInfo(username: string) {
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/user/getUser/?username=${username}`,
+      `http://127.0.0.1:8000/api/user/fetchUser/?username=${username}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -83,7 +83,7 @@ export async function fetchAllUsers() {
 export async function fetchAllTeamNames() {
   try {
     const response = await fetch(
-      'http://127.0.0.1:8000/api/team/allTeams/names/',
+      'http://127.0.0.1:8000/api/team/fetchAllTeamNames',
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -131,7 +131,17 @@ export async function fetchNewToken() {
     });
 }
 
-export async function updateUser(initialUsername: string, postBody: any) {
+interface UserUpdateBody {
+  username?: string;
+  password?: string;
+  email?: string;
+  roles?: string[];
+}
+
+export async function updateUser(
+  initialUsername: string,
+  postBody: UserUpdateBody,
+) {
   const response = await fetch(
     `http://127.0.0.1:8000/api/user/editUser?username=${initialUsername}`,
     {

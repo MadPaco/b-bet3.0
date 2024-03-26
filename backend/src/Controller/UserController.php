@@ -39,9 +39,9 @@ class UserController extends AbstractController
         $this->tokenManager = $tokenManager;
     }
 
-    #[Route('api/user/getUser', name: 'get_user', methods: ['GET'])]
+    #[Route('api/user/fetchUser', name: 'fetch_user', methods: ['GET'])]
 
-    public function getUserInfo(Request $request): Response
+    public function fetchUserInfo(Request $request): Response
     {
         $requestedUsername = $request->query->get('username');
         $requestedUser = $this->userRepository->findOneBy(['username' => $requestedUsername]);
@@ -72,8 +72,8 @@ class UserController extends AbstractController
         }
     }
 
-    #[Route('api/user/fetchAll', name: 'get_all_user', methods: ['GET'])]
-    public function getAllUsers(Request $request): Response{
+    #[Route('api/user/fetchAll', name: 'fetch_all_users', methods: ['GET'])]
+    public function fetchAllUsers(Request $request): Response{
 
         $authenticatedUser = $this->getUser();
         $users = $this->userRepository->findAll();

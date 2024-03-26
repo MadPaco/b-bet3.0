@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
-class ScheduleController extends AbstractController
+class GameController extends AbstractController
 {
     private $entityManager;
     private $request;
@@ -20,8 +20,8 @@ class ScheduleController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/api/schedule', name: 'get_schedule', methods: ['GET'])]
-    public function getSchedule(Request $request): Response
+    #[Route('/api/game/fetchWeek', name: 'fetch_schedule', methods: ['GET'])]
+    public function fetchSchedule(Request $request): Response
     {
         
         $weekNumber = $request->query->get('weekNumber');
@@ -54,6 +54,15 @@ class ScheduleController extends AbstractController
         }
 
         return $this->json($schedule);
+    }
+
+    #[Route('/api/game/fetchGame', name: 'fetch_game', methods: ['GET'])]
+    public function fetchGame(Request $request): Response
+    {
+        
+        $gameID = $request->query->get('gameID');
+        $game = $this->entityManager->getRepository(Game::class)->find($gameID);
+        return $this->json($game);
     }
 }
 

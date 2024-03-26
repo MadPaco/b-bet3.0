@@ -1,7 +1,13 @@
 import ButtonGroup from '../common/ButtonGroup';
 import { useState } from 'react';
 
-const AdminSelectEdit = () => {
+interface AdminSelectEditProps {
+  onButtonSelect: (button: string) => void;
+}
+
+const AdminSelectEdit: React.FC<AdminSelectEditProps> = ({
+  onButtonSelect,
+}) => {
   const [active, setActive] = useState('edit');
 
   return (
@@ -20,18 +26,30 @@ const AdminSelectEdit = () => {
         {active === 'edit' && (
           <ButtonGroup
             children={[
-              <button key={1}>Edit User</button>,
-              <button key={2}>Edit Bet</button>,
-              <button key={3}>Edit Game</button>,
+              <button onClick={() => onButtonSelect('Edit User')} key={1}>
+                Edit User
+              </button>,
+              <button onClick={() => onButtonSelect('Edit Bet')} key={2}>
+                Edit Bet
+              </button>,
+              <button onClick={() => onButtonSelect('Edit Game')} key={3}>
+                Edit Game
+              </button>,
             ]}
           />
         )}
         {active === 'add' && (
           <ButtonGroup
             children={[
-              <button key={1}>Add User</button>,
-              <button key={2}>Add Bet</button>,
-              <button key={3}>Add Game</button>,
+              <button onClick={() => onButtonSelect('Add User')} key={1}>
+                Add User
+              </button>,
+              <button onClick={() => onButtonSelect('Add Bet')} key={2}>
+                Add Bet
+              </button>,
+              <button onClick={() => onButtonSelect('Add Game')} key={3}>
+                Add Game
+              </button>,
             ]}
           />
         )}

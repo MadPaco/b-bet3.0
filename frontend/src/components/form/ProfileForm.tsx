@@ -42,7 +42,6 @@ const ProfileForm: React.FC = () => {
       postBody['username'] = usernameState;
     }
     try {
-      console.log(initialUsername);
       await updateUser(initialUsername, postBody);
       navigate('/login');
     } catch (error) {
