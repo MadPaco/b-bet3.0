@@ -1,10 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Layout from '../layout/Layout';
 import FormCard from '../form/FormCard';
 import FormInput from '../form/FormInput';
 import FormButton from '../form/FormButton';
-import RegisterHeaders from '../form/RegisterHeaders';
 import nflTeams from '../../data/nflTeams';
 
 const UserAdd: React.FC = () => {
@@ -15,7 +12,6 @@ const UserAdd: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
 
   const toggleShowPassword = () => setShowPassword(!showPassword);
 
