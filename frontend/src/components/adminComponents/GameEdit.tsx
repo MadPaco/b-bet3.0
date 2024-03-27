@@ -1,4 +1,8 @@
-import { fetchSchedule, updateGame } from '../../utility/api';
+import {
+  fetchSchedule,
+  updateGame,
+  fetchAllTeamNames,
+} from '../../utility/api';
 import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 
@@ -6,6 +10,7 @@ Modal.setAppElement('#root');
 
 const GameEdit = () => {
   const [weekNumber, setWeekNumber] = useState(1);
+  const [teamNames, setTeamNames] = useState<string[]>([]);
   const [schedule, setSchedule] = useState<Game[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -44,6 +49,15 @@ const GameEdit = () => {
     };
     getSchedule();
   }, [weekNumber]);
+
+  useEffect(() => {
+    const fetchAllTeams = async () => {
+      const teams = await fetchAllTeamNames();
+      setTeamNames(teams);
+    };
+
+    fetchAllTeams();
+  });
 
   const toggleEditMode = () => {
     console.log('toggle');
@@ -224,30 +238,40 @@ const GameEdit = () => {
               </div>
               <div>
                 <label>
-                  {' '}
                   awayTeam:
-                  <input
-                    readOnly={!editMode}
+                  <select
                     onChange={(e) => {
                       setAwayTeamInput(e.target.value);
                     }}
+                    disabled={!editMode}
                     className="w-3/4"
                     value={awayTeamInput || ''}
-                  ></input>
+                  >
+                    {teamNames.map((teamName) => (
+                      <option key={teamName} value={teamName}>
+                        {teamName}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </div>
               <div>
                 <label>
-                  {' '}
                   homeTeam:
-                  <input
-                    readOnly={!editMode}
+                  <select
                     onChange={(e) => {
                       setHomeTeamInput(e.target.value);
                     }}
+                    disabled={!editMode}
                     className="w-3/4"
                     value={homeTeamInput || ''}
-                  ></input>
+                  >
+                    {teamNames.map((teamName) => (
+                      <option key={teamName} value={teamName}>
+                        {teamName}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </div>
               <div>

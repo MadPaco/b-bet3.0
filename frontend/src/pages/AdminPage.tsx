@@ -5,6 +5,7 @@ import UserSelect from '../components/adminComponents/UserSelect';
 import UserEdit from '../components/adminComponents/UserEdit';
 import AdminSelectEdit from '../components/adminComponents/AdminSelectEdit';
 import GameEdit from '../components/adminComponents/GameEdit';
+import UserAdd from '../components/adminComponents/UserAdd';
 
 interface User {
   username: string;
@@ -47,6 +48,7 @@ const AdminPage: React.FC = () => {
             )}
             {selectedButton === 'Edit Game' && <GameEdit />}
           </div>
+          {selectedButton === 'Add User' && <UserAdd />}
         </div>
       }
     ></LoggedInLayout>
