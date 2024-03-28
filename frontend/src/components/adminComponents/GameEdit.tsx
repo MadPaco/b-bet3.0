@@ -57,7 +57,7 @@ const GameEdit = () => {
     };
 
     fetchAllTeams();
-  });
+  }, []);
 
   const toggleEditMode = () => {
     console.log('toggle');

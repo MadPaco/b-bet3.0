@@ -90,6 +90,30 @@ class GameController extends AbstractController
 
         return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
+
+    #[Route('/api/game/addGame', name: 'add_game', methods: ['POST'])]
+    public function addGame(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $game = new Game();
+        $game->setWeekNumber($data['weekNumber']);
+        $game->setDate(new \DateTime($data['date']));
+        $game->setLocation($data['location']);
+
+        $homeTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $data['homeTeam']]);
+        $game->setHomeTeam($homeTeam);
+        $awayTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $data['awayTeam']]);
+        $game->setAwayTeam($awayTeam);
+
+        $game->setHomeOdds($data['homeOdds']);
+        $game->setAwayOdds($data['awayOdds']);
+        $game->setOverUnder($data['overUnder']);
+
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
+    }
 }
 
 

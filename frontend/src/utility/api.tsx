@@ -174,7 +174,7 @@ export async function fetchSchedule(weekNumber: number) {
   return response;
 }
 
-interface GameUpdateBody {
+interface GameBody {
   weekNumber: number;
   date: string;
   location: string;
@@ -185,7 +185,7 @@ interface GameUpdateBody {
   overUnder: number;
 }
 
-export async function updateGame(id: number, postBody: GameUpdateBody) {
+export async function updateGame(id: number, postBody: GameBody) {
   const response = await fetch(
     `http://127.0.0.1:8000/api/game/editGame?gameID=${id}`,
     {
@@ -204,4 +204,18 @@ export async function updateGame(id: number, postBody: GameUpdateBody) {
     const message = `An error has occured: ${response.status}`;
     throw new Error(message);
   }
+}
+
+export async function addGame(postBody: GameBody) {
+  const response = await fetch(`http://127.0.0.1:8000/api/game/addGame`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + localStorage.getItem('token'),
+    },
+    body: JSON.stringify({
+      ...postBody,
+    }),
+  });
+  return response;
 }
