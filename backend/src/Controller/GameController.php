@@ -114,6 +114,20 @@ class GameController extends AbstractController
 
         return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
+
+    #[Route('/api/game/deleteGame', name: 'delete_game', methods: ['POST'])]
+    public function deleteGame(Request $request): Response
+    {
+        if (!in_array('ADMIN', $this->getUser()->getRoles())){
+            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $gameID = $request->query->get('gameID');
+        $game = $this->entityManager->getRepository(Game::class)->find($gameID);
+        $this->entityManager->remove($game);
+        $this->entityManager->flush();
+        return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
+    }
 }
 
 

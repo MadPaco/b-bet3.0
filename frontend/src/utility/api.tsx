@@ -219,3 +219,16 @@ export async function addGame(postBody: GameBody) {
   });
   return response;
 }
+
+export async function deleteGame(id: number) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/game/deleteGame?gameID=${id}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}

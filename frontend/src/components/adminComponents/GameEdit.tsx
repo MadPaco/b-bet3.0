@@ -2,6 +2,7 @@ import {
   fetchSchedule,
   updateGame,
   fetchAllTeamNames,
+  deleteGame,
 } from '../../utility/api';
 import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
@@ -41,12 +42,13 @@ const GameEdit = () => {
 
   const NFLWEEKS = 22;
 
+  const getSchedule = async () => {
+    const response = await fetchSchedule(weekNumber);
+    const data = await response.json();
+    setSchedule(data);
+  };
+
   useEffect(() => {
-    const getSchedule = async () => {
-      const response = await fetchSchedule(weekNumber);
-      const data = await response.json();
-      setSchedule(data);
-    };
     getSchedule();
   }, [weekNumber]);
 
@@ -124,6 +126,7 @@ const GameEdit = () => {
     };
 
     await updateGame(selectedGame.id, postBody);
+    getSchedule();
     setEditMode(false);
     setErrorMessage('');
   };
@@ -333,9 +336,23 @@ const GameEdit = () => {
                   toggleEditMode();
                 }
               }}
-              className="px-4 py-2 bg-red-500 text-white rounded"
+              className="px-4 py-2 bg-blue-500 text-white rounded"
             >
               {editMode ? 'Save' : 'Edit'}
+            </button>
+            <button
+              onClick={() => {
+                if (selectedGame) {
+                  deleteGame(selectedGame.id);
+                  getSchedule();
+                  closeModal();
+                } else {
+                  console.log('selectedGame is null');
+                }
+              }}
+              className="px-4 py-2 bg-red-500 text-white rounded"
+            >
+              Delete
             </button>
             {errorMessage != '' && <p>{errorMessage}</p>}
           </div>
