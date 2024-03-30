@@ -13,6 +13,16 @@ class BetRepository extends ServiceEntityRepository
         parent::__construct($registry, Bet::class);
     }
 
+    public function findBetsByWeeknumber($weekNumber)
+    {
+        return $this->createQueryBuilder('b')
+            ->innerJoin('b.game', 'g')
+            ->where('g.weekNumber = :weekNumber')
+            ->setParameter('weekNumber', $weekNumber)
+            ->getQuery()
+            ->getResult();
+    }
+
 }
 
 ?>

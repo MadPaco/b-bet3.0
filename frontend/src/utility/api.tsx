@@ -232,3 +232,47 @@ export async function deleteGame(id: number) {
   );
   return response;
 }
+
+interface BetBody {
+  gameID: number;
+  homePrediction: number | null;
+  awayPrediction: number | null;
+}
+
+export async function addBets(postBody: BetBody[]) {
+  const response = await fetch(`http://127.0.0.1:8000/api/bet/addBets`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + localStorage.getItem('token'),
+    },
+    body: JSON.stringify({
+      ...postBody,
+    }),
+  });
+  return response;
+}
+
+export async function fetchBets(
+  weekNumber?: number | null,
+  username?: string | null,
+) {
+  let query = '';
+  if (weekNumber) {
+    query += `?weekNumber=${weekNumber}`;
+  }
+  if (username) {
+    if (query.length > 0) query += '&';
+    query += `user=${username}`;
+  }
+
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/bet/fetchBets${query}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
