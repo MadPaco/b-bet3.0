@@ -15,9 +15,9 @@ class BetRepository extends ServiceEntityRepository
 
     public function findBetsByWeeknumber($weekNumber)
     {
-        return $this->createQueryBuilder('b')
-            ->innerJoin('b.game', 'g')
-            ->where('g.weekNumber = :weekNumber')
+        return $this->createQueryBuilder('bet')
+            ->innerJoin('bet.game', 'game')
+            ->where('game.weekNumber = :weekNumber')
             ->setParameter('weekNumber', $weekNumber)
             ->getQuery()
             ->getResult();
