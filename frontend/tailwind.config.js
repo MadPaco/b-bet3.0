@@ -8,6 +8,9 @@ export default {
         stadium: 'url(./src/assets/images/stadium.jpg)',
         stadiumTop: 'url(./src/assets/images/stadium2.jpg)',
       }),
+      animation: {
+        'ping-once': 'ping 1s cubic-bezier(0, 0, 0.2, 1)',
+      },
     },
   },
   plugins: [],

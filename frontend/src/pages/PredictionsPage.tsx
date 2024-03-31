@@ -4,12 +4,15 @@ import { fetchSchedule, addBets, fetchBets } from '../utility/api';
 import { colorClasses } from '../data/colorClasses';
 import { useAuth } from '../components/auth/AuthContext';
 import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 const PredictionsPage: React.FC = () => {
   const { username } = useAuth();
   const NFLWEEKS = 22;
   const [schedule, setSchedule] = useState<Game[]>([]);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [showPopup, setShowPopup] = useState(false);
   const [weekNumber, setWeekNumber] = useState(1);
   const { primaryColor } = useColor();
   const colorClass = primaryColor
@@ -87,6 +90,8 @@ const PredictionsPage: React.FC = () => {
 
   const handleSubmit = (predictions: Prediction[]) => {
     const response = addBets(predictions);
+    setShowPopup(true);
+    setTimeout(() => setShowPopup(false), 1000);
     return response;
   };
 
@@ -186,8 +191,17 @@ const PredictionsPage: React.FC = () => {
                 <div className="location">{game.location}</div>
               </div>
             ))}
-            <button type="submit">Submit</button>
+            <button type="submit" className="bg-green-400 px-3 rounded-lg mb-3">
+              Submit
+            </button>
           </form>
+          {showPopup && (
+            <div className="animate-ping-once fixed top-0 left-0 w-screen h-screen flex items-center justify-center">
+              <div className="bg-green-400 p-4 rounded shadow-lg text-black">
+                Saved <FontAwesomeIcon icon={faCheck} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </LoggedInLayout>

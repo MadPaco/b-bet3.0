@@ -42,7 +42,6 @@ const UserEdit: React.FC<UserEditProps> = ({ username }) => {
     if (password !== '' && password === confirmPassword) {
       postBody['password'] = password;
     }
-    console.log(postBody);
     await updateUser(username, postBody);
   };
 
