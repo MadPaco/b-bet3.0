@@ -31,7 +31,7 @@ class BetController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         $user = $this->getUser();
-        
+
         if (empty($data)) {
             return new JsonResponse(['message' => 'Invalid data![No data provided!]'], Response::HTTP_BAD_REQUEST);
         }

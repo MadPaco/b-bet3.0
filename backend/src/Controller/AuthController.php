@@ -12,11 +12,19 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\AuthValidator;
 
 class AuthController extends AbstractController
 {
+    private $validator;
 
-#[Route('/api/register', name: 'user_register', methods: ['POST'])]
+    public function __construct(AuthValidator $validator)
+    {
+        $this->validator = $validator;
+    }
+
+
+    #[Route('/api/register', name: 'user_register', methods: ['POST'])]
     public function register(
         Request $request, 
         EntityManagerInterface $entityManager, 
@@ -24,7 +32,16 @@ class AuthController extends AbstractController
         JWTTokenManagerInterface $JWTManager,
         ): Response
     {
+
+        $contentType = $request->headers->get('Content-Type');
+        if ($contentType !== 'application/json') {
+            return new JsonResponse(['message' => 'Invalid content type!'], Response::HTTP_BAD_REQUEST);
+        }
         $data = json_decode($request->getContent(), true);
+        $response = $this->validator->validateData($data);
+        if ($response) {
+            return $response;
+        }
 
         $user = new User();
         $user->setEmail($data['email']);
