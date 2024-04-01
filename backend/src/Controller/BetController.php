@@ -12,23 +12,37 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\BetValidator;
 
 class BetController extends AbstractController
 {
     private $entityManager;
     private $request;
+    private $validator;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, BetValidator $validator)
     {
         $this->entityManager = $entityManager;
+        $this->validator = $validator;
     }
 
     #[Route('/api/bet/addBets', name: 'add_bets', methods: ['POST'])]
-    public function addBet(Request $request): Response
+    public function addBet(Request $request, ): Response
     {
         $data = json_decode($request->getContent(), true);
         $user = $this->getUser();
+        
+        if (empty($data)) {
+            return new JsonResponse(['message' => 'Invalid data![No data provided!]'], Response::HTTP_BAD_REQUEST);
+        }
+        
         foreach ($data as $betData){
+
+
+            $validationResponse = $this->validator->validateBetData($betData);
+            if ($validationResponse) {
+                return $validationResponse;
+            }
 
             $game = $this->entityManager->getRepository(Game::class)->find($betData['gameID']);
             $bet = $this->entityManager->getRepository(Bet::class)->findOneBy(['game' => $game, 'user' => $user]);  
