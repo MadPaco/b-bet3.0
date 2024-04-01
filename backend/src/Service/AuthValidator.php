@@ -77,9 +77,10 @@ class AuthValidator {
         if (!$existingTeam) {
             return new JsonResponse(['message' => 'Team does not exist!'], Response::HTTP_BAD_REQUEST);
         }
-
-
         
+        //check for wrong content type
+        
+
         return null;
     }
 }

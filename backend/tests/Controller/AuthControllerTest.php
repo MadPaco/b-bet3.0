@@ -27,9 +27,9 @@ class AuthControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-                'email' => 'test@example.com',
+                'email' => 'test2@example.com',
                 'password' => 'password',
-                'username' => 'testuser',
+                'username' => 'testuser2',
                 'favTeam' => 'Arizona Cardinals'
             ])
         );
@@ -51,22 +51,9 @@ class AuthControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-                'email' => 'test@example.com',
+                'email' => 'test@test.com',
                 'password' => 'password',
                 'username' => 'testuser',
-                'favTeam' => 'Arizona Cardinals'
-            ])
-        );
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => 'test@example.com',
-                'password' => 'password',
-                'username' => 'anotheTestUser',
                 'favTeam' => 'Arizona Cardinals'
             ])
         );
@@ -84,19 +71,6 @@ class AuthControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 'email' => 'test@example.com',
-                'password' => 'password',
-                'username' => 'testuser',
-                'favTeam' => 'Arizona Cardinals'
-            ])
-        );
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => 'anotherEmail@example.com',
                 'password' => 'password',
                 'username' => 'testuser',
                 'favTeam' => 'Arizona Cardinals'
@@ -513,6 +487,4 @@ class AuthControllerTest extends WebTestCase
         );
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
     }
-
-
 }

@@ -37,6 +37,7 @@ class AuthController extends AbstractController
         if ($contentType !== 'application/json') {
             return new JsonResponse(['message' => 'Invalid content type!'], Response::HTTP_BAD_REQUEST);
         }
+        
         $data = json_decode($request->getContent(), true);
         $response = $this->validator->validateData($data);
         if ($response) {

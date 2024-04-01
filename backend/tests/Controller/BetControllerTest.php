@@ -12,28 +12,12 @@ class BetControllerTest extends WebTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->client = static::createClient();
         $this->logIn();
     }
-
+    
     private function logIn()
     {
-
-        $this->client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => 'test@example.com',
-                'password' => 'password',
-                'username' => 'testuser',
-                'favTeam' => 'Arizona Cardinals'
-            ])
-        );
-
         $this->client->request(
             'POST',
             '/api/login_check',
@@ -45,10 +29,12 @@ class BetControllerTest extends WebTestCase
                 'password' => 'password',
             ])
         );
-
+    
         $data = json_decode($this->client->getResponse()->getContent(), true);
-
-        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
+    
+        if (isset($data['token'])) {
+            $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
+        }
     }
 
     public function testAddValidBet(): void
@@ -68,7 +54,14 @@ class BetControllerTest extends WebTestCase
             ])
         );
 
-        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        $response = $this->client->getResponse();
+        $statusCode = $response->getStatusCode();
+    
+        if ($statusCode != 200) {
+            echo $response->getContent();
+        }
+    
+        $this->assertEquals(200, $statusCode);
     }
 
     public function testAddInvalidGameID(): void
