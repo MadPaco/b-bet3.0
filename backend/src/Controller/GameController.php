@@ -21,7 +21,7 @@ class GameController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/api/game/fetchWeek', name: 'fetch_schedule', methods: ['GET'])]
+    #[Route('/api/game/fetchWeek/', name: 'fetch_schedule', methods: ['GET'])]
     public function fetchSchedule(Request $request): Response
     {
         
@@ -57,7 +57,7 @@ class GameController extends AbstractController
         return $this->json($schedule);
     }
 
-    #[Route('/api/game/fetchGame', name: 'fetch_game', methods: ['GET'])]
+    #[Route('/api/game/fetchGame/', name: 'fetch_game', methods: ['GET'])]
     public function fetchGame(Request $request): Response
     {
         
@@ -91,7 +91,7 @@ class GameController extends AbstractController
         return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
 
-    #[Route('/api/game/addGame', name: 'add_game', methods: ['POST'])]
+    #[Route('/api/game/addGame/', name: 'add_game', methods: ['POST'])]
     public function addGame(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -115,7 +115,7 @@ class GameController extends AbstractController
         return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
 
-    #[Route('/api/game/deleteGame', name: 'delete_game', methods: ['POST'])]
+    #[Route('/api/game/deleteGame/', name: 'delete_game', methods: ['POST'])]
     public function deleteGame(Request $request): Response
     {
         if (!in_array('ADMIN', $this->getUser()->getRoles())){

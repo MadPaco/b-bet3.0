@@ -46,7 +46,7 @@ class Game
     #[ORM\Column(name: 'awayOdds', type: 'integer', nullable: true)]
     private $awayOdds;
 
-    #[ORM\Column(name: 'overUnder', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'overUnder', type: 'decimal', precision: 5, scale: 1, nullable: true)]
     private $overUnder;
 
     #[ORM\Column(name: 'homeScore', type: 'integer', nullable: true)]
@@ -146,12 +146,12 @@ class Game
         return $this;
     }
 
-    public function getOverUnder(): ?int
+    public function getOverUnder(): ?float
     {
         return $this->overUnder;
     }
 
-    public function setOverUnder(int $overUnder): self
+    public function setOverUnder(float $overUnder): self
     {
         $this->overUnder = $overUnder;
         return $this;

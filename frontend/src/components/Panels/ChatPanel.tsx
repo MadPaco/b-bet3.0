@@ -23,17 +23,19 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
   const handleSendMessage = async () => {
     // filter out empty messages
     if (newMessage.trim() !== '') {
-      //sanitize to avoid malicious shenaningans
       const sanitizedMessage = DOMPurify.sanitize(newMessage);
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/chatroom/1', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/chatroom/?chatroomID=1`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+            body: JSON.stringify({ content: sanitizedMessage }),
           },
-          body: JSON.stringify({ content: sanitizedMessage }),
-        });
+        );
 
         if (!response.ok) {
           throw new Error('HTTP error ' + response.status);
@@ -61,11 +63,14 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/chatroom/1', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        const response = await fetch(
+          'http://127.0.0.1:8000/api/chatroom/?chatroomID=1',
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
           },
-        });
+        );
 
         if (!response.ok) {
           throw new Error('HTTP error ' + response.status);

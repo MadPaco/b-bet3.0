@@ -22,7 +22,7 @@ const GameEdit = () => {
   const [awayTeamInput, setAwayTeamInput] = useState<string | null>(null);
   const [homeOddsInput, setHomeOddsInput] = useState<number | null>(null);
   const [awayOddsInput, setAwayOddsInput] = useState<number | null>(null);
-  const [overUnderInput, setOverUnderInput] = useState<number | null>(null);
+  const [overUnderInput, setOverUnderInput] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -37,7 +37,7 @@ const GameEdit = () => {
     awayTeamLogo: string;
     homeOdds: number;
     awayOdds: number;
-    overUnder: number;
+    overUnder: string;
   };
 
   const NFLWEEKS = 22;
@@ -107,7 +107,7 @@ const GameEdit = () => {
       homeOddsInput === null ||
       awayOddsInput === 0 ||
       awayOddsInput === null ||
-      overUnderInput === 0 ||
+      overUnderInput === '' ||
       overUnderInput === null
     ) {
       setErrorMessage('All fields must be filled out');
@@ -122,7 +122,7 @@ const GameEdit = () => {
       awayTeam: awayTeamInput,
       homeOdds: homeOddsInput,
       awayOdds: awayOddsInput,
-      overUnder: overUnderInput,
+      overUnder: parseFloat(overUnderInput),
     };
 
     await updateGame(selectedGame.id, postBody);
@@ -311,8 +311,9 @@ const GameEdit = () => {
                   overUnder:
                   <input
                     readOnly={!editMode}
+                    type="text"
                     onChange={(e) => {
-                      setOverUnderInput(Number(e.target.value));
+                      setOverUnderInput(e.target.value);
                     }}
                     className="w-3/4"
                     value={overUnderInput || ''}

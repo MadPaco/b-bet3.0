@@ -25,13 +25,24 @@ class ChatController extends AbstractController
         $this->entityManager = $entityManager;
         $this->hub = $hub;
     }
-    #[Route("/api/chatroom/{id}", methods: ["GET"])]
-    public function getChatroomMessages($id): Response
+    #[Route("/api/chatroom/", methods: ["GET"])]
+    public function getChatroomMessages(Request $request): Response
     {
+        if (!$request->query->get('chatroomID')){
+            return new Response('Chatroom ID missing', 400);
+        }
+        
+        $id = $request->query->get('chatroomID');
+
+        if (!$id || !ctype_digit($id)){
+            return new Response('Invalid Chatroom ID', 400);
+        }
+
+
         $chatroom = $this->entityManager->getRepository(Chatroom::class)->find($id);
     
         if (!$chatroom) {
-            throw $this->createNotFoundException('Chatroom not found');
+            return new Response ('Chatroom not found', 404);
         }
     
         $messages = $this->entityManager->getRepository(ChatroomMessage::class)->findBy(['chatroom' => $chatroom]);
@@ -49,13 +60,22 @@ class ChatController extends AbstractController
         return new JsonResponse($formattedMessages);
     }
 
-    #[Route("/api/chatroom/{id}", methods: ["POST"])]
+    #[Route("/api/chatroom/", methods: ["POST"])]
     public function postChatroomMessage(Request $request)
     {
-        /* For now, I just implement a public chatroom with this
-        Might want to add the possibility to create custom chatrooms later 
-        down the road **/
-        $chatroom = $this->entityManager->getRepository(Chatroom::class)->find(1);
+        if (!$request->query->get('chatroomID')){
+            return new Response('Chatroom ID missing', 400);
+        }
+
+        $id = $request->query->get('chatroomID');
+
+        if (!$id || !ctype_digit($id)){
+            return new Response('Invalid Chatroom ID', 400);
+        }
+
+
+
+        $chatroom = $this->entityManager->getRepository(Chatroom::class)->find($id);
         $user = $this->getUser();
 
         if (!$user) {
@@ -63,21 +83,28 @@ class ChatController extends AbstractController
         }
 
         if (!$chatroom) {
-            throw $this->createNotFoundException('No chatroom found with id = 1');
+            return new Response('Chatroom not found', 404);
+        }
+
+        $data = $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['content'])){
+            return new Response('Content missing', 400);
         }
 
         $content = json_decode($request->getContent(), true)['content'];
-
-        if ($content === null) {
-            // Handle the case where content is null, e.g. throw an exception or return a response
-            throw new \Exception('Content cannot be null');
+        if (!$content || $content === ''){
+            return new Response('Content missing or empty', 400);
         }
 
-        // Sanitize the content
-        $content = filter_var($content, FILTER_SANITIZE_STRING);
-
+        $sanitizedContent = htmlentities($content);
         $message = new ChatroomMessage();
-        $message->setContent($content);
+        if ($sanitizedContent !== null && $sanitizedContent !== '') {
+            $message->setContent($sanitizedContent);
+        }
+        else {
+            throw new \Exception('Content cannot be empty');
+        }
         $message->setSentAt(new \DateTime());
         $message->setChatroom($chatroom);
         $message->setSender($user);
@@ -89,7 +116,7 @@ class ChatController extends AbstractController
 
         $update = new Update(
             "/chatroom/{$chatroom->getId()}", 
-            json_encode(['content' => $content, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt()]) // The data to send
+            json_encode(['content' => $sanitizedContent, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt()]) // The data to send
         );
         $this->hub->publish($update);
     
