@@ -44,7 +44,13 @@ class UserController extends AbstractController
     public function fetchUserInfo(Request $request): Response
     {
         $requestedUsername = $request->query->get('username');
+        if (!$requestedUsername) {
+            return new JsonResponse(['message' => 'No username provided'], Response::HTTP_BAD_REQUEST);
+        }
         $requestedUser = $this->userRepository->findOneBy(['username' => $requestedUsername]);
+        if (!$requestedUser) {
+            return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
 
         $authenticatedUser = $this->getUser();
     
@@ -66,8 +72,6 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'favTeam' => $requestedUser->getFavTeam()->getName(),
                 'username' => $requestedUser->getUsername(),
-                'roles' => $requestedUser->getRoles(),
-            
             ]);
         }
     }
@@ -90,6 +94,9 @@ class UserController extends AbstractController
     #[Route('api/user/editUser', name: 'edit_user', methods: ['POST'])]
     public function editUser(Request $request): Response
     {
+        if (!$request->query->get('username')){
+            return new JsonResponse(['message' => 'No username provided'], Response::HTTP_BAD_REQUEST);
+        }
         $userToChange = $this->userRepository->findOneBy(['username' => $request->query->get('username')]);
         $authenticatedUser = $this->getUser();
         //some guard clauses
@@ -100,18 +107,19 @@ class UserController extends AbstractController
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
         //only allow to change a users info if the user is doing it themself or if the user is an admin
+        //Using forbidden here because this is a valid request, but the user is not authorized to do it
         if ($authenticatedUser->getUsername() !== $userToChange->getUsername() && !in_array('ADMIN', $authenticatedUser->getRoles())){
-            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
+            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_FORBIDDEN);
         }
 
         $data = json_decode($request->getContent(), true);
         
         //sanitize 
-        $newUsername = isset($data['username']) ? filter_var($data['username'], FILTER_SANITIZE_STRING) : null;
+        $newUsername = isset($data['username']) ? filter_var($data['username'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
         $newEmail = isset($data['email']) ? filter_var($data['email'], FILTER_SANITIZE_EMAIL) : null;
-        $newFavTeam = isset($data['favTeam']) ? filter_var($data['favTeam'], FILTER_SANITIZE_STRING) : null;
+        $newFavTeam = isset($data['favTeam']) ? filter_var($data['favTeam'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
         $newFavTeamID = $newFavTeam ? $this->nflTeamRepository->findOneBy(['name' => $newFavTeam]) : null;
-        $newPassword = isset($data['password']) ? filter_var($data['password'], FILTER_SANITIZE_STRING) : null;
+        $newPassword = isset($data['password']) ? filter_var($data['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
 
         // keep username and email unqiue
         $exisitingUsername = $this->userRepository->findOneBy(['username' => $newUsername]);

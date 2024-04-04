@@ -69,6 +69,10 @@ class GameController extends AbstractController
     #[Route('/api/game/editGame', name: 'edit_game', methods: ['POST'])]
     public function editGame(Request $request): Response
     {
+        //Only allow admins to edit games
+        if (!in_array('ADMIN', $this->getUser()->getRoles())){
+            return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
+        }
         $gameID = $request->query->get('gameID');
         $game = $this->entityManager->getRepository(Game::class)->find($gameID);
         $data = json_decode($request->getContent(), true);

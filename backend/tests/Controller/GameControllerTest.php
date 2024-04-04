@@ -58,11 +58,27 @@ class GameControllerTest extends WebTestCase
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
     }
-
-    //Happy paths for POST requests
     public function testEditGame()
     {
-        $this->client->request('POST', '/api/game/editGame/?gameID=1', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+
+        $this->client->request(
+            'POST',
+            '/api/login_check',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'username' => 'admin',
+                'password' => 'admin',
+            ])
+        );
+
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        if (isset($data['token'])) {
+            $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
+        }
+
+        $this->client->request('POST', '/api/game/editGame?gameID=3', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'weekNumber' => 1,
             'date' => '2021-09-09',
             'location' => 'Gillette Stadium',
@@ -74,6 +90,38 @@ class GameControllerTest extends WebTestCase
         ]));
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testEditGameWithoutAdminRole()
+    {
+        $this->client->request('POST', '/api/game/editGame?gameID=3', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'weekNumber' => 1,
+            'date' => '2021-09-09',
+            'location' => 'Gillette Stadium',
+            'homeTeam' => 'Atlanta Falcons',
+            'awayTeam' => 'Arizona Cardinals',
+            'homeOdds' => -200,
+            'awayOdds' => 150,
+            'overUnder' => 50.5,
+        ]));
+
+        $this->assertEquals(401, $this->client->getResponse()->getStatusCode());
+    }
+    public function testEditGameWithInvalidToken()
+    {
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', 'invalid Token'));
+        $this->client->request('POST', '/api/game/editGame?gameID=1', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'weekNumber' => 1,
+            'date' => '2021-09-09',
+            'location' => 'Gillette Stadium',
+            'homeTeam' => 'Atlanta Falcons',
+            'awayTeam' => 'Arizona Cardinals',
+            'homeOdds' => -200,
+            'awayOdds' => 150,
+            'overUnder' => 50.5,
+        ]));
+
+        $this->assertEquals(401, $this->client->getResponse()->getStatusCode());
     }
 }
 

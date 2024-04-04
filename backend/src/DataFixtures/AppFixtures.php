@@ -63,6 +63,16 @@ class AppFixtures extends Fixture
         $user->setRoles(['USER']);
         $manager->persist($user);
 
+        $admin = new User();
+        $admin->setUsername('admin');
+        $password = $this->passwordEncoder->hashPassword($admin, 'admin');
+        $admin->setPassword($password);
+        $admin->setEmail('admin@test.com');
+        $admin->setFavTeam($teamTwo);
+        $admin->setCreatedAt(new \DateTime());
+        $admin->setRoles(['USER', 'ADMIN']);
+        $manager->persist($admin);
+
         $manager->flush();
     }
 }
