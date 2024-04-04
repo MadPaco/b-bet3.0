@@ -12,7 +12,15 @@ const AdminSelectEdit: React.FC<AdminSelectEditProps> = ({
 
   return (
     <div>
-      <div>
+      <div className="">
+        <div className="flex items-center justify-center">
+          <button
+            className="bg-green-400 rounded-lg px-3 mt-3"
+            onClick={() => onButtonSelect('Submit Results')}
+          >
+            Enter results
+          </button>
+        </div>
         <ButtonGroup
           children={[
             <button onClick={() => setActive('edit')} name="edit" key={1}>

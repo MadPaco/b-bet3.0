@@ -318,7 +318,7 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals(400, $this->client->getResponse()->getStatusCode());
     }
 
-    public function testEditUserWithExistingUsername()
+    public function testEditUserWithExistingUsername()  
     {
         $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'username' => 'admin'
