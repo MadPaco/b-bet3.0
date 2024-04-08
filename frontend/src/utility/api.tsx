@@ -276,3 +276,19 @@ export async function fetchBets(
   );
   return response;
 }
+
+export async function submitResults(scores: {
+  [gameId: number]: { homeTeamScore: number; awayTeamScore: number };
+}) {
+  const response = await fetch(`http://127.0.0.1:8000/api/game/submitResults`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + localStorage.getItem('token'),
+    },
+    body: JSON.stringify({
+      ...scores,
+    }),
+  });
+  return response;
+}

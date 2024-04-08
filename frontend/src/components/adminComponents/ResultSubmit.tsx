@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchSchedule } from '../../utility/api';
+import { fetchSchedule, submitResults } from '../../utility/api';
 
 interface Game {
   id: number;
@@ -12,6 +12,11 @@ interface Game {
 
 const ResultSubmit: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
+  // use the gameID as the key to store the scores
+  // this makes updating the game scores easier for me
+  const [scores, setScores] = useState<{
+    [gameId: number]: { homeTeamScore: number; awayTeamScore: number };
+  }>({});
   const [weekNumber, setWeekNumber] = useState(1);
   const NFLWEEKS = 22;
 
@@ -25,11 +30,27 @@ const ResultSubmit: React.FC = () => {
     getGames();
   }, [weekNumber]);
 
+  const handleSubmit = () => {
+    return async (e: React.FormEvent) => {
+      e.preventDefault();
+      const response = await submitResults(scores);
+      if (response.status === 200) {
+        alert('Scores submitted successfully');
+      } else {
+        alert('Error submitting scores');
+      }
+    };
+  };
+
   return (
     <div>
       <select
         onChange={(e) => {
           setWeekNumber(Number((e.target as HTMLSelectElement).value));
+          //reset the scores so we only have the current week's scores
+          //this is done to prevent the admin from submitting scores for multiple weeks at once
+          //reducing load on the backend
+          setScores({});
         }}
         className="text-black"
       >
@@ -40,7 +61,7 @@ const ResultSubmit: React.FC = () => {
         ))}
       </select>
       <div>
-        <form className="text-white">
+        <form onSubmit={handleSubmit()} className="text-white">
           {games.map((game) => (
             <div key={game.id}>
               <p>ID: {game.id}</p>
@@ -49,13 +70,40 @@ const ResultSubmit: React.FC = () => {
                 {game.awayTeam} at {game.homeTeam}
               </p>
               <input
-                className="mx-4"
+                className="mx-4 text-black"
                 type="number"
                 placeholder="Away Team Score"
+                value={scores[game.id]?.awayTeamScore || 0}
+                onChange={(e) => {
+                  setScores({
+                    ...scores,
+                    [game.id]: {
+                      ...scores[game.id],
+                      awayTeamScore: Number(e.target.value),
+                    },
+                  });
+                }}
               />
-              <input type="number" placeholder="Home Team Score" />
+              <input
+                type="number"
+                className="text-black "
+                placeholder="Home Team Score"
+                value={scores[game.id]?.homeTeamScore || 0}
+                onChange={(e) => {
+                  setScores({
+                    ...scores,
+                    [game.id]: {
+                      ...scores[game.id],
+                      homeTeamScore: Number(e.target.value),
+                    },
+                  });
+                }}
+              />
             </div>
           ))}
+          <button type="submit" className="bg-green-400 rounded-lg px-3 mt-3">
+            Submit
+          </button>
         </form>
       </div>
     </div>
