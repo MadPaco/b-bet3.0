@@ -79,9 +79,6 @@ class AppFixtures extends Fixture
         $gameTwo->setAwayTeam($teamFour);
         $manager->persist($gameTwo);
 
-        
-
-
         $user = new User();
         $user->setUsername('testuser');
         $password = $this->passwordEncoder->hashPassword($user, 'password');

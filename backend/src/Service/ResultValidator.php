@@ -46,10 +46,39 @@ class ResultValidator {
             return new JsonResponse(['message' => 'Invalid data![Data is not valid JSON!]'], Response::HTTP_BAD_REQUEST);
         }
 
-        foreach ($decodedData as $game) {
+        foreach ($decodedData as $gameID => $game) {
+
+            if (!is_numeric($gameID)) {
+                return new JsonResponse(['message' => 'Invalid data![Missing or invalid gameID!]'], Response::HTTP_BAD_REQUEST);
+            }
+            
             if (!array_key_exists('homeTeamScore', $game) || !array_key_exists('awayTeamScore', $game)) {
                 return new JsonResponse(['message' => 'Invalid data![HomeTeamScore or AwayteamScore not set!]'], Response::HTTP_BAD_REQUEST);
             }
+
+            if (!is_numeric($game['homeTeamScore']) || !is_numeric($game['awayTeamScore'])) {
+                return new JsonResponse(['message' => 'Invalid data![HomeTeamScore or AwayteamScore is not a number!]'], Response::HTTP_BAD_REQUEST);
+            }
+
+            if ($game['homeTeamScore'] < 0 || $game['awayTeamScore'] < 0) {
+                return new JsonResponse(['message' => 'Invalid data![HomeTeamScore or AwayteamScore is negative!]'], Response::HTTP_BAD_REQUEST);
+            }
+
+            if (!is_int($game['homeTeamScore']) || !is_int($game['awayTeamScore'])) {
+                return new JsonResponse(['message' => 'Invalid data![HomeTeamScore or AwayteamScore is not an integer!]'], Response::HTTP_BAD_REQUEST);
+            }
+
+            // In the past, I had users submit scores like 100-0 to taunt a team, let's allow
+            // this within reason
+            // I set a limit to prevent very large scores that would break the UI
+            if ($game['homeTeamScore'] >= 1000 || $game['awayTeamScore'] >= 1000) {
+                return new JsonResponse(['message' => 'Invalid data![HomeTeamScore or AwayteamScore is too high!]'], Response::HTTP_BAD_REQUEST);
+            }
+
+            if (empty($decodedData)) {
+                return new JsonResponse(['message' => 'Invalid data! [Missing gameID]'], Response::HTTP_BAD_REQUEST);
+            }
+            
         }
         return null;
     }
