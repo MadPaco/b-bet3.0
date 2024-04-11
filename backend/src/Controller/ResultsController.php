@@ -11,21 +11,55 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\ResultValidator;
 
 class ResultsController extends AbstractController
 {
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, ResultValidator $validator)
     {
         $this->entityManager = $entityManager;
+        $this->validator = $validator;
+    }
+
+    #[Route('/api/game/fetchResults', name: 'fetch_results', methods: ['GET'])]
+    public function fetchResults(Request $request): Response
+    {
+        $weekNumber = $request->query->get('weekNumber');
+        $games = $this->entityManager->getRepository(Game::class)->findBy(['weekNumber' => $weekNumber]);
+        $results = [];
+        foreach ($games as $game) {
+            $result = [
+                'gameID' => $game->getId(),
+                'homeTeamScore' => $game->getHomeScore(),
+                'awayTeamScore' => $game->getAwayScore()
+            ];
+            array_push($results, $result);
+        }
+
+        return new JsonResponse($results, 200);
     }
 
     #[Route('/api/game/submitResults', name: 'update_results', methods: ['POST'])]
     public function updateResults(Request $request): Response
     {
+        // Check if the user is an admin
+        $user = $this->getUser();
+        if (!in_array('ADMIN', $user->getRoles())) {
+            return new Response('Unauthorized', 401);
+        }
+
+        $response = $this->validator->validateData($request->getContent());
+        if ($response) {
+            return $response;
+        }
+
+
         // Update game results and calculate points
         $data = json_decode($request->getContent(), true);
+
+        
         $updatedGames = [];
         foreach ($data as $gameID => $game) {
             $gameEntity = $this->entityManager->getRepository(Game::class)->find($gameID);

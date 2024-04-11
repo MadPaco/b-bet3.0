@@ -277,6 +277,18 @@ export async function fetchBets(
   return response;
 }
 
+export async function fetchResults(weekNumber: number) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/game/fetchResults?weekNumber=${weekNumber}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
+
 export async function submitResults(scores: {
   [gameId: number]: { homeTeamScore: number; awayTeamScore: number };
 }) {

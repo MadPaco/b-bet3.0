@@ -78,7 +78,7 @@ class GameControllerTest extends WebTestCase
             $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
         }
 
-        $this->client->request('POST', '/api/game/editGame?gameID=3', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+        $this->client->request('POST', '/api/game/editGame?gameID=1', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'weekNumber' => 1,
             'date' => '2021-09-09',
             'location' => 'Gillette Stadium',
@@ -94,7 +94,7 @@ class GameControllerTest extends WebTestCase
 
     public function testEditGameWithoutAdminRole()
     {
-        $this->client->request('POST', '/api/game/editGame?gameID=3', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+        $this->client->request('POST', '/api/game/editGame?gameID=1', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'weekNumber' => 1,
             'date' => '2021-09-09',
             'location' => 'Gillette Stadium',

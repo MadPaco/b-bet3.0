@@ -43,14 +43,43 @@ class AppFixtures extends Fixture
         $teamTwo->setPrimaryColor('black');
         $manager->persist($teamTwo);
 
+        $teamThree = new NflTeam();
+        $teamThree->setName('Baltimore Ravens');
+        $teamThree->setLocation('Baltimore');
+        $teamThree->setShorthandName('BAL');
+        $teamThree->setLogo('BAL.png');
+        $teamThree->setDivision('North');
+        $teamThree->setConference('AFC');
+        $teamThree->setPrimaryColor('purple');
+        $manager->persist($teamThree);
+
+        $teamFour = new NflTeam();
+        $teamFour->setName('Buffalo Bills');
+        $teamFour->setLocation('Buffalo');
+        $teamFour->setShorthandName('BUF');
+        $teamFour->setLogo('BUF.png');
+        $teamFour->setDivision('East');
+        $teamFour->setConference('AFC');
+        $teamFour->setPrimaryColor('blue');
+        $manager->persist($teamFour);
 
         $gameOne = new Game();
         $gameOne->setWeekNumber(1);
         $gameOne->setDate(new \DateTime('2021-09-09 20:20:00'));
-        $gameOne->setLocation('TIAA Bank Field');
+        $gameOne->setLocation('Statefarm Stadium');
         $gameOne->setHomeTeam($teamOne);
         $gameOne->setAwayTeam($teamTwo);
         $manager->persist($gameOne);
+
+        $gameTwo = new Game();
+        $gameTwo->setWeekNumber(1);
+        $gameTwo->setDate(new \DateTime('2021-09-09 20:20:00'));
+        $gameTwo->setLocation('M&T Bank Stadium');
+        $gameTwo->setHomeTeam($teamThree);
+        $gameTwo->setAwayTeam($teamFour);
+        $manager->persist($gameTwo);
+
+        
 
 
         $user = new User();

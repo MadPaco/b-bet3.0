@@ -47,7 +47,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 1,
                     'awayPrediction' => 2,
                 ]
@@ -94,7 +94,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => -1,
                     'awayPrediction' => 2,
                 ]
@@ -114,7 +114,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 1,
                     'awayPrediction' => -2,
                 ]
@@ -134,7 +134,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 1,
                     'awayPrediction' => '2',
                 ]
@@ -154,7 +154,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => '1',
                     'awayPrediction' => 2,
                 ]
@@ -174,7 +174,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => '3',
+                    'gameID' => '1',
                     'homePrediction' => 1,
                     'awayPrediction' => 2,
                 ]
@@ -214,7 +214,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 1,
                     'awayPrediction' => 2,
                 ]
@@ -229,7 +229,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 1,
                     'awayPrediction' => 2,
                 ]
@@ -249,7 +249,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 1,
                     'awayPrediction' => 0,
                 ]
@@ -269,7 +269,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 0,
                     'awayPrediction' => 1,
                 ]
@@ -289,7 +289,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 0,
                     'awayPrediction' => 0,
                 ]
@@ -311,7 +311,7 @@ class BetControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 [
-                    'gameID' => 3,
+                    'gameID' => 1,
                     'homePrediction' => 1,
                     'awayPrediction' => 2,
                 ]

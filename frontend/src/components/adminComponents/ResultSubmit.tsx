@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchSchedule, submitResults } from '../../utility/api';
+import { fetchSchedule, submitResults, fetchResults } from '../../utility/api';
 
 interface Game {
   id: number;
@@ -8,6 +8,14 @@ interface Game {
   awayTeam: string;
   homeTeamScore: number;
   awayTeamScore: number;
+}
+
+interface Result {
+  // in JS keys are always strings.... why? QQ
+  [gameID: string]: {
+    homeTeamScore: number;
+    awayTeamScore: number;
+  };
 }
 
 const ResultSubmit: React.FC = () => {
@@ -30,6 +38,26 @@ const ResultSubmit: React.FC = () => {
     getGames();
   }, [weekNumber]);
 
+  useEffect(() => {
+    const getResults = async () => {
+      const response = await fetchResults(weekNumber);
+      const results = await response.json();
+      const scores = results.reduce(
+        (accumulator: Array<Result>, result: Result) => {
+          accumulator[Number(result.gameID)] = {
+            homeTeamScore: result.homeTeamScore,
+            awayTeamScore: result.awayTeamScore,
+          };
+          return accumulator;
+        },
+        {},
+      );
+      setScores(scores);
+    };
+
+    getResults();
+  }, [weekNumber]);
+
   const handleSubmit = () => {
     return async (e: React.FormEvent) => {
       e.preventDefault();
@@ -48,8 +76,6 @@ const ResultSubmit: React.FC = () => {
         onChange={(e) => {
           setWeekNumber(Number((e.target as HTMLSelectElement).value));
           //reset the scores so we only have the current week's scores
-          //this is done to prevent the admin from submitting scores for multiple weeks at once
-          //reducing load on the backend
           setScores({});
         }}
         className="text-black"

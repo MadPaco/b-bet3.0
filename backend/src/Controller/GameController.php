@@ -132,6 +132,8 @@ class GameController extends AbstractController
         $this->entityManager->flush();
         return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
+
+    
 }
 
 
