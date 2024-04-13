@@ -360,4 +360,38 @@ class ResultsControllerTest extends WebTestCase
         $this->assertEquals(400, $this->client->getResponse()->getStatusCode());
     }
 
+
+    // test the updatePoints function
+    public function testUpdatePoints()
+    {
+        // Arrange
+        $mockEntityManager = $this->createMock(EntityManagerInterface::class);
+        $mockUserRepo = $this->createMock(ObjectRepository::class);
+        $mockBetRepo = $this->createMock(ObjectRepository::class);
+        $mockUser = $this->createMock(User::class);
+        $mockGame = $this->createMock(Game::class);
+        $mockBet = $this->createMock(Bet::class);
+
+        $mockEntityManager->method('getRepository')
+            ->withConsecutive([User::class], [Bet::class])
+            ->willReturnOnConsecutiveCalls($mockUserRepo, $mockBetRepo);
+
+        $mockUserRepo->method('findAll')->willReturn([$mockUser]);
+        $mockBetRepo->method('findOneBy')->willReturn($mockBet);
+
+        $mockGame->method('getHomeScore')->willReturn(3);
+        $mockGame->method('getAwayScore')->willReturn(2);
+
+        $mockBet->method('getHomePrediction')->willReturn(3);
+        $mockBet->method('getAwayPrediction')->willReturn(2);
+
+        // Act
+        $controller = new ResultsController($mockEntityManager);
+        $controller->updatePoints([$mockGame]);
+
+        // Assert
+        $mockBet->expects($this->once())->method('setPoints')->with(5);
+        $mockEntityManager->expects($this->once())->method('persist')->with($mockBet);
+        $mockEntityManager->expects($this->once())->method('flush');
+    }
 }
