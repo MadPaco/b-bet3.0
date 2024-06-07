@@ -16,7 +16,7 @@ services:
         cors_origins *
         anonymous
     # Comment the following line to disable the development mode
-    command: /usr/bin/caddy run --config /etc/caddy/Caddyfile.dev
+    command: /usr/bin/caddy run --config /etc/caddy/Caddyfile
     volumes:
       - mercure_data:/data
       - mercure_config:/config

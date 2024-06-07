@@ -4,7 +4,7 @@ interface NewsPanelProps {}
 const NewsPanel: React.FC<NewsPanelProps> = () => {
   return (
     <Panel>
-      <div className="flex items-center h-full text-gray-200">
+      <div className="flex items-center h-full">
         <div className="flex items-center">
           <div>
             <p>Changelog:</p>

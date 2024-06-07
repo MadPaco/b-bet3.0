@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+import teamColorCodes from './teamColorCode';
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
@@ -11,6 +12,7 @@ export default {
       animation: {
         'ping-once': 'ping 1s cubic-bezier(0, 0, 0.2, 1)',
       },
+      colors:teamColorCodes,
     },
   },
   plugins: [],

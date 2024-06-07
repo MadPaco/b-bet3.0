@@ -9,7 +9,7 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
   return (
     <Panel>
       {username ? (
-        <div className="flex items-center text-gray-200">
+        <div className="flex items-center">
           <img
             src={`/assets/images/defaultUser.png`}
             alt="default userpic"

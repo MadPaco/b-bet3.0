@@ -28,7 +28,7 @@ const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
   return (
     <Panel>
       {teamInfo ? (
-        <div className="flex items-center text-gray-200">
+        <div className="flex items-center">
           <img
             src={`/assets/images/teams/${teamInfo.logo}`}
             alt={teamInfo.name}
