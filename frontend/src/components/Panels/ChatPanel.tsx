@@ -13,12 +13,13 @@ interface Message {
   };
 }
 
-interface ChatPanelProps {}
+interface ChatPanelProps { }
 
 const ChatPanel: React.FC<ChatPanelProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatBottom = useRef<null | HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleSendMessage = async () => {
     // filter out empty messages
@@ -62,6 +63,7 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
 
   useEffect(() => {
     const fetchMessages = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(
           'http://127.0.0.1:8000/api/chatroom/?chatroomID=1',
@@ -81,7 +83,7 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
         // Map the fetched data to the Message structure
         const fetchedMessages: Message[] = data.map((message: Message) => {
           if (!message.sentAt) {
-            throw new Error('Message does not have a sentAt property');
+            console.log('Message does not have a sentAt property');
           }
           return {
             sender: message.sender,
@@ -91,6 +93,7 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
         });
 
         setMessages(fetchedMessages);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
       }
@@ -106,6 +109,9 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
     eventSource.onmessage = (event) => {
       // When a new update is received, add the new message to the state
       const newMessage = JSON.parse(event.data);
+      if (newMessage.sentAt) {
+        newMessage.sentAt = newMessage.sentAt.date.split('.')[0];
+      }
       setMessages((messages) => [...messages, newMessage]);
     };
 
@@ -129,34 +135,48 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
     <div className="p-5 m-6 cursor-pointer rounded-md backdrop-blur-sm text-white">
       <h2>Chat Panel</h2>
       <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md">
-        {messages.map((message, index) => (
-          <p key={index}>
-            <strong>{message.sender}:</strong> {message.content}
-          </p>
-        ))}
+      {messages.map((message, index) => (
+        <p key={index}>
+          <strong>
+            {message.sender} (
+            <span className="text-xs">
+              {!isLoading && message.sentAt && !isNaN(new Date(message.sentAt).getTime()) 
+                ? new Intl.DateTimeFormat('us-US', {
+                    month: 'short',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }).format(new Date(message.sentAt))
+                : "Invalid date"}
+            </span>
+            ):
+          </strong>{" "}
+          {message.content}
+        </p>
+      ))}
         <div ref={chatBottom} />
       </div>
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSendMessage();
-        }}
-        className="flex"
-      >
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black sm:text-xs md:text-sm lg:text-base"
-        />
-        <button
-          type="submit"
-          disabled={!newMessage}
-          className={`ml-2 p-2 rounded-md ${colorClass}`}
-        >
-          Send
-        </button>
-      </form>
+  onSubmit={(e) => {
+    e.preventDefault();
+    handleSendMessage();
+  }}
+  className="flex flex-col sm:flex-row"
+>
+  <input
+    type="text"
+    value={newMessage}
+    onChange={(e) => setNewMessage(e.target.value)}
+    className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black sm:text-xs md:text-sm lg:text-base mb-2 sm:mb-0 flex-grow-0 sm:flex-grow"
+  />
+  <button
+    type="submit"
+    disabled={!newMessage}
+    className={`ml-0 p-2 rounded-md ${colorClass} sm:ml-2 sm:mt-0 mt-2 flex-grow-0`}
+  >
+    Send
+  </button>
+</form>
     </div>
   );
 };
