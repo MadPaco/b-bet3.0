@@ -71,43 +71,56 @@ class ResultsController extends AbstractController
             $this->entityManager->persist($gameEntity);
             $this->entityManager->flush();
         }
-
+        if (count($updatedGames) === 0) {
+            return new Response('No games found', 404);
+        }
         $this->updatePoints($updatedGames);
-        return new Response('Results updated successfully', 200);
+        return new Response('success', 200);
     }
 
     public function updatePoints($updatedGames)
     {
+        // error log showing the updated games:
+        error_log('Updated games: ' . count($updatedGames));
         // Calculate points for each user
         $users = $this->entityManager->getRepository(User::class)->findAll();
         if (!$users) {
             return new Response('No users found', 404);
         }
         foreach ($users as $user) {
-            $points = 0;
+            error_log('found user');
             foreach ($updatedGames as $game) {
+                error_log('found game' . $game->getId());
                 if (!$game) {
                     return new Response('Game not found', 404);
                 }
                 $prediction = $this->entityManager->getRepository(Bet::class)->findOneBy(['user' => $user, 'game' => $game]);
                 if (!$prediction) {
-                    return new Response('Prediction not found', 404);
+                    // this skip is needed in case the user has not made predictions for all games
+                    error_log('Prediction not found, skipping');
+                    continue;
                 }
-                if ($prediction) {
-                    if ($prediction->getHomePrediction() === $game->getHomeScore() && $prediction->getAwayPrediction() === $game->getAwayScore()) {
-                        $points = 5;
-                    } elseif ($prediction->getHomePrediction() - $prediction->getAwayPrediction() === $game->getHomeScore() - $game->getAwayScore()) {
-                        $points = 3;
-                    } elseif (($prediction->getHomePrediction() > $prediction->getAwayPrediction() && $game->getHomeScore() > $game->getAwayScore()) 
-                    || ($prediction->getHomePrediction() < $prediction->getAwayPrediction() && $game->getHomeScore() < $game->getAwayScore())) {
-                        $points = 1;
-                    }
+                $points = 0;
+                error_log('Updating points...');
+                if ($prediction->getHomePrediction() === $game->getHomeScore() && $prediction->getAwayPrediction() === $game->getAwayScore()) {
+                    $points = 5;
+                    error_log("Condition 1 met: assigning 5 points");
+                } elseif ($prediction->getHomePrediction() - $prediction->getAwayPrediction() === $game->getHomeScore() - $game->getAwayScore()) {
+                    $points = 3;
+                    error_log("Condition 2 met: assigning 3 points");
+                } elseif (($prediction->getHomePrediction() > $prediction->getAwayPrediction() && $game->getHomeScore() > $game->getAwayScore()) 
+                || ($prediction->getHomePrediction() < $prediction->getAwayPrediction() && $game->getHomeScore() < $game->getAwayScore())) {
+                    $points = 1;
+                    error_log("Condition 3 met: assigning 1 point");
+                } else {
+                    error_log("No conditions met: assigning 0 points");
                 }
+                $prediction->setPoints($points);
+                $this->entityManager->persist($prediction);
+                $this->entityManager->flush();
             }
-            $prediction->setPoints($points);
-            $this->entityManager->persist($prediction);
         }
-        $this->entityManager->flush();
+
     }
 }
 
