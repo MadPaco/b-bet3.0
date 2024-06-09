@@ -19,6 +19,8 @@ const SchedulePage: React.FC = () => {
     homeOdds: number;
     awayOdds: number;
     overUnder: number;
+    homeScore: number | null;
+    awayScore: number | null;
   };
 
   const [schedule, setSchedule] = useState<Game[]>([]);
@@ -62,22 +64,32 @@ const SchedulePage: React.FC = () => {
               key={index}
               className={`${colorClass} game flex flex-col items-center bg-opacity-70 rounded-lg p-3 m-3`}
             >
-              <div className="time text-lg font-bold">{game.date}</div>
-              <div className="teams lg:text-lg flex items-center py-3">
+              <div className="time text-lg font-bold">
+                {new Intl.DateTimeFormat('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(game.date))}
+              </div>
+              <div className="teams lg:text-lg flex items-center pt-1">
                 <img
                   className="h-7 w-7 lg:h-10 lg:w-10 mr-3"
                   src={`/assets/images/teams/${game.awayTeamLogo}`}
                   alt={game.awayTeam}
                 />
-                <span>{game.awayTeam}</span>
+                <span className='text-center'>{game.awayTeam}</span>
                 <span className="mx-2"> at </span>
-                <span>{game.homeTeam}</span>
+                <span className='text-center'>{game.homeTeam}</span>
                 <img
                   className="h-7 w-7 lg:h-10 lg:w-10 ml-3"
                   src={`/assets/images/teams/${game.homeTeamLogo}`}
                   alt={game.homeTeam}
                 />
               </div>
+              {game.homeScore !== null && game.awayScore !== null ? 
+              (
+                <div className="score text-lg font-bold">
+                  {game.awayScore} - {game.homeScore}
+                </div>
+              )
+              : null}
+
               <div className="odds mb-2 flex items-center text-sm">
                 <span className="flex flex-col mr-3 items-center">
                   <span>away odds</span>
