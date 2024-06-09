@@ -47,7 +47,7 @@ const SchedulePage: React.FC = () => {
   return (
     <LoggedInLayout>
       <div className="flex flex-col items-center justify-center pt-2">
-        <div className="text-white lg:w-1/2">
+        <div className="text-white lg:w-1/3">
           <div className="flex items-center flex-col mb-4">
             <h1>Schedule Page</h1>
             <select
