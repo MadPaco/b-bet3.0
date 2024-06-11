@@ -101,6 +101,8 @@ class BetController extends AbstractController
         $betData = [];
         foreach ($bets as $bet) {
             $betData[] = [
+
+                'username' => $bet->getUser()->getUsername(),
                 'gameID' => $bet->getGame()->getId(),
                 'homePrediction' => $bet->getHomePrediction(),
                 'awayPrediction' => $bet->getAwayPrediction(),

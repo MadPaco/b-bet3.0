@@ -62,14 +62,17 @@ const SchedulePage: React.FC = () => {
           {schedule.map((game, index) => (
             <div
               key={index}
-              className={`${colorClass} game flex flex-col items-center bg-opacity-70 rounded-lg p-3 m-3`}
+              className={`${colorClass} game flex flex-col items-center bg-opacity-70 rounded-lg p-1 m-3`}
             >
+              {/* Start of date row */}
               <div className="time text-lg font-bold">
                 {new Intl.DateTimeFormat('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(game.date))}
               </div>
+
+              {/* Start of teams row */}
               <div className="teams lg:text-lg flex items-center pt-1">
                 <img
-                  className="h-7 w-7 lg:h-10 lg:w-10 mr-3"
+                  className="h-7 w-8 lg:h-10 lg:w-11 mr-1"
                   src={`/assets/images/teams/${game.awayTeamLogo}`}
                   alt={game.awayTeam}
                 />
@@ -77,11 +80,13 @@ const SchedulePage: React.FC = () => {
                 <span className="mx-2"> at </span>
                 <span className='text-center'>{game.homeTeam}</span>
                 <img
-                  className="h-7 w-7 lg:h-10 lg:w-10 ml-3"
+                  className="h-7 w-7 lg:h-10 lg:w-10 ml-1"
                   src={`/assets/images/teams/${game.homeTeamLogo}`}
                   alt={game.homeTeam}
                 />
               </div>
+
+              {/* Start of score row */}
               {game.homeScore !== null && game.awayScore !== null ? 
               (
                 <div className="score text-lg font-bold">
@@ -90,6 +95,7 @@ const SchedulePage: React.FC = () => {
               )
               : null}
 
+              {/* Start of odds row */}
               <div className="odds mb-2 flex items-center text-sm">
                 <span className="flex flex-col mr-3 items-center">
                   <span>away odds</span>
@@ -104,6 +110,8 @@ const SchedulePage: React.FC = () => {
                   <span>({game.homeOdds})</span>
                 </span>
               </div>
+
+              {/* Start of location row */}
               <div className="location">{game.location}</div>
             </div>
           ))}
