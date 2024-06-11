@@ -1,14 +1,16 @@
 import LoggedInLayout from '../components/layout/LoggedInLayout';
-import { fetchBets, fetchAllUsers, fetchSchedule } from '../utility/api';
+import { fetchBets, fetchSchedule } from '../utility/api';
 import { useState, useEffect } from 'react';
 import Accordion from '../components/common/Accordion';
+import { Bet, Game } from '../utility/types';
 
 const AllBetsPage: React.FC = () => {
 
-  const [bets, setBets] = useState<any[]>([]);
-  const [weekNumber, setWeekNumber] = useState<number | null>(null);
-  const [games, setGames] = useState<any[]>([]);
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+
+  const [bets, setBets] = useState<Bet[]>([]);
+  const [weekNumber, setWeekNumber] = useState<number>(1);
+  const [games, setGames] = useState<Game[]>([]);
+  const [openAccordion, setOpenAccordion] = useState<number | null>(null);
   const NFLWEEKS = 22;
   const weeks = [];
   for (let i = 1; i <= NFLWEEKS; i++) {
@@ -35,14 +37,18 @@ const AllBetsPage: React.FC = () => {
     getGames();
   }, [weekNumber]);
 
-  useEffect(() => {
-    const getUsernames = async () => {
-      const data = await fetchAllUsers();
-      const newNames = data.map((user: any) => user.username);
-      setUsernames(newNames);
-    };
-    getUsernames();
-  }, []);
+  const getColorClass = (points: number) => {
+    switch (points) {
+      case 5:
+        return 'text-red-500';
+      case 3:
+        return 'text-yellow-500';
+      case 1:
+        return 'text-green-500';
+      default:
+        return 'text-gray-500';
+    }
+  };
 
   return (
     <LoggedInLayout>
@@ -60,15 +66,15 @@ const AllBetsPage: React.FC = () => {
             </select>
           </div>
 
-          {games.map((game: any) => {
-            const gameBets = bets.filter((bet: any) => bet.gameID === game.id);
+          {games.map((game: Game) => {
+            const gameBets = bets.filter((bet: Bet) => bet.gameID === game.id);
             const title = (
               <div>
                 <div className='flex items-center justify-between p-2'>
                 {/* Away team section */}
                   <div className='flex flex-col items-center w-1/3'>
                     <img
-                      className="h-10 w-auto mb-1"
+                      className="w-10 h-auto mb-1"
                       src={`/assets/images/teams/${game.awayTeamLogo}`}
                       alt={`${game.awayTeam} logo`}
                     />
@@ -81,7 +87,7 @@ const AllBetsPage: React.FC = () => {
                   {/* Home team section */}
                   <div className='flex flex-col items-center w-1/3'>
                     <img
-                      className="h-10 w-auto mb-1"
+                      className="w-10 h-auto mb-1"
                       src={`/assets/images/teams/${game.homeTeamLogo}`}
                       alt={`${game.homeTeam} logo`}
                     />
@@ -110,9 +116,22 @@ const AllBetsPage: React.FC = () => {
                   isOpen={openAccordion === game.id}
                   toggleAccordion={() => setOpenAccordion(prev => prev === game.id ? null : game.id)}
                 >
-                  {gameBets.map((bet: any) => (
-                    <div key={bet.id} className="p-2">
-                      <p>{bet.username}: {bet.awayPrediction} - {bet.homePrediction}</p>
+                  
+                  {gameBets.map((bet: Bet) => (
+                    <div key={bet.id} className="p-2 flex space-between">
+                      <div className='mx-3'>
+                        {bet.username}: 
+                      </div>
+                      {game.homeScore !== null && game.awayScore !== null ?
+                        <div className={getColorClass(bet.points)}>
+                           {bet.awayPrediction} - {bet.homePrediction} ({bet.points} points)
+                        </div>
+                      :
+                        <div className='text-gray-500'>
+                          {bet.awayPrediction} - {bet.homePrediction}
+                        </div>
+                      }
+
                     </div>
                   ))}
                 </Accordion>

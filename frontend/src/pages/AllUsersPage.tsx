@@ -2,6 +2,7 @@ import LoggedInLayout from '../components/layout/LoggedInLayout';
 import { fetchAllUsers } from '../utility/api';
 import { useState, useEffect } from 'react';
 import Panel from '../components/common/Panel';
+import {User} from '../utility/types';
 
 const AllUsersPage: React.FC = () => {
   const [userList, setUserList] = useState([]);
@@ -14,11 +15,6 @@ const AllUsersPage: React.FC = () => {
 
     getUsers();
   }, []);
-
-  interface User {
-    username: string;
-    favTeam: string;
-  }
 
   return (
     <LoggedInLayout>

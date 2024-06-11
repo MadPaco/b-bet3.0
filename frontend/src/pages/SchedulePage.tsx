@@ -3,25 +3,12 @@ import LoggedInLayout from '../components/layout/LoggedInLayout';
 import { useColor } from '../context/ColorContext';
 import { colorClasses } from '../data/colorClasses';
 import { fetchSchedule } from '../utility/api';
+import { Game } from '../utility/types';
 
 const SchedulePage: React.FC = () => {
   const NFLWEEKS = 22;
 
-  type Game = {
-    id: number;
-    weekNumber: number;
-    date: string;
-    location: string;
-    homeTeam: string;
-    awayTeam: string;
-    homeTeamLogo: string;
-    awayTeamLogo: string;
-    homeOdds: number;
-    awayOdds: number;
-    overUnder: number;
-    homeScore: number | null;
-    awayScore: number | null;
-  };
+
 
   const [schedule, setSchedule] = useState<Game[]>([]);
   const [weekNumber, setWeekNumber] = useState(1);

@@ -1,5 +1,5 @@
 interface AccordionProps {
-    title: string;
+    title: React.ReactNode;
     children: React.ReactNode;
     isOpen: boolean;
     toggleAccordion: () => void;
