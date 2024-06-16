@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { colorClasses } from '../../data/colorClasses';
 import DOMPurify from 'dompurify';
 import { useColor } from '../../context/ColorContext';
+import ReactionComponent from '../chatComponents/ReactionComponent'
 
 interface Message {
+  id: number;
   sender?: string;
   content: string;
   sentAt?: {
@@ -11,6 +13,7 @@ interface Message {
     timezone_type: number;
     timezone: string;
   };
+  reactions?: { [key: string]: number };
 }
 
 interface ChatPanelProps { }
@@ -43,11 +46,6 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
         }
 
         setNewMessage('');
-
-        //scroll to bottom if new message is sent
-        //the timeout is a workaround to ensure
-        //that the fetch request has completed before scrolling
-
         if (chatBottom.current) {
           setTimeout(() => {
             if (chatBottom.current) {
@@ -86,9 +84,11 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
             console.log('Message does not have a sentAt property');
           }
           return {
+            id: message.id,
             sender: message.sender,
             content: message.content,
             sentAt: message.sentAt.date.split('.')[0],
+            reactions: message.reactions,
           };
         });
 
@@ -136,24 +136,27 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
       <h2>Chat Panel</h2>
       <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md">
       {messages.map((message, index) => (
-        <p key={index}>
-          <strong>
-            {message.sender} (
-            <span className="text-xs">
-              {!isLoading && message.sentAt && !isNaN(new Date(message.sentAt).getTime()) 
-                ? new Intl.DateTimeFormat('us-US', {
-                    month: 'short',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }).format(new Date(message.sentAt))
-                : "Invalid date"}
-            </span>
-            ):
-          </strong>{" "}
-          {message.content}
-        </p>
-      ))}
+        <div key={index}>
+          <p>
+            <strong>
+              {message.sender} (
+              <span className="text-xs">
+                {!isLoading && message.sentAt && !isNaN(new Date(message.sentAt).getTime()) 
+                  ? new Intl.DateTimeFormat('us-US', {
+                      month: 'short',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }).format(new Date(message.sentAt))
+                  : "Invalid date"}
+              </span>
+              ):
+            </strong>{" "}
+            {message.content}
+          </p>
+          <ReactionComponent message={message} />
+        </div>
+        ))}
         <div ref={chatBottom} />
       </div>
       <form

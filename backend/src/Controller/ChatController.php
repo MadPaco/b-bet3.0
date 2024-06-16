@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Reaction;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,10 +51,17 @@ class ChatController extends AbstractController
         $formattedMessages = array_map(function ($message) {
             return [
                 'id' => $message->getId(),
-                'chatroom' => $message->getChatroom()->getId(), // Assuming the chatroom has an ID
-                'sender' => $message->getSender()->getUsername(), // Assuming the sender has an ID
+                'chatroom' => $message->getChatroom()->getId(),
+                'sender' => $message->getSender()->getUsername(),
                 'content' => $message->getContent(),
                 'sentAt' => $message->getSentAt(),
+                'reactions' => $message->getReactions()->map(function ($reaction) {
+                    return [
+                        'id' => $reaction->getId(),
+                        'reactionCode' => $reaction->getReactionCode(),
+                        'user' => $reaction->getUser()->getUsername(), // Assuming the user has an ID
+                    ];
+                })->toArray(),
             ];
         }, $messages);
     
@@ -121,6 +129,66 @@ class ChatController extends AbstractController
         $this->hub->publish($update);
     
         return new Response('Message saved with id '.$message->getId());
+    }
+
+    #[Route("/api/chatroom/message/{id}/reaction", methods: ["POST"])]
+    public function addReaction(Request $request, $id): Response
+    {
+        $data = json_decode($request->getContent(), true);
+    
+        if (!isset($data['reaction'])){
+            return new Response('Reaction missing', 400);
+        }
+    
+        $reactionType = $data['reaction'];
+        
+        $message = $this->entityManager->getRepository(ChatroomMessage::class)->find($id);
+        
+        if (!$message) {
+            return new Response('Message not found', 404);
+        }
+        
+        $reaction = new Reaction();
+        $reaction->setReactionCode($reactionType);
+        $reaction->setMessage($message);
+        $reaction->setUser($this->getUser()); // Assuming the user is the one who is reacting
+        
+        $this->entityManager->persist($reaction);
+        $this->entityManager->flush();
+        
+        return new JsonResponse($message->getReactions());
+    }
+
+    #[ROUTE("/api/chatroom/reactions", methods: ["GET"])]
+    public function getReactions(Request $request): Response
+    {
+        if (!$request->query->get('messageID')){
+            return new Response('Message ID missing', 400);
+        }
+        
+        $id = $request->query->get('messageID');
+
+        if (!$id || !ctype_digit($id)){
+            return new Response('Invalid Message ID', 400);
+        }
+
+        $message = $this->entityManager->getRepository(ChatroomMessage::class)->find($id);
+    
+        if (!$message) {
+            return new Response ('Message not found', 404);
+        }
+    
+        $reactions = $message->getReactions();
+    
+        $formattedReactions = array_map(function ($reaction) {
+            return [
+                'id' => $reaction->getId(),
+                'reactionCode' => $reaction->getReactionCode(),
+                'user' => $reaction->getUser()->getUsername(), // Assuming the user has an ID
+            ];
+        }, $reactions);
+    
+        return new JsonResponse($formattedReactions);
     }
 }
 
