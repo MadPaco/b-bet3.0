@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { colorClasses } from '../../data/colorClasses';
 import DOMPurify from 'dompurify';
 import { useColor } from '../../context/ColorContext';
-import ReactionComponent from '../chatComponents/ReactionComponent'
 
 interface Message {
   id: number;
@@ -16,9 +15,7 @@ interface Message {
   reactions?: { [key: string]: number };
 }
 
-interface ChatPanelProps { }
-
-const ChatPanel: React.FC<ChatPanelProps> = () => {
+const ChatPanel: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatBottom = useRef<null | HTMLDivElement>(null);
@@ -79,18 +76,13 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
         const data = await response.json();
 
         // Map the fetched data to the Message structure
-        const fetchedMessages: Message[] = data.map((message: Message) => {
-          if (!message.sentAt) {
-            console.log('Message does not have a sentAt property');
-          }
-          return {
-            id: message.id,
-            sender: message.sender,
-            content: message.content,
-            sentAt: message.sentAt.date.split('.')[0],
-            reactions: message.reactions,
-          };
-        });
+        const fetchedMessages: Message[] = data.map((message: Message) => ({
+          id: message.id,
+          sender: message.sender,
+          content: message.content,
+          sentAt: message.sentAt.date.split('.')[0],
+          reactions: message.reactions,
+        }));
 
         setMessages(fetchedMessages);
         setIsLoading(false);
@@ -100,26 +92,54 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
     };
 
     fetchMessages();
-
-    // Subscribe to updates from the Mercure hub
-    const url = new URL('http://localhost:3000/.well-known/mercure');
-    url.searchParams.append('topic', '/chatroom/1'); // The topic to subscribe to
-    const eventSource = new EventSource(url);
-
-    eventSource.onmessage = (event) => {
-      // When a new update is received, add the new message to the state
-      const newMessage = JSON.parse(event.data);
-      if (newMessage.sentAt) {
-        newMessage.sentAt = newMessage.sentAt.date.split('.')[0];
-      }
-      setMessages((messages) => [...messages, newMessage]);
-    };
-
-    // Clean up the EventSource when the component is unmounted
-    return () => {
-      eventSource.close();
-    };
   }, []);
+
+  // Subscribe to updates from the Mercure hub
+const url = new URL('http://localhost:3000/.well-known/mercure');
+url.searchParams.append('topic', '/chatroom/1'); // The topic to subscribe to
+const eventSource = new EventSource(url);
+
+eventSource.onmessage = (event) => {
+  const newMessage = JSON.parse(event.data);
+  const messageIndex = messages.findIndex(message => message.id === newMessage.id);
+  setMessages((prevMessages) => {
+    if (newMessage.status === 'Reaction added' || newMessage.status === 'Reaction removed') {
+      if (messageIndex !== -1) {
+        console.log(newMessage);
+        const updatedMessages = [...prevMessages];
+        updatedMessages[messageIndex].reactions = newMessage.reactions;
+        return updatedMessages;
+      }
+    } else {
+      console.log('INDEX NOT FOUND')
+      return [...prevMessages, newMessage];
+    }
+    return prevMessages;
+  });
+};
+
+  const handleAddReaction = (messageId: number, reactionCode: string) => {
+    console.log('Reaction ' + reactionCode + ' added to message ' + messageId)
+    fetch(`http://127.0.0.1:8000/api/chatroom/1/message/${messageId}/reaction`, {
+      method: 'POST',
+      headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reaction: reactionCode }),
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .catch((error) => {
+      console.error('There has been a problem with your fetch operation:', error);
+    });
+  };
+
+
   const { primaryColor } = useColor();
   const colorClass = primaryColor
     ? colorClasses[primaryColor as keyof typeof colorClasses]
@@ -153,8 +173,50 @@ const ChatPanel: React.FC<ChatPanelProps> = () => {
               ):
             </strong>{" "}
             {message.content}
+            <span>
+            {
+              Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '1').length > 0 ?
+              <>
+                <br />
+                {'👍' + message.reactions.filter(reaction => reaction.reactionCode === '1').length}
+              </> : ''
+            }
+            {
+              Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '2').length > 0 ?
+              <>
+                <br />
+                {'👎' + message.reactions.filter(reaction => reaction.reactionCode === '2').length}
+              </> : ''
+            }
+            {
+              Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '3').length > 0 ?
+              <>
+                <br />
+                {'😂' + message.reactions.filter(reaction => reaction.reactionCode === '3').length}
+              </> : ''
+            }
+            {
+              Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '4').length > 0 ?
+              <>
+                <br />
+                {'❤️' + message.reactions.filter(reaction => reaction.reactionCode === '4').length}
+              </> : ''
+            }
+          </span>
+          <br></br>
+          <span role="img" aria-label="thumbs up" onClick={() => handleAddReaction(message.id, '1')}>
+          👍
+          </span>
+          <span role="img" aria-label="thumbs down" onClick={() => handleAddReaction(message.id, '2')}>
+            👎 
+          </span>
+          <span role="img" aria-label="laugh" onClick={() => handleAddReaction(message.id, '3')}>
+            😂 
+          </span>
+          <span role="img" aria-label="heart" onClick={() => handleAddReaction(message.id, '4')}>
+            ❤️ 
+          </span>
           </p>
-          <ReactionComponent message={message} />
         </div>
         ))}
         <div ref={chatBottom} />

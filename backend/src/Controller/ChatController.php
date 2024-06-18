@@ -19,13 +19,14 @@ use Symfony\Component\Mercure\Update;
 class ChatController extends AbstractController
 {
     private $entityManager;
-    private $publisher;
+    private $hub; 
 
     public function __construct(EntityManagerInterface $entityManager, HubInterface $hub)
     {
         $this->entityManager = $entityManager;
         $this->hub = $hub;
     }
+
     #[Route("/api/chatroom/", methods: ["GET"])]
     public function getChatroomMessages(Request $request): Response
     {
@@ -81,8 +82,6 @@ class ChatController extends AbstractController
             return new Response('Invalid Chatroom ID', 400);
         }
 
-
-
         $chatroom = $this->entityManager->getRepository(Chatroom::class)->find($id);
         $user = $this->getUser();
 
@@ -131,11 +130,13 @@ class ChatController extends AbstractController
         return new Response('Message saved with id '.$message->getId());
     }
 
-    #[Route("/api/chatroom/message/{id}/reaction", methods: ["POST"])]
-    public function addReaction(Request $request, $id): Response
+    #[Route("/api/chatroom/{chatroomID}/message/{id}/reaction", methods: ["POST"])]
+    public function addReaction(Request $request, $chatroomID, $id): Response
     {
+        $user = $this->getUser();
         $data = json_decode($request->getContent(), true);
     
+        $chatroom = $this->entityManager->getRepository(Chatroom::class)->find($chatroomID);
         if (!isset($data['reaction'])){
             return new Response('Reaction missing', 400);
         }
@@ -147,49 +148,58 @@ class ChatController extends AbstractController
         if (!$message) {
             return new Response('Message not found', 404);
         }
+    
+        // check if the user already reacted to the message
+    
+        $existingReaction = $this->entityManager->getRepository(Reaction::class)->findOneBy(['message' => $message, 'user' => $this->getUser()]);
+        if ($existingReaction) {
+            //If yes, remove the reaction
+            $this->entityManager->remove($existingReaction);
+            $this->entityManager->flush();
+    
+            $update = new Update(
+                "/chatroom/{$chatroomID}",
+                json_encode([
+                    'id' => $message->getId(),
+                    'status' => 'Reaction removed',
+                    'reactions' => array_map(function($reaction) {
+                        return $reaction->toArray();
+                    }, $this->entityManager->getRepository(Reaction::class)->findBy(['message' => $message]))
+            ]));
+            $this->hub->publish($update);
+    
+            return new JsonResponse($message->getReactions());
+        }
+
+        else {
+                    
+            $reaction = new Reaction();
+            $reaction->setReactionCode($reactionType);
+            $reaction->setMessage($message);
+            $reaction->setUser($this->getUser()); // Assuming the user is the one who is reacting
+            
+            $this->entityManager->persist($reaction);
+            $this->entityManager->flush();
         
-        $reaction = new Reaction();
-        $reaction->setReactionCode($reactionType);
-        $reaction->setMessage($message);
-        $reaction->setUser($this->getUser()); // Assuming the user is the one who is reacting
+            // Publish the update to the Mercure hub
+            $update = new Update(
+                "/chatroom/{$chatroomID}",
+                json_encode([
+                    'id' => $message->getId(),
+                    'status' => 'Reaction added',
+                    'reactions' => array_map(function($reaction) {
+                        return $reaction->toArray();
+                    }, $this->entityManager->getRepository(Reaction::class)->findBy(['message' => $message]))
+                ])
+            );
+            $this->hub->publish($update);
         
-        $this->entityManager->persist($reaction);
-        $this->entityManager->flush();
-        
-        return new JsonResponse($message->getReactions());
+            return new JsonResponse($message->getReactions());
+
+        }
+
     }
 
-    #[ROUTE("/api/chatroom/reactions", methods: ["GET"])]
-    public function getReactions(Request $request): Response
-    {
-        if (!$request->query->get('messageID')){
-            return new Response('Message ID missing', 400);
-        }
-        
-        $id = $request->query->get('messageID');
-
-        if (!$id || !ctype_digit($id)){
-            return new Response('Invalid Message ID', 400);
-        }
-
-        $message = $this->entityManager->getRepository(ChatroomMessage::class)->find($id);
-    
-        if (!$message) {
-            return new Response ('Message not found', 404);
-        }
-    
-        $reactions = $message->getReactions();
-    
-        $formattedReactions = array_map(function ($reaction) {
-            return [
-                'id' => $reaction->getId(),
-                'reactionCode' => $reaction->getReactionCode(),
-                'user' => $reaction->getUser()->getUsername(), // Assuming the user has an ID
-            ];
-        }, $reactions);
-    
-        return new JsonResponse($formattedReactions);
-    }
 }
 
 ?>

@@ -61,6 +61,15 @@ class Reaction
         $this->message = $message;
         return $this;
     }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->getId(),
+            'reactionCode' => $this->getReactionCode(),
+            // Include any other properties you want in the response
+        ];
+}
     
 }
 ?>
