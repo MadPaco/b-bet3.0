@@ -123,7 +123,9 @@ class ChatController extends AbstractController
 
         $update = new Update(
             "/chatroom/{$chatroom->getId()}", 
-            json_encode(['content' => $sanitizedContent, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt()]) // The data to send
+            json_encode(['content' => $sanitizedContent, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt(), 'reactions' => array_map(function($reaction) {
+                return $reaction->toArray();
+            }, $this->entityManager->getRepository(Reaction::class)->findBy(['message' => $message]))]) // The data to send
         );
         $this->hub->publish($update);
     

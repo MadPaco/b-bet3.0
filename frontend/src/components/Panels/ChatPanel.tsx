@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { colorClasses } from '../../data/colorClasses';
 import DOMPurify from 'dompurify';
 import { useColor } from '../../context/ColorContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 interface Message {
   id: number;
@@ -37,12 +39,11 @@ const ChatPanel: React.FC = () => {
             body: JSON.stringify({ content: sanitizedMessage }),
           },
         );
-
         if (!response.ok) {
           throw new Error('HTTP error ' + response.status);
         }
-
         setNewMessage('');
+        fetchMessages();
         if (chatBottom.current) {
           setTimeout(() => {
             if (chatBottom.current) {
@@ -50,76 +51,81 @@ const ChatPanel: React.FC = () => {
             }
           }, 100);
         }
+        
       } catch (error) {
         console.error(error);
       }
     }
   };
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          'http://127.0.0.1:8000/api/chatroom/?chatroomID=1',
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
+  const fetchMessages = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        'http://127.0.0.1:8000/api/chatroom/?chatroomID=1',
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-        );
+        },
+      );
 
-        if (!response.ok) {
-          throw new Error('HTTP error ' + response.status);
-        }
-
-        const data = await response.json();
-
-        // Map the fetched data to the Message structure
-        const fetchedMessages: Message[] = data.map((message: Message) => ({
-          id: message.id,
-          sender: message.sender,
-          content: message.content,
-          sentAt: message.sentAt.date.split('.')[0],
-          reactions: message.reactions,
-        }));
-
-        setMessages(fetchedMessages);
-        setIsLoading(false);
-      } catch (error) {
-        console.error(error);
+      if (!response.ok) {
+        throw new Error('HTTP error ' + response.status);
       }
-    };
 
+      const data = await response.json();
+
+      // Map the fetched data to the Message structure
+      const fetchedMessages: Message[] = data.map((message: Message) => ({
+        id: message.id,
+        sender: message.sender,
+        content: message.content,
+        sentAt: message.sentAt.date.split('.')[0],
+        reactions: message.reactions,
+      }));
+
+      setMessages(fetchedMessages);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
     fetchMessages();
   }, []);
 
   // Subscribe to updates from the Mercure hub
-const url = new URL('http://localhost:3000/.well-known/mercure');
-url.searchParams.append('topic', '/chatroom/1'); // The topic to subscribe to
-const eventSource = new EventSource(url);
-
-eventSource.onmessage = (event) => {
-  const newMessage = JSON.parse(event.data);
-  const messageIndex = messages.findIndex(message => message.id === newMessage.id);
-  setMessages((prevMessages) => {
-    if (newMessage.status === 'Reaction added' || newMessage.status === 'Reaction removed') {
-      if (messageIndex !== -1) {
-        console.log(newMessage);
-        const updatedMessages = [...prevMessages];
-        updatedMessages[messageIndex].reactions = newMessage.reactions;
-        return updatedMessages;
-      }
-    } else {
-      console.log('INDEX NOT FOUND')
-      return [...prevMessages, newMessage];
-    }
-    return prevMessages;
-  });
-};
+  useEffect(() => {
+    const url = new URL('http://localhost:3000/.well-known/mercure');
+    url.searchParams.append('topic', '/chatroom/1'); // The topic to subscribe to
+    const eventSource = new EventSource(url);
+  
+    eventSource.onmessage = (event) => {
+      const newMessage = JSON.parse(event.data);
+      const messageIndex = messages.findIndex(message => message.id === newMessage.id);
+      setMessages((prevMessages) => {
+        if (newMessage.status === 'Reaction added' || newMessage.status === 'Reaction removed') {
+          if (messageIndex !== -1) {
+            const updatedMessages = [...prevMessages];
+            updatedMessages[messageIndex].reactions = newMessage.reactions;
+            return updatedMessages;
+          }
+        } else {
+          return [...prevMessages, newMessage];
+        }
+        return prevMessages;
+      });
+    };
+  
+    // Clean up the event source when the component is unmounted
+    return () => {
+      eventSource.close();
+    };
+  }, []); // Empty dependency array means this effect runs once on mount and clean up on unmount
 
   const handleAddReaction = (messageId: number, reactionCode: string) => {
-    console.log('Reaction ' + reactionCode + ' added to message ' + messageId)
     fetch(`http://127.0.0.1:8000/api/chatroom/1/message/${messageId}/reaction`, {
       method: 'POST',
       headers: {
@@ -132,11 +138,13 @@ eventSource.onmessage = (event) => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
+      fetchMessages();
       return response.json();
     })
     .catch((error) => {
       console.error('There has been a problem with your fetch operation:', error);
     });
+
   };
 
 
@@ -157,48 +165,49 @@ eventSource.onmessage = (event) => {
       <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md">
       {messages.map((message, index) => (
         <div key={index}>
+          <div ref={chatBottom} />
           <p>
-            <strong>
-              {message.sender} (
               <span className="text-xs">
+                (
                 {!isLoading && message.sentAt && !isNaN(new Date(message.sentAt).getTime()) 
-                  ? new Intl.DateTimeFormat('us-US', {
+                  ? new Intl.DateTimeFormat('en-UK', {
                       month: 'short',
                       day: '2-digit',
                       hour: '2-digit',
                       minute: '2-digit',
                     }).format(new Date(message.sentAt))
                   : "Invalid date"}
+                )
               </span>
-              ):
-            </strong>{" "}
+              <br></br>
+            <strong>
+              {message.sender + ': '} 
+            </strong>
+
             {message.content}
+            { message.reactions.length > 0 ? <br /> : ''}
             <span>
             {
               Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '1').length > 0 ?
               <>
-                <br />
                 {'👍' + message.reactions.filter(reaction => reaction.reactionCode === '1').length}
               </> : ''
             }
             {
               Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '2').length > 0 ?
               <>
-                <br />
                 {'👎' + message.reactions.filter(reaction => reaction.reactionCode === '2').length}
               </> : ''
             }
             {
               Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '3').length > 0 ?
               <>
-                <br />
                 {'😂' + message.reactions.filter(reaction => reaction.reactionCode === '3').length}
               </> : ''
             }
             {
               Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '4').length > 0 ?
               <>
-                <br />
                 {'❤️' + message.reactions.filter(reaction => reaction.reactionCode === '4').length}
               </> : ''
             }
@@ -219,7 +228,6 @@ eventSource.onmessage = (event) => {
           </p>
         </div>
         ))}
-        <div ref={chatBottom} />
       </div>
       <form
   onSubmit={(e) => {
