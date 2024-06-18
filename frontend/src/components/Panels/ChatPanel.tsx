@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { colorClasses } from '../../data/colorClasses';
 import DOMPurify from 'dompurify';
 import { useColor } from '../../context/ColorContext';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../auth/AuthContext';
 
 interface Message {
   id: number;
@@ -18,6 +17,7 @@ interface Message {
 }
 
 const ChatPanel: React.FC = () => {
+  const { username } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatBottom = useRef<null | HTMLDivElement>(null);
@@ -102,21 +102,8 @@ const ChatPanel: React.FC = () => {
     url.searchParams.append('topic', '/chatroom/1'); // The topic to subscribe to
     const eventSource = new EventSource(url);
   
-    eventSource.onmessage = (event) => {
-      const newMessage = JSON.parse(event.data);
-      const messageIndex = messages.findIndex(message => message.id === newMessage.id);
-      setMessages((prevMessages) => {
-        if (newMessage.status === 'Reaction added' || newMessage.status === 'Reaction removed') {
-          if (messageIndex !== -1) {
-            const updatedMessages = [...prevMessages];
-            updatedMessages[messageIndex].reactions = newMessage.reactions;
-            return updatedMessages;
-          }
-        } else {
-          return [...prevMessages, newMessage];
-        }
-        return prevMessages;
-      });
+    eventSource.onmessage = () => {
+      fetchMessages();
     };
   
     // Clean up the event source when the component is unmounted
@@ -162,9 +149,9 @@ const ChatPanel: React.FC = () => {
   return (
     <div className="p-5 m-6 cursor-pointer rounded-md backdrop-blur-sm text-white">
       <h2>Chat Panel</h2>
-      <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md">
+      <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md flex flex-col">
       {messages.map((message, index) => (
-        <div key={index}>
+        <div key={index} className={`lg:w-1/3 p-3 my-4 mx-5 rounded-lg ${message.sender === username ? 'bg-blue-500 text-white self-end' : 'bg-gray-800 self-start'}`}>
           <div ref={chatBottom} />
           <p>
               <span className="text-xs">
