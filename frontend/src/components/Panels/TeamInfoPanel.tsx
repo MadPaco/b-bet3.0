@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
-import { fetchTeamInfo } from '../../utility/api';
+import { fetchTeamInfo, fetchTeamStats, fetchDivisionStandings } from '../../utility/api';
 
 interface TeamInfo {
   name: string;
@@ -15,12 +15,32 @@ interface TeamInfoPanelProps {}
 
 const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
   const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
+  const [teamStats, setTeamStats] = useState<string | null>(null);
+  const [divisionStandings, setDivisionStandings] = useState<string | null>(null);
   const { favTeam } = useAuth();
 
   useEffect(() => {
     if (favTeam) {
       fetchTeamInfo(favTeam)
         .then((data) => setTeamInfo(data))
+        .catch((error) => console.error(error));
+    }
+  }, [favTeam]);
+
+  //fetch division standings
+  useEffect(() => {
+    if (teamInfo) {
+      fetchDivisionStandings(teamInfo.conference, teamInfo.division)
+        .then((data) => console.log(data))
+        .catch((error) => console.error(error));
+    }
+  }, [teamInfo]);
+
+  //fetching team stats
+  useEffect(() => {
+    if (favTeam) {
+      fetchTeamStats(favTeam)
+        .then((data) => setTeamStats(data))
         .catch((error) => console.error(error));
     }
   }, [favTeam]);
@@ -40,9 +60,20 @@ const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
               <p>
                 {teamInfo.conference} - {teamInfo.division}
               </p>
-              <p>Wins - Losses: 17-0</p> {/* This is a placeholder */}
-              <p>Place in Division: 1</p> {/* This is a placeholder */}
+              {teamStats && <div>
+                <p>{teamStats.wins} - {teamStats.losses} {teamStats.ties > 0? '-' + teamStats.ties : ''}</p>
+              <p>Points Scored: {teamStats.pointsFor}</p>
+              <p>Points Against: {teamStats.pointsAgainst}</p>
+              <p>Point Differential: {teamStats.netPoints}</p></div>}
             </div>
+            {divisionStandings && <div>
+                <p>Division Standings</p>
+                {Object.entries(divisionStandings).map(([teamName, teamData], index) => (
+                    <p key={teamName}>
+                        {index + 1}. {teamName} - {teamData.wins} - {teamData.losses} {teamData.ties > 0? '-' + teamData.ties : ''}
+                    </p>
+                ))}
+            </div>}
           </div>
         </div>
       ) : (

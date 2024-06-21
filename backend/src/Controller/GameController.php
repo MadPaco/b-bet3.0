@@ -81,7 +81,7 @@ class GameController extends AbstractController
         $game->setWeekNumber($data['weekNumber']);
         $game->setDate(new \DateTime($data['date']));
         $game->setLocation($data['location']);
-
+        
         $homeTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $data['homeTeam']]);
         $game->setHomeTeam($homeTeam);
         $awayTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $data['awayTeam']]);

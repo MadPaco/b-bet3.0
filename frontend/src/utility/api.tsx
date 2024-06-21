@@ -41,6 +41,48 @@ export async function fetchPrimaryColor(team: string | null): Promise<string> {
   }
 }
 
+export async function fetchTeamStats(team: string | null): Promise<string> {
+  if (!team) {
+    return 'team parameter missing';
+  }
+
+  const token = localStorage.getItem('token');
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/team/fetchTeamStats/${team}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return 'Error fetching team stats';
+  }
+}
+
+export async function fetchDivisionStandings(conference: string, division: string) {
+  const token = localStorage.getItem('token');
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/team/fetchDivisionStandings/${conference}/${division}/`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return await response.json();
+}
+
 export async function fetchUserInfo(username: string) {
   try {
     const response = await fetch(

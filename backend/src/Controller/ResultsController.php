@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Game;
 use App\Entity\User;
 use App\Entity\Bet;
+use App\Entity\NflTeam;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -50,10 +51,10 @@ class ResultsController extends AbstractController
             return new Response('Unauthorized', 401);
         }
 
-        $response = $this->validator->validateData($request->getContent());
-        if ($response) {
-            return $response;
-        }
+        //$response = $this->validator->validateData($request->getContent());
+        //if ($response) {
+        //    return $response;
+        //}
 
 
         // Update game results and calculate points
@@ -63,14 +64,79 @@ class ResultsController extends AbstractController
         $updatedGames = [];
         foreach ($data as $gameID => $game) {
             $gameEntity = $this->entityManager->getRepository(Game::class)->find($gameID);
-            // keep track of the updated games to calculate the points for those games
-            // only and reduce the queries
-            array_push($updatedGames, $gameEntity);
+        
+            if ($game['homeTeamScore'] === null || $game['awayTeamScore'] === null) {
+                continue;
+            }
+            
+            array_push($updatedGames, $game);
+            
+            $homeTeamID = $gameEntity->getHomeTeam();
+            $awayTeamID = $gameEntity->getAwayTeam();
+            
+            $homeTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['id' => $homeTeamID]);
+            $awayTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['id' => $awayTeamID]);
+        
+            if (!$homeTeam || !$awayTeam) {
+                if (!$homeTeam) {
+                    error_log('Home team not found: ' . $game['homeTeam']);
+                }
+                if (!$awayTeam) {
+                    error_log('Away team not found: ' . $game['awayTeam']);
+                }
+                return new Response('Team not found', 404);
+            }
+            
+            // Load previous scores to avoid awarding a win/loss both or twice
+            $prevHomeScore = $gameEntity->getHomeScore();
+            $prevAwayScore = $gameEntity->getAwayScore();
+        
+            // Revert previous records
+            $homeTeam->setPointsFor($homeTeam->getPointsFor() - $prevHomeScore);
+            $homeTeam->setPointsAgainst($homeTeam->getPointsAgainst() - $prevAwayScore);
+            $awayTeam->setPointsFor($awayTeam->getPointsFor() - $prevAwayScore);
+            $awayTeam->setPointsAgainst($awayTeam->getPointsAgainst() - $prevHomeScore);
+        
+            if ($prevHomeScore > $prevAwayScore) {
+                $homeTeam->setWins($homeTeam->getWins() - 1);
+                $awayTeam->setLosses($awayTeam->getLosses() - 1);
+            } elseif ($prevHomeScore < $prevAwayScore) {
+                $homeTeam->setLosses($homeTeam->getLosses() - 1);
+                $awayTeam->setWins($awayTeam->getWins() - 1);
+            } elseif ($prevHomeScore === $prevAwayScore && $prevHomeScore !== null && $prevAwayScore !== null){
+                $homeTeam->setTies($homeTeam->getTies() - 1);
+                $awayTeam->setTies($awayTeam->getTies() - 1);
+            }
+        
+            // Update scores and records with new values
+            $homeTeam->setPointsFor($homeTeam->getPointsFor() + $game['homeTeamScore']);
+            $homeTeam->setPointsAgainst($homeTeam->getPointsAgainst() + $game['awayTeamScore']);
+            $awayTeam->setPointsFor($awayTeam->getPointsFor() + $game['awayTeamScore']);
+            $awayTeam->setPointsAgainst($awayTeam->getPointsAgainst() + $game['homeTeamScore']);
+            $homeTeam->setNetPoints($homeTeam->getPointsFor() - $homeTeam->getPointsAgainst());
+            $awayTeam->setNetPoints($awayTeam->getPointsFor() - $awayTeam->getPointsAgainst());
+        
+            if ($game['homeTeamScore'] > $game['awayTeamScore']) {
+                $homeTeam->setWins($homeTeam->getWins() + 1);
+                $awayTeam->setLosses($awayTeam->getLosses() + 1);
+            } elseif ($game['homeTeamScore'] < $game['awayTeamScore']) {
+                $homeTeam->setLosses($homeTeam->getLosses() + 1);
+                $awayTeam->setWins($awayTeam->getWins() + 1);
+            } elseif ($game['homeTeamScore'] === $game['awayTeamScore']) {
+                $homeTeam->setTies($homeTeam->getTies() + 1);
+                $awayTeam->setTies($awayTeam->getTies() + 1);
+            }
+
+        
             $gameEntity->setHomeScore($game['homeTeamScore']);
             $gameEntity->setAwayScore($game['awayTeamScore']);
+            
+            $this->entityManager->persist($homeTeam);
+            $this->entityManager->persist($awayTeam);
             $this->entityManager->persist($gameEntity);
             $this->entityManager->flush();
         }
+        
         if (count($updatedGames) === 0) {
             return new Response('No games found', 404);
         }
@@ -90,7 +156,6 @@ class ResultsController extends AbstractController
         foreach ($users as $user) {
             error_log('found user');
             foreach ($updatedGames as $game) {
-                error_log('found game' . $game->getId());
                 if (!$game) {
                     return new Response('Game not found', 404);
                 }

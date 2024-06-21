@@ -168,7 +168,8 @@ const ChatPanel: React.FC = () => {
               </span>
               <br></br>
             <strong>
-              {message.sender + ': '} 
+              {message.sender === username ? 'You' : message.sender}
+              <br></br>
             </strong>
 
             {message.content}
