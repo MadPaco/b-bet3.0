@@ -66,12 +66,14 @@ class UserController extends AbstractController
                 'createdAt' => $requestedUser->getCreatedAt()->format('Y-m-d H:i:s'),
                 'username' => $requestedUser->getUsername(),
                 'roles' => $requestedUser->getRoles(),
+                'profilePicture' => $requestedUser->getProfilePicture(),
             ]);
         }
         else {
             return new JsonResponse([
                 'favTeam' => $requestedUser->getFavTeam()->getName(),
                 'username' => $requestedUser->getUsername(),
+                'profilePicture' => $requestedUser->getProfilePicture(),
             ]);
         }
     }

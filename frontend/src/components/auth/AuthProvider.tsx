@@ -54,6 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setEmail(data.email);
             setCreatedAt(new Date(data.createdAt));
             setLoading(false);
+            
           } catch (error) {
             console.error('Error:', error);
             setLoading(false);

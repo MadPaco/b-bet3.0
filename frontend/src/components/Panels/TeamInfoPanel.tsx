@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
 import { fetchTeamInfo, fetchTeamStats, fetchDivisionStandings } from '../../utility/api';
-import { set } from 'lodash';
 import {TeamInfo} from '../../utility/types';
 
 interface TeamInfoPanelProps {}
@@ -17,7 +16,6 @@ const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
     if (favTeam) {
       fetchTeamInfo(favTeam)
         .then((data) => {
-          console.log(data)
           setTeamInfo(data)})
         .catch((error) => console.error(error));
     }

@@ -21,7 +21,6 @@ const NewsPanel: React.FC<DivisionPanelProps> = () => {
     if (teamInfo) {
       fetchDivisionStandings(teamInfo.conference, teamInfo.division)
         .then((data) => {
-          console.log(data);  
           setDivisionStandings(data);
         })
         .catch((error) => console.error(error));
