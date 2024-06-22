@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 
 interface Message {
   id: number;
+  profilePicture?: string;
   sender?: string;
   content: string;
   sentAt?: {
@@ -14,6 +15,7 @@ interface Message {
     timezone: string;
   };
   reactions?: { [key: string]: number };
+
 }
 
 const ChatPanel: React.FC = () => {
@@ -75,7 +77,6 @@ const ChatPanel: React.FC = () => {
       }
 
       const data = await response.json();
-
       // Map the fetched data to the Message structure
       const fetchedMessages: Message[] = data.map((message: Message) => ({
         id: message.id,
@@ -83,6 +84,7 @@ const ChatPanel: React.FC = () => {
         content: message.content,
         sentAt: message.sentAt.date.split('.')[0],
         reactions: message.reactions,
+        profilePicture: message.profilePicture,
       }));
 
       setMessages(fetchedMessages);
@@ -146,100 +148,133 @@ const ChatPanel: React.FC = () => {
     }
   }, [messages]);
 
-  return (
-    <div className="p-3 m-4 cursor-pointer rounded-md backdrop-blur-sm text-white bg-gray-500 shadow-inner shadow-white">
-      <h2 className='text-xl font-semibold mb-2 text-center'>Chat</h2>
-      <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md flex flex-col">
+return (
+  <div className="p-3 m-4 cursor-pointer rounded-md backdrop-blur-sm text-white bg-gray-500 shadow-inner shadow-white">
+    <h2 className="text-xl font-semibold mb-2 text-center">Chat</h2>
+    <div className="overflow-auto h-80 mb-4 border-3 border-gray-900 p-4 bg-gray-700 rounded-md flex flex-col">
       {messages.map((message, index) => (
-        <div key={index} className={`lg:w-1/3 p-3 my-4 mx-5 rounded-lg ${message.sender === username ? 'bg-blue-500 text-white self-end' : 'bg-gray-800 self-start'}`}>
-          <div ref={chatBottom} />
-          <p>
-              <span className="text-xs">
-                (
-                {!isLoading && message.sentAt && !isNaN(new Date(message.sentAt).getTime()) 
-                  ? new Intl.DateTimeFormat('en-UK', {
-                      month: 'short',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    }).format(new Date(message.sentAt))
-                  : "Invalid date"}
-                )
-              </span>
-              <br></br>
+        <div
+          key={index}
+          className={`flex items-start space-x-4 my-4 ${
+            message.sender === username ? 'justify-end' : 'justify-start'
+          }`}
+        >
+          {message.sender !== username && (
+            <img
+              src={
+                message.profilePicture
+                  ? `http://127.0.0.1:8000/profile-picture/${message.profilePicture}`
+                  : '/assets/images/defaultUser.webp'
+              }
+              alt="Profile"
+              className="h-10 w-10 object-cover rounded-full"
+            />
+          )}
+          <div className={`p-3 rounded-lg ${message.sender === username ? 'bg-blue-500 text-white self-end' : 'bg-gray-800 text-white self-start'}`}>
+            <span className="text-xs">
+              {!isLoading && message.sentAt && !isNaN(new Date(message.sentAt).getTime())
+                ? new Intl.DateTimeFormat('en-UK', {
+                    month: 'short',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }).format(new Date(message.sentAt))
+                : "Invalid date"}
+            </span>
+            <br />
             <strong>
               {message.sender === username ? 'You' : message.sender}
-              <br></br>
+              <br />
             </strong>
-
             {message.content}
-            { message.reactions.length > 0 ? <br /> : ''}
+            {message.reactions && message.reactions.length > 0 && <br />}
             <span>
-            {
-              Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '1').length > 0 ?
-              <>
-                {'👍' + message.reactions.filter(reaction => reaction.reactionCode === '1').length}
-              </> : ''
-            }
-            {
-              Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '2').length > 0 ?
-              <>
-                {'👎' + message.reactions.filter(reaction => reaction.reactionCode === '2').length}
-              </> : ''
-            }
-            {
-              Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '3').length > 0 ?
-              <>
-                {'😂' + message.reactions.filter(reaction => reaction.reactionCode === '3').length}
-              </> : ''
-            }
-            {
-              Array.isArray(message.reactions) && message.reactions.filter(reaction => reaction.reactionCode === '4').length > 0 ?
-              <>
-                {'❤️' + message.reactions.filter(reaction => reaction.reactionCode === '4').length}
-              </> : ''
-            }
-          </span>
-          <br></br>
-          <span role="img" aria-label="thumbs up" onClick={() => handleAddReaction(message.id, '1')}>
-          👍
-          </span>
-          <span role="img" aria-label="thumbs down" onClick={() => handleAddReaction(message.id, '2')}>
-            👎 
-          </span>
-          <span role="img" aria-label="laugh" onClick={() => handleAddReaction(message.id, '3')}>
-            😂 
-          </span>
-          <span role="img" aria-label="heart" onClick={() => handleAddReaction(message.id, '4')}>
-            ❤️ 
-          </span>
-          </p>
+              {Array.isArray(message.reactions) &&
+                message.reactions
+                  .filter((reaction) => reaction.reactionCode === '1')
+                  .map((_, i) => (
+                    <span key={i}>
+                      {'👍' + message.reactions.filter((reaction) => reaction.reactionCode === '1').length}
+                    </span>
+                  ))}
+              {Array.isArray(message.reactions) &&
+                message.reactions
+                  .filter((reaction) => reaction.reactionCode === '2')
+                  .map((_, i) => (
+                    <span key={i}>
+                      {'👎' + message.reactions.filter((reaction) => reaction.reactionCode === '2').length}
+                    </span>
+                  ))}
+              {Array.isArray(message.reactions) &&
+                message.reactions
+                  .filter((reaction) => reaction.reactionCode === '3')
+                  .map((_, i) => (
+                    <span key={i}>
+                      {'😂' + message.reactions.filter((reaction) => reaction.reactionCode === '3').length}
+                    </span>
+                  ))}
+              {Array.isArray(message.reactions) &&
+                message.reactions
+                  .filter((reaction) => reaction.reactionCode === '4')
+                  .map((_, i) => (
+                    <span key={i}>
+                      {'❤️' + message.reactions.filter((reaction) => reaction.reactionCode === '4').length}
+                    </span>
+                  ))}
+            </span>
+            <br />
+            <span role="img" aria-label="thumbs up" onClick={() => handleAddReaction(message.id, '1')}>
+              👍
+            </span>
+            <span role="img" aria-label="thumbs down" onClick={() => handleAddReaction(message.id, '2')}>
+              👎
+            </span>
+            <span role="img" aria-label="laugh" onClick={() => handleAddReaction(message.id, '3')}>
+              😂
+            </span>
+            <span role="img" aria-label="heart" onClick={() => handleAddReaction(message.id, '4')}>
+              ❤️
+            </span>
+          </div>
+          {message.sender === username && (
+            <img
+              src={
+                message.profilePicture
+                  ? `http://127.0.0.1:8000/profile-picture/${message.profilePicture}`
+                  : '/assets/images/defaultUser.webp'
+              }
+              alt="Profile"
+              className="h-10 w-10 object-cover rounded-full ml-2"
+            />
+          )}
         </div>
-        ))}
-      </div>
-      <form
-  onSubmit={(e) => {
-    e.preventDefault();
-    handleSendMessage();
-  }}
-  className="flex flex-col sm:flex-row"
->
-  <input
-    type="text"
-    value={newMessage}
-    onChange={(e) => setNewMessage(e.target.value)}
-    className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black sm:text-xs md:text-sm lg:text-base mb-2 sm:mb-0 flex-grow-0 sm:flex-grow"
-  />
-  <button
-    type="submit"
-    disabled={!newMessage}
-    className={`ml-0 p-2 rounded-md ${colorClass} sm:ml-2 sm:mt-0 mt-2 flex-grow-0`}
-  >
-    Send
-  </button>
-</form>
+      ))}
+      <div ref={chatBottom} />
     </div>
-  );
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSendMessage();
+      }}
+      className="flex flex-col sm:flex-row"
+    >
+      <input
+        type="text"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+        className="border-2 border-gray-300 rounded-md p-2 flex-grow text-black sm:text-xs md:text-sm lg:text-base mb-2 sm:mb-0 flex-grow-0 sm:flex-grow"
+      />
+      <button
+        type="submit"
+        disabled={!newMessage}
+        className={`ml-0 p-2 rounded-md ${colorClass} sm:ml-2 sm:mt-0 mt-2 flex-grow-0`}
+      >
+        Send
+      </button>
+    </form>
+  </div>
+);
+
 };
 
 export default ChatPanel;

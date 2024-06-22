@@ -45,7 +45,7 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
       {username ? (
         <div className="flex items-center">
           <img
-            src={profilePictureUrl}
+            {...(profilePictureUrl ? { src: profilePictureUrl } : { src: '/assets/images/defaultUser.webp' })}
             alt="Profile"
             className="w-24 h-24 object-contain mr-4 rounded-full"
           />

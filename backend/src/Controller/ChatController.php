@@ -56,6 +56,7 @@ class ChatController extends AbstractController
                 'sender' => $message->getSender()->getUsername(),
                 'content' => $message->getContent(),
                 'sentAt' => $message->getSentAt(),
+                'profilePicture' => $message->getSender()->getProfilePicture(),
                 'reactions' => $message->getReactions()->map(function ($reaction) {
                     return [
                         'id' => $reaction->getId(),
@@ -123,7 +124,11 @@ class ChatController extends AbstractController
 
         $update = new Update(
             "/chatroom/{$chatroom->getId()}", 
-            json_encode(['content' => $sanitizedContent, 'sender' => $user->getUsername(), 'sentAt' => $message->getSentAt(), 'reactions' => array_map(function($reaction) {
+            json_encode(['content' => $sanitizedContent,
+                        'sender' => $user->getUsername(), 
+                        'sentAt' => $message->getSentAt(),
+                        'profilePicture' => $user->getProfilePicture(), 
+                        'reactions' => array_map(function($reaction) {
                 return $reaction->toArray();
             }, $this->entityManager->getRepository(Reaction::class)->findBy(['message' => $message]))]) // The data to send
         );
