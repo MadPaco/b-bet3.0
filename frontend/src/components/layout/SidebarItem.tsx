@@ -1,6 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { colorClasses } from '../../data/colorClasses';
 
 interface SidebarItemProps {
   icon: IconDefinition;
@@ -8,7 +7,6 @@ interface SidebarItemProps {
   onClick?: () => void;
   color: string;
   active?: boolean;
-  path: string;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({
@@ -18,23 +16,18 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   color,
   active,
 }) => {
-  const colorClass = color
-    ? colorClasses[color as keyof typeof colorClasses]
-    : 'bg-gray-400 hover:bg-gray-300';
-
+  const activeClass = active ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-800';
+  
   return (
-    <li className={`mt-1 lg:mt-0 lg:mx-0 lg:w-40 lg:h-10 `}>
+    <li className="relative">
       <button
         onClick={onClick}
-        className={`${colorClass} ${active ? 'bg-gray-100' : ''} flex items-center px-1 py-1 bg-opacity-80 cursor-pointer rounded-md backdrop-blur-sm w-full lg:px-3 lg:ml-2`}
+        className={`${activeClass} flex items-center w-full p-3 rounded-md transition-colors duration-200 ease-in-out`}
       >
-        <div className="flex items-center lg:bg-gray-700 rounded-md">
-          <div className="bg-transparent flex items-center justify-center h-10 w-10">
-            <FontAwesomeIcon icon={icon} />
-          </div>
-        </div>
-        <div className="hidden lg:block lg:ml-2">{text}</div>
+        <FontAwesomeIcon icon={icon} className="mr-3" />
+        <span className="text-base">{text}</span>
       </button>
+      {active && <div className="absolute right-0 w-2 h-full bg-blue-500 rounded-md"></div>}
     </li>
   );
 };

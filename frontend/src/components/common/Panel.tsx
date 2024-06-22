@@ -15,7 +15,7 @@ const Panel: React.FC<PanelProps> = ({ children }) => {
 
   return (
     <div
-      className={`flex flex-col p-1 mx-4 mt-3 lg:p-5 lg:m-4 ${colorClass} bg-opacity-80 rounded-md backdrop-blur-sm`}
+      className={`flex flex-col p-3 mx-4 mt-3 lg:p-5 lg:m-4 ${colorClass} bg-opacity-80 rounded-md backdrop-blur-sm shadow-inner shadow-white`}
     >
       {children}
     </div>

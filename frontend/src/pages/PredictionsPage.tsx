@@ -41,7 +41,7 @@ const PredictionsPage: React.FC = () => {
 
   const options = [];
   for (let i = 1; i <= NFLWEEKS; i++) {
-    options.push(<option value={i}>Week {i}</option>);
+    options.push(<option key={i} value={i}>Week {i}</option>);
   }
 
   useEffect(() => {
@@ -68,39 +68,23 @@ const PredictionsPage: React.FC = () => {
     value: number,
     type: string,
   ) => {
-    const predictionIndex = predictions.findIndex((p) => p.gameID === gameID);
-
-    if (predictionIndex !== -1) {
-      setPredictions((prev) =>
-        prev.map((p, i) =>
-          i === predictionIndex ? { ...p, [type]: value || null } : p,
-        ),
-      );
-    } else {
-      setPredictions((prev) => [
-        ...prev,
-        {
-          gameID,
-          homePrediction: type === 'homePrediction' ? value || null : null,
-          awayPrediction: type === 'awayPrediction' ? value || null : null,
-        },
-      ]);
-    }
+    setPredictions((prev) =>
+      prev.map((p) =>
+        p.gameID === gameID ? { ...p, [type]: value || null } : p,
+      ),
+    );
   };
 
-  const handleSubmit = (predictions: Prediction[]) => {
-    const response = addBets(predictions);
+  const handleSubmit = async (predictions: Prediction[]) => {
+    await addBets(predictions);
     setShowPopup(true);
     setTimeout(() => setShowPopup(false), 1000);
-    return response;
   };
 
   return (
     <LoggedInLayout>
-      <div
-        className={`flex flex-col lg:pt-10 px-10 text-white items-center align-middle justify-center `}
-      >
-        <div className={` ${colorClass}  w-1/2 rounded-md`}>
+      <div className="flex flex-col lg:pt-10 px-5 text-white items-center justify-center min-h-screen">
+        <div className={`w-full lg:w-2/3 rounded-lg p-5 shadow-lg`}>
           <form
             className="flex flex-col justify-center items-center"
             onSubmit={(e) => {
@@ -109,7 +93,7 @@ const PredictionsPage: React.FC = () => {
             }}
           >
             <select
-              className="w-1/5 mt-3 bg-gray-600 text-white p-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+              className="text-center w-1/3 mt-3 bg-gray-700 text-white p-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
               value={weekNumber}
               onChange={(e) => setWeekNumber(Number(e.target.value))}
             >
@@ -118,17 +102,17 @@ const PredictionsPage: React.FC = () => {
             {schedule.map((game) => (
               <div
                 key={game.id}
-                className={`${colorClass} game flex flex-col items-center bg-opacity-70 rounded-lg p-3 m-3`}
+                className={`${colorClass} flex flex-col items-center bg-opacity-90 rounded-lg p-2 m-5 w-full shadow-md`}
               >
-                <div className="time text-lg font-bold">{game.date}</div>
-                <div className="teams lg:text-lg flex items-center py-3">
-                  <img
-                    className="h-7 w-7 lg:h-10 lg:w-10 mr-3"
-                    src={`/assets/images/teams/${game.awayTeamLogo}`}
-                    alt={game.awayTeam}
-                  />
-                  <div className="flex flex-col items-center">
-                    <span>{game.awayTeam}</span>
+                <div className="text-lg font-bold mb-2 text-center">{new Intl.DateTimeFormat('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(game.date))}</div>
+                <div className="flex items-center justify-center py-3 w-full">
+                  <div className="flex flex-col items-center mx-3">
+                    <img
+                      className="h-12 w-12 mb-2"
+                      src={`/assets/images/teams/${game.awayTeamLogo}`}
+                      alt={game.awayTeam}
+                    />
+                    <span className='text-center'>{game.awayTeam}</span>
                     <input
                       onChange={(e) =>
                         handlePredictionChange(
@@ -139,17 +123,23 @@ const PredictionsPage: React.FC = () => {
                       }
                       name="awayPrediction"
                       type="number"
-                      className="w-1/4 text-black"
+                      className="w-20 text-black text-center mt-2 p-1 rounded-md"
                       value={
                         predictions.find((p) => p.gameID === game.id)
                           ?.awayPrediction || ''
                       }
-                    ></input>
+                    />
                   </div>
 
-                  <span className="mx-2"> at </span>
-                  <div className="flex flex-col items-center">
-                    <span>{game.homeTeam}</span>
+                  <span className="mx-5 text-3xl font-bold">at</span>
+
+                  <div className="flex flex-col items-center mx-3">
+                    <img
+                      className="h-auto w-12 mb-2"
+                      src={`/assets/images/teams/${game.homeTeamLogo}`}
+                      alt={game.homeTeam}
+                    />
+                    <span className='text-center'>{game.homeTeam}</span>
                     <input
                       onChange={(e) =>
                         handlePredictionChange(
@@ -158,46 +148,40 @@ const PredictionsPage: React.FC = () => {
                           'homePrediction',
                         )
                       }
+                      name="homePrediction"
+                      type="number"
+                      className="w-20 text-black text-center mt-2 p-1 rounded-md"
                       value={
                         predictions.find((p) => p.gameID === game.id)
                           ?.homePrediction || ''
                       }
-                      name="homePrediction"
-                      type="number"
-                      className="w-1/4 text-black"
-                    ></input>
+                    />
                   </div>
-
-                  <img
-                    className="h-7 w-7 lg:h-10 lg:w-10 ml-3"
-                    src={`/assets/images/teams/${game.homeTeamLogo}`}
-                    alt={game.homeTeam}
-                  />
                 </div>
-                <div className="odds mb-2 flex items-center text-sm">
-                  <span className="flex flex-col mr-3 items-center">
+                <div className="odds mb-2 flex items-center justify-center text-sm w-full px-10">
+                  <div className="flex flex-col items-center m-2 text-center">
                     <span>away odds</span>
                     <span>({game.awayOdds})</span>
-                  </span>
-                  <span className="flex flex-col mx-3 items-center">
+                  </div>
+                  <div className="flex flex-col items-center m-2 text-center">
                     <span>over/under</span>
                     <span>({game.overUnder})</span>
-                  </span>{' '}
-                  <span className="flex flex-col ml-3 items-center">
+                  </div>
+                  <div className="flex flex-col items-center m-2 text-center">
                     <span>home odds</span>
                     <span>({game.homeOdds})</span>
-                  </span>
+                  </div>
                 </div>
-                <div className="location">{game.location}</div>
+                <div className="location text-sm text-center">{game.location}</div>
               </div>
             ))}
-            <button type="submit" className="bg-green-400 px-3 rounded-lg mb-3">
+            <button type="submit" className="bg-green-500 px-6 py-2 rounded-lg mt-5 shadow hover:bg-green-400 transition-colors duration-300">
               Submit
             </button>
           </form>
           {showPopup && (
-            <div className="animate-ping-once fixed top-0 left-0 w-screen h-screen flex items-center justify-center">
-              <div className="bg-green-400 p-4 rounded shadow-lg text-black">
+            <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center">
+              <div className="bg-green-500 p-4 rounded shadow-lg text-black">
                 Saved <FontAwesomeIcon icon={faCheck} />
               </div>
             </div>
@@ -207,4 +191,5 @@ const PredictionsPage: React.FC = () => {
     </LoggedInLayout>
   );
 };
+
 export default PredictionsPage;

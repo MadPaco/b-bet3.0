@@ -32,3 +32,20 @@ export type User = {
     profilePic: string;
 };
 
+export type TeamInfo = {
+    id: number;
+    name: string;
+    division: string;
+    conference: string;
+    logo: string;
+    primaryColor: string;
+    location: string;
+    losses: number;
+    wins: number;
+    ties: number;
+    pointsFor: number;
+    pointsAgainst: number;
+    netPoints: number;
+    shorthandName: string;
+};
+

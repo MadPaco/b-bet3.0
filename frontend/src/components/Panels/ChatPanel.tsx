@@ -147,8 +147,8 @@ const ChatPanel: React.FC = () => {
   }, [messages]);
 
   return (
-    <div className="p-5 m-6 cursor-pointer rounded-md backdrop-blur-sm text-white">
-      <h2>Chat Panel</h2>
+    <div className="p-3 m-4 cursor-pointer rounded-md backdrop-blur-sm text-white bg-gray-500 shadow-inner shadow-white">
+      <h2 className='text-xl font-semibold mb-2 text-center'>Chat</h2>
       <div className="overflow-auto h-64 mb-4 border-3 border-gray-900 bg-gray-700 rounded-md flex flex-col">
       {messages.map((message, index) => (
         <div key={index} className={`lg:w-1/3 p-3 my-4 mx-5 rounded-lg ${message.sender === username ? 'bg-blue-500 text-white self-end' : 'bg-gray-800 self-start'}`}>

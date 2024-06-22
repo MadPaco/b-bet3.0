@@ -353,14 +353,11 @@ class TeamController extends AbstractController
             //return $this->json($this->orderAfterHeadtoHead($standings), 200);
         }
         $standings = $this->orderAfterHeadtoHead($standings);
-        $standings = $this->orderAfterDivisionWinpercentage($standings);
-        return new JsonResponse($standings, 200);
-        //second tie breaker, division record
-        
+        //return only the first four entries
+        return new JsonResponse(array_slice($standings, 0, 4), 200);
+        //$standings = $this->orderAfterDivisionWinpercentage($standings);
+        //return new JsonResponse($standings, 200);
 
-        //testing purposes
-        //$testTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => 'Los Angeles Chargers']);
-        //return new JsonResponse($this->calculateDivisionWinpercentage($testTeam), 200);  
     }
 }   
 ?>
