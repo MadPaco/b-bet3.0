@@ -22,7 +22,6 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
 
   useEffect(() => {
     if (profilePicture) {
-      console.log(profilePicture);
       const fetchProfilePicture = async () => {
         try {
           const response = await fetch(`http://127.0.0.1:8000/profile-picture/${profilePicture}`);

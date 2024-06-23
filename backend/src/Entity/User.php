@@ -62,6 +62,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
+    #[ORM\Column(type: 'string')]
+    private $bio;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -127,6 +130,19 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->favTeam = $favTeam;
         return $this;
     }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(string $bio): self
+    {
+        $this->bio = $bio;
+        return $this;
+    }
+
+    
 
     public function __construct() {
         $this->sentMessages = new ArrayCollection();

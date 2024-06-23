@@ -15,6 +15,7 @@ import PredictionsPage from './pages/PredictionsPage';
 import ProfilePage from './pages/ProfilePage';
 import RulesPage from './pages/RulesPage';
 import StatsPage from './pages/StatsPage';
+import UserProfilePage from './pages/UserProfilePage';
 import { ColorProvider } from './context/ColorProvider';
 
 const App: React.FC = () => {
@@ -35,6 +36,7 @@ const App: React.FC = () => {
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/predictions" element={<PredictionsPage />} />
             <Route path="/myProfile" element={<ProfilePage />} />
+            <Route path="/users/:username" element={<UserProfilePage />} />
             <Route path="/rules" element={<RulesPage />} />
             <Route path="/stats" element={<StatsPage />} />
           </Routes>

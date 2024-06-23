@@ -29,7 +29,8 @@ export type User = {
     email: string;
     isAdmin: boolean;
     favTeam: string;
-    profilePic: string;
+    profilePicture: string;
+    bio: string;
 };
 
 export type TeamInfo = {

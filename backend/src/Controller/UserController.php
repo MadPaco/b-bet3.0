@@ -67,6 +67,7 @@ class UserController extends AbstractController
                 'username' => $requestedUser->getUsername(),
                 'roles' => $requestedUser->getRoles(),
                 'profilePicture' => $requestedUser->getProfilePicture(),
+                'bio' => $requestedUser->getBio(),
             ]);
         }
         else {
@@ -74,6 +75,7 @@ class UserController extends AbstractController
                 'favTeam' => $requestedUser->getFavTeam()->getName(),
                 'username' => $requestedUser->getUsername(),
                 'profilePicture' => $requestedUser->getProfilePicture(),
+                'bio' => $requestedUser->getBio(),
             ]);
         }
     }
@@ -88,6 +90,8 @@ class UserController extends AbstractController
             array_push($userArray, [
                 'username' => $user->getUsername(),
                 'favTeam' => $user->getFavTeam()->getName(),
+                'profilePicture' => $user->getProfilePicture(),
+                'bio' => $user->getBio(),
             ]);
         }
         return new JsonResponse($userArray);
@@ -96,66 +100,88 @@ class UserController extends AbstractController
     #[Route('api/user/editUser', name: 'edit_user', methods: ['POST'])]
     public function editUser(Request $request): Response
     {
-        if (!$request->query->get('username')){
+        if (!$request->query->get('username')) {
             return new JsonResponse(['message' => 'No username provided'], Response::HTTP_BAD_REQUEST);
         }
+    
         $userToChange = $this->userRepository->findOneBy(['username' => $request->query->get('username')]);
         $authenticatedUser = $this->getUser();
-        //some guard clauses
-        if (!$userToChange){
+    
+        if (!$userToChange) {
             return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
         }
-        if (!$authenticatedUser){
+        if (!$authenticatedUser) {
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
-        //only allow to change a users info if the user is doing it themself or if the user is an admin
-        //Using forbidden here because this is a valid request, but the user is not authorized to do it
-        if ($authenticatedUser->getUsername() !== $userToChange->getUsername() && !in_array('ADMIN', $authenticatedUser->getRoles())){
+        if ($authenticatedUser->getUsername() !== $userToChange->getUsername() && !in_array('ADMIN', $authenticatedUser->getRoles())) {
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_FORBIDDEN);
         }
-
-        $data = json_decode($request->getContent(), true);
-        
-        //sanitize 
-        $newUsername = isset($data['username']) ? filter_var($data['username'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
-        $newEmail = isset($data['email']) ? filter_var($data['email'], FILTER_SANITIZE_EMAIL) : null;
-        $newFavTeam = isset($data['favTeam']) ? filter_var($data['favTeam'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+    
+        // Handle file upload and other form data
+        $newUsername = $request->request->get('username') ? filter_var($request->request->get('username'), FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+        $newEmail = $request->request->get('email') ? filter_var($request->request->get('email'), FILTER_SANITIZE_EMAIL) : null;
+        $newFavTeam = $request->request->get('favTeam') ? filter_var($request->request->get('favTeam'), FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
         $newFavTeamID = $newFavTeam ? $this->nflTeamRepository->findOneBy(['name' => $newFavTeam]) : null;
-        $newPassword = isset($data['password']) ? filter_var($data['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
-
-        // keep username and email unqiue
-        $exisitingUsername = $this->userRepository->findOneBy(['username' => $newUsername]);
-        if($exisitingUsername){
-            return new JsonResponse(['message' => 'Username already exists'], Response::HTTP_CONFLICT);
+        $newPassword = $request->request->get('password') ? filter_var($request->request->get('password'), FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+        $newBio = $request->request->get('bio') ? filter_var($request->request->get('bio'), FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+    
+        // Check for unique username and email
+        if ($newUsername && $newUsername !== $userToChange->getUsername()) {
+            $existingUsername = $this->userRepository->findOneBy(['username' => $newUsername]);
+            if ($existingUsername) {
+                return new JsonResponse(['message' => 'Username already exists'], Response::HTTP_CONFLICT);
+            }
         }
-        $existingEmail = $this->userRepository->findOneBy(['email' => $newEmail]);
-        if($existingEmail){
-            return new JsonResponse(['message' => 'Email already exists'], Response::HTTP_CONFLICT);
+        if ($newEmail && $newEmail !== $userToChange->getEmail()) {
+            $existingEmail = $this->userRepository->findOneBy(['email' => $newEmail]);
+            if ($existingEmail) {
+                return new JsonResponse(['message' => 'Email already exists'], Response::HTTP_CONFLICT);
+            }
         }
-
-        //set values and update the user, but only if the values differ from saved values
+    
+        // Handle profile picutre
+        $file = $request->files->get('profilePicture');
+        if ($file) {
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $extension = $file->guessExtension();
+    
+            if (!in_array($extension, $allowedExtensions)) {
+                return new JsonResponse(['message' => 'Invalid file type'], Response::HTTP_BAD_REQUEST);
+            }
+    
+            $filename = uniqid() . '.' . $extension;
+            $file->move($this->getParameter('profile_pictures_directory'), $filename);
+        }
+    
+        // Update user entity
         try {
-            if ($newUsername != null && $newUsername !== $userToChange->getUsername()){
+            if ($newUsername && $newUsername !== $userToChange->getUsername()) {
                 $userToChange->setUsername($newUsername);
             }
-            if ($newEmail != null && $newEmail !== $userToChange->getEmail()){
+            if ($newEmail && $newEmail !== $userToChange->getEmail()) {
                 $userToChange->setEmail($newEmail);
             }
-            if ($newFavTeamID != null && $newFavTeamID !== $userToChange->getFavTeam()){
+            if ($newFavTeamID && $newFavTeamID !== $userToChange->getFavTeam()) {
                 $userToChange->setFavTeam($newFavTeamID);
             }
-            if ($newPassword != null && $newPassword !== $userToChange->getPassword()){
+            if ($newPassword && $newPassword !== $userToChange->getPassword()) {
                 $hashedPassword = $this->passwordEncoder->hashPassword($userToChange, $newPassword);
                 $userToChange->setPassword($hashedPassword);
             }
-
+            if ($newBio && $newBio !== $userToChange->getBio()) {
+                $userToChange->setBio($newBio);
+            }
+            if (isset($filename)) {
+                $userToChange->setProfilePicture($filename);
+            }
+    
             $this->entityManager->persist($userToChange);
             $this->entityManager->flush();
-
         } catch (\Exception $e) {
             return new JsonResponse(['message' => 'An error occurred while updating the user', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        
+    
         return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
+    
 }

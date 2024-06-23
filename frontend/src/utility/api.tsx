@@ -183,24 +183,21 @@ interface UserUpdateBody {
 
 export async function updateUser(
   initialUsername: string,
-  postBody: UserUpdateBody,
+  formData: FormData,
 ) {
   const response = await fetch(
     `http://127.0.0.1:8000/api/user/editUser?username=${initialUsername}`,
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: 'Bearer ' + localStorage.getItem('token'),
       },
-      body: JSON.stringify({
-        ...postBody,
-      }),
+      body: formData,
     },
   );
 
   if (!response.ok) {
-    const message = `An error has occured: ${response.status}`;
+    const message = `An error has occurred: ${response.status}`;
     throw new Error(message);
   }
 }
