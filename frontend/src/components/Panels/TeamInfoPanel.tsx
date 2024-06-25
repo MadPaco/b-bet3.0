@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
 import { fetchTeamInfo, fetchTeamStats, fetchDivisionStandings } from '../../utility/api';
-import {TeamInfo} from '../../utility/types';
+import { TeamInfo } from '../../utility/types';
 
-interface TeamInfoPanelProps {}
+interface TeamInfoPanelProps { }
 
 const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
   const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
@@ -16,7 +16,8 @@ const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
     if (favTeam) {
       fetchTeamInfo(favTeam)
         .then((data) => {
-          setTeamInfo(data)})
+          setTeamInfo(data)
+        })
         .catch((error) => console.error(error));
     }
   }, [favTeam]);
@@ -58,13 +59,13 @@ const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
           <div className="flex items-center">
             <div>
               <p className='text-xl font-semibold mb-2' >{teamInfo.name} - {teamInfo.conference} {teamInfo.division}</p>
-              {teamStats && <p>Record: {teamStats.wins} - {teamStats.losses} {teamStats.ties > 0? '-' + teamStats.ties : ''}</p>}
+              {teamStats && <p>Record: {teamStats.wins} - {teamStats.losses} {teamStats.ties > 0 ? '-' + teamStats.ties : ''}</p>}
               {teamStats && <div>
                 <p></p>
-              <p>Points Scored: {teamStats.pointsFor}</p>
-              <p>Points Against: {teamStats.pointsAgainst}</p>
-              <p>Point Differential: {teamStats.netPoints > 0 ? `+${teamStats.netPoints}` : `${teamStats.netPoints}`}</p>
-              <p>Place in division: {placeInDivision}</p>
+                <p>Points Scored: {teamStats.pointsFor}</p>
+                <p>Points Against: {teamStats.pointsAgainst}</p>
+                <p>Point Differential: {teamStats.netPoints > 0 ? `+${teamStats.netPoints}` : `${teamStats.netPoints}`}</p>
+                <p>Place in division: {placeInDivision}</p>
               </div>}
             </div>
           </div>

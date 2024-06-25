@@ -37,9 +37,8 @@ export const AuthProvider: React.FC = ({ children }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`/api/user/?username={username}`); // Update this endpoint accordingly
+        const response = await fetch(`/api/user/?username={username}`);
         const data = await response.json();
-        console.log(data);
         setUsername(data.username);
         setFavTeam(data.favTeam);
         setEmail(data.email);

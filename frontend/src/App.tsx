@@ -1,45 +1,51 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { SyncLoader } from 'react-spinners';
 import './index.css';
 import LoginPage from './pages/LoginPage';
 import IndexPage from './pages/IndexPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import AdminPage from './pages/AdminPage';
-import SchedulePage from './pages/SchedulePage';
 import { AuthProvider } from './components/auth/AuthProvider';
-import AllBetsPage from './pages/AllBetsPage';
-import AllUsersPage from './pages/AllUsersPage';
-import HeadToHeadPage from './pages/HeadToHeadPage';
-import LeaderboardPage from './pages/LeaderboardPage';
-import PredictionsPage from './pages/PredictionsPage';
-import ProfilePage from './pages/ProfilePage';
-import RulesPage from './pages/RulesPage';
-import StatsPage from './pages/StatsPage';
-import UserProfilePage from './pages/UserProfilePage';
 import { ColorProvider } from './context/ColorProvider';
+
+// Lazy load less frequently used pages
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const SchedulePage = lazy(() => import('./pages/SchedulePage'));
+const AllBetsPage = lazy(() => import('./pages/AllBetsPage'));
+const AllUsersPage = lazy(() => import('./pages/AllUsersPage'));
+const HeadToHeadPage = lazy(() => import('./pages/HeadToHeadPage'));
+const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
+const PredictionsPage = lazy(() => import('./pages/PredictionsPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
+const RulesPage = lazy(() => import('./pages/RulesPage'));
+const StatsPage = lazy(() => import('./pages/StatsPage'));
 
 const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
         <ColorProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<IndexPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/schedule" element={<SchedulePage />} />
-            <Route path="/allBets" element={<AllBetsPage />} />
-            <Route path="/allUsers" element={<AllUsersPage />} />
-            <Route path="/1vs1" element={<HeadToHeadPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/predictions" element={<PredictionsPage />} />
-            <Route path="/myProfile" element={<ProfilePage />} />
-            <Route path="/users/:username" element={<UserProfilePage />} />
-            <Route path="/rules" element={<RulesPage />} />
-            <Route path="/stats" element={<StatsPage />} />
-          </Routes>
+          <Suspense fallback={<SyncLoader color={'#36d7b7'} />}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={<IndexPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/schedule" element={<SchedulePage />} />
+              <Route path="/allBets" element={<AllBetsPage />} />
+              <Route path="/allUsers" element={<AllUsersPage />} />
+              <Route path="/1vs1" element={<HeadToHeadPage />} />
+              <Route path="/leaderboard" element={<LeaderboardPage />} />
+              <Route path="/predictions" element={<PredictionsPage />} />
+              <Route path="/myProfile" element={<ProfilePage />} />
+              <Route path="/users/:username" element={<UserProfilePage />} />
+              <Route path="/rules" element={<RulesPage />} />
+              <Route path="/stats" element={<StatsPage />} />
+            </Routes>
+          </Suspense>
         </ColorProvider>
       </AuthProvider>
     </Router>

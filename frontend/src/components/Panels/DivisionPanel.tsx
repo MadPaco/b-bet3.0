@@ -37,9 +37,8 @@ const NewsPanel: React.FC<DivisionPanelProps> = () => {
               {divisionStandings.map((team, index) => (
                 <div
                   key={team.name}
-                  className={`flex items-center justify-between p-2 rounded-lg ${
-                    index % 2 === 0 ? 'bg-gray-500' : 'bg-gray-700'
-                  }`}
+                  className={`flex items-center justify-between p-2 rounded-lg ${index % 2 === 0 ? 'bg-gray-500' : 'bg-gray-700'
+                    }`}
                 >
                   <span className="font-medium">
                     {index + 1}. {team.name}

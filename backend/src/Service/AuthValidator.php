@@ -16,8 +16,7 @@ class AuthValidator {
     {
         $this->entityManager = $entityManager;
     }
-    //data includes:
-    //email, username, password, favTeam
+
     public function validateData($data): ?JsonResponse
     {
 
@@ -77,10 +76,6 @@ class AuthValidator {
         if (!$existingTeam) {
             return new JsonResponse(['message' => 'Team does not exist!'], Response::HTTP_BAD_REQUEST);
         }
-        
-        //check for wrong content type
-        
-
         return null;
     }
 }

@@ -6,8 +6,8 @@ export default {
     extend: {
       backgroundImage: () => ({
         grassfield: 'url(./src/assets/images/grassfield.jpg)',
-        stadium: 'url(./src/assets/images/stadium.jpg)',
-        stadiumTop: 'url(./src/assets/images/stadium2.jpg)',
+        stadium: 'url(./src/assets/images/stadium.webp)',
+        stadiumTop: 'url(./src/assets/images/stadium2.webp)',
       }),
       animation: {
         'ping-once': 'ping 1s cubic-bezier(0, 0, 0.2, 1)',

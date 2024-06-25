@@ -39,10 +39,6 @@ class BetController extends AbstractController
         foreach ($data as $betData){
 
 
-            $validationResponse = $this->validator->validateBetData($betData);
-            if ($validationResponse) {
-                return $validationResponse;
-            }
 
             $game = $this->entityManager->getRepository(Game::class)->find($betData['gameID']);
             $bet = $this->entityManager->getRepository(Bet::class)->findOneBy(['game' => $game, 'user' => $user]);  

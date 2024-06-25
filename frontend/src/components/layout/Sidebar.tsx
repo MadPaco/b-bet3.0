@@ -1,8 +1,9 @@
+// src/components/Sidebar.tsx
+import React, { useState } from 'react';
 import SidebarItem from './SidebarItem';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { useColor } from '../../context/ColorContext';
-import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFootballBall,
   faRankingStar,
@@ -19,7 +20,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar: React.FC = () => {
-  const { primaryColor } = useColor();
   const { roles } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -62,8 +62,9 @@ const Sidebar: React.FC = () => {
         {sidebarItems.map((item) => (
           <SidebarItem
             key={item.text}
-            {...item}
-            color={primaryColor}
+            icon={<FontAwesomeIcon icon={item.icon} />}
+            text={item.text}
+            onClick={item.onClick}
             active={location.pathname === item.path}
           />
         ))}

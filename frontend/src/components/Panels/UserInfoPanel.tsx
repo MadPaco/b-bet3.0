@@ -3,7 +3,7 @@ import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
 import { fetchUserInfo } from '../../utility/api';
 
-interface UserInfoPanelProps {}
+interface UserInfoPanelProps { }
 
 const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
   const { username, createdAt } = useAuth();

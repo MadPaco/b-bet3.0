@@ -49,8 +49,16 @@ const PredictionsPage: React.FC = () => {
       const response = await fetchSchedule(weekNumber);
       const data = await response.json();
       setSchedule(data);
+  
+      setPredictions((prevPredictions) => {
+        const newPredictions = data.map((game) => {
+          const existingPrediction = prevPredictions.find((p) => p.gameID === game.id);
+          return existingPrediction || { gameID: game.id, awayPrediction: null, homePrediction: null };
+        });
+        return newPredictions;
+      });
     };
-
+  
     getSchedule();
   }, [weekNumber]);
 
@@ -63,16 +71,17 @@ const PredictionsPage: React.FC = () => {
     getInitialPrediction();
   }, [weekNumber]);
 
-  const handlePredictionChange = (
-    gameID: number,
-    value: number,
-    type: string,
-  ) => {
-    setPredictions((prev) =>
-      prev.map((p) =>
-        p.gameID === gameID ? { ...p, [type]: value || null } : p,
-      ),
-    );
+  const handlePredictionChange = (gameID: number, value: number, type: 'awayPrediction' | 'homePrediction') => {
+    setPredictions((prev) => {
+      const existingPrediction = prev.find((p) => p.gameID === gameID);
+      if (existingPrediction) {
+        return prev.map((p) =>
+          p.gameID === gameID ? { ...p, [type]: value || null } : p,
+        );
+      } else {
+        return [...prev, { gameID, awayPrediction: type === 'awayPrediction' ? value : null, homePrediction: type === 'homePrediction' ? value : null }];
+      }
+    });
   };
 
   const handleSubmit = async (predictions: Prediction[]) => {
@@ -125,8 +134,7 @@ const PredictionsPage: React.FC = () => {
                       type="number"
                       className="w-20 text-black text-center mt-2 p-1 rounded-md"
                       value={
-                        predictions.find((p) => p.gameID === game.id)
-                          ?.awayPrediction || ''
+                        predictions.find((p) => p.gameID === game.id)?.awayPrediction ?? ''
                       }
                     />
                   </div>
@@ -152,8 +160,7 @@ const PredictionsPage: React.FC = () => {
                       type="number"
                       className="w-20 text-black text-center mt-2 p-1 rounded-md"
                       value={
-                        predictions.find((p) => p.gameID === game.id)
-                          ?.homePrediction || ''
+                        predictions.find((p) => p.gameID === game.id)?.homePrediction ?? ''
                       }
                     />
                   </div>

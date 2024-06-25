@@ -97,7 +97,6 @@ export async function fetchUserInfo(username: string) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const userInfo = await response.json();
-    console.log(userInfo);
     return userInfo;
   } catch (error) {
     console.error('Failed to fetch user info:', error);
@@ -144,9 +143,13 @@ export async function fetchAllTeamNames() {
   }
 }
 
-export async function fetchNewToken() {
+export async function fetchNewToken(): Promise<void> {
   const refreshToken = localStorage.getItem('refresh_token');
-  fetch('http://127.0.0.1:8000/api/token/refresh', {
+  if (!refreshToken) {
+    throw new Error('No refresh token found');
+  }
+
+  return fetch('http://127.0.0.1:8000/api/token/refresh', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -163,16 +166,13 @@ export async function fetchNewToken() {
       localStorage.setItem('token', data.token);
     })
     .catch((error) => {
-      console.error(
-        'There has been a problem with your fetch operation:',
-        error,
-      );
-      // localStorage.removeItem('token'); // remove the token from local storage
-      // localStorage.removeItem('refresh_token'); // remove the refresh token from local storage
-      // setLoading(false);
-      // navigate('/login');
+      console.error('There has been a problem with your fetch operation:', error);
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
+      throw error;
     });
 }
+  
 
 interface UserUpdateBody {
   username?: string;
@@ -342,5 +342,17 @@ export async function submitResults(scores: {
       ...scores,
     }),
   });
+  return response;
+}
+
+export async function fetchUserStats(username: string) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/stats/${username}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
   return response;
 }
