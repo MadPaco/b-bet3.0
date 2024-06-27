@@ -49,7 +49,7 @@ const PredictionsPage: React.FC = () => {
       const response = await fetchSchedule(weekNumber);
       const data = await response.json();
       setSchedule(data);
-  
+
       setPredictions((prevPredictions) => {
         const newPredictions = data.map((game) => {
           const existingPrediction = prevPredictions.find((p) => p.gameID === game.id);
@@ -58,7 +58,7 @@ const PredictionsPage: React.FC = () => {
         return newPredictions;
       });
     };
-  
+
     getSchedule();
   }, [weekNumber]);
 

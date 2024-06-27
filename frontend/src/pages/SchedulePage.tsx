@@ -74,13 +74,13 @@ const SchedulePage: React.FC = () => {
               </div>
 
               {/* Start of score row */}
-              {game.homeScore !== null && game.awayScore !== null ? 
-              (
-                <div className="score text-lg font-bold">
-                  {game.awayScore} - {game.homeScore}
-                </div>
-              )
-              : null}
+              {game.homeScore !== null && game.awayScore !== null ?
+                (
+                  <div className="score text-lg font-bold">
+                    {game.awayScore} - {game.homeScore}
+                  </div>
+                )
+                : null}
 
               {/* Start of odds row */}
               <div className="odds mb-2 flex items-center text-sm">

@@ -1,11 +1,11 @@
 interface AccordionProps {
-    title: React.ReactNode;
-    children: React.ReactNode;
-    isOpen: boolean;
-    toggleAccordion: () => void;
-  }
+  title: React.ReactNode;
+  children: React.ReactNode;
+  isOpen: boolean;
+  toggleAccordion: () => void;
+}
 
-  const Accordion: React.FC<AccordionProps> = ({ title, children, isOpen, toggleAccordion }) => {
+const Accordion: React.FC<AccordionProps> = ({ title, children, isOpen, toggleAccordion }) => {
 
   return (
     <div className="border-b text-white bg-gray-800">

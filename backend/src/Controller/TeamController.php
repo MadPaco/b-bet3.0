@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\NflTeam;
@@ -10,9 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Repository\NflTeamRepository; 
+use App\Repository\NflTeamRepository;
 use App\Repository\GameRepository;
-
+use PDO;
 
 class TeamController extends AbstractController
 {
@@ -23,6 +24,19 @@ class TeamController extends AbstractController
     {
         $this->entityManager = $entityManager;
         $this->gameRepository = $gameRepository;
+    }
+
+    #[Route('api/team/fetchAllLogos', name: 'fetch_all_logos', methods: ['GET'])]
+    public function fetchAllTeamLogos(): JsonResponse
+    {
+        $nflTeams = $this->entityManager->getRepository(NflTeam::class)->findAll();
+        $logos = [];
+
+        foreach ($nflTeams as $team) {
+            $logos[$team->getName()] = $team->getLogo();
+        }
+
+        return new JsonResponse($logos, 200);
     }
 
     #[Route('/api/team/fetchTeaminfo/', name: 'fetch_team_info', methods: ['GET'])]
@@ -47,7 +61,7 @@ class TeamController extends AbstractController
     public function getAllTeamNames(Request $request, NflTeamRepository $teamRepository): Response
     {
         $nflTeamsCollection = $teamRepository->findAll();
-        $teamNames = array_map(function($nflTeam){
+        $teamNames = array_map(function ($nflTeam) {
             return $nflTeam->getName();
         }, $nflTeamsCollection);
         return $this->json($teamNames, 200);
@@ -82,17 +96,18 @@ class TeamController extends AbstractController
         return $this->json($stats, 200);
     }
 
-    public function calculateWinPercentage($team){
+    public function calculateWinPercentage($team)
+    {
         //ties are counted as half a win for both teams
         //those half wins are stores in tieWins
         $gamesPlayed = $team->getWins() + $team->getLosses() + $team->getTies();
-        if ($team->getTies() > 0){
-            $tieWins += $team->getTies()/2;
+        if ($team->getTies() > 0) {
+            $tieWins += $team->getTies() / 2;
         }
-        if ($gamesPlayed == 0){
+        if ($gamesPlayed == 0) {
             return 0;
         }
-        return ($team->getWins()+$tieWins)/$gamesPlayed;
+        return ($team->getWins() + $tieWins) / $gamesPlayed;
     }
 
     private function calculateGroupWinPercentage($team, $allTeams)
@@ -103,7 +118,7 @@ class TeamController extends AbstractController
         foreach ($allTeams as $opponent) {
             if ($team['name'] !== $opponent['name']) {
                 $record = $this->getHeadToHeadWinner($team['name'], $opponent['name']);
-                $totalGames += 1; 
+                $totalGames += 1;
                 if ($record === $team['name']) {
                     $totalWins += 1;
                 }
@@ -113,8 +128,9 @@ class TeamController extends AbstractController
         return $totalGames > 0 ? $totalWins / $totalGames : 0;
     }
 
-    public function orderByWinpercentage(&$standings){
-        usort($standings, function($a, $b) {
+    public function orderByWinpercentage(&$standings)
+    {
+        usort($standings, function ($a, $b) {
             if ($a['winPercentage'] == $b['winPercentage']) {
                 return 0;
             }
@@ -122,8 +138,9 @@ class TeamController extends AbstractController
         });
     }
 
-    public function detectWinpercentageTie($standings){
-        $winPercentages = array_map(function($team){
+    public function detectWinpercentageTie($standings)
+    {
+        $winPercentages = array_map(function ($team) {
             return $team['winPercentage'];
         }, $standings);
         $uniqueWinPercentages = array_unique($winPercentages);
@@ -148,7 +165,7 @@ class TeamController extends AbstractController
             $previousWinPercentage = $team['winPercentage'];
         }
 
-      
+
         $teamsGroupedByWinPercentage[] = $currentGroup;
 
         return $teamsGroupedByWinPercentage;
@@ -163,7 +180,7 @@ class TeamController extends AbstractController
         $game2 = $this->entityManager->getRepository(Game::class)->findOneBy(['homeTeam' => $team2Entity, 'awayTeam' => $team1Entity]);
         $team1Wins = 0;
         $team2Wins = 0;
-        
+
         if ($game1->getHomeScore() !== null && $game1->getAwayScore() !== null) {
             if ($game1->getHomeScore() > $game1->getAwayScore()) {
                 $team1Wins++;
@@ -171,7 +188,7 @@ class TeamController extends AbstractController
                 $team2Wins++;
             }
         }
-    
+
         if ($game2->getHomeScore() !== null && $game2->getAwayScore() !== null) {
             if ($game2->getHomeScore() < $game2->getAwayScore()) {
                 $team1Wins++;
@@ -179,7 +196,7 @@ class TeamController extends AbstractController
                 $team2Wins++;
             }
         }
-    
+
         if ($team1Wins > $team2Wins) {
             return $team1Name;
         } elseif ($team2Wins > $team1Wins) {
@@ -206,12 +223,12 @@ class TeamController extends AbstractController
     {
         $teamsWithSameWinPercentage = $this->getTeamsWithSameWinPercentage($standings);
         $updatedStandings = [];
-        
+
         foreach ($teamsWithSameWinPercentage as $group) {
             if (count($group) == 2) {
                 $team1 = $group[0];
                 $team2 = $group[1];
-    
+
                 $headToHeadWinner = $this->getHeadToHeadWinner($team1['name'], $team2['name']);
                 if ($headToHeadWinner !== null) {
                     if ($headToHeadWinner == $team1['name']) {
@@ -231,14 +248,14 @@ class TeamController extends AbstractController
                 $updatedStandings = array_merge($updatedStandings, $resolvedGroup);
             }
         }
-    
+
         // Add any teams not in the updated standings yet
         foreach ($standings as $team) {
             if (!in_array($team, $updatedStandings, true)) {
                 $updatedStandings[] = $team;
             }
         }
-    
+
         return $updatedStandings;
     }
 
@@ -246,17 +263,17 @@ class TeamController extends AbstractController
     {
         // Fetch all games played by the team versus division opponents
         $games = $this->gameRepository->findDivisionGamesForTeam($team);
-    
+
         // Filter out games that have not been played yet
         $games = array_filter($games, function ($game) {
             return $game->getHomeScore() !== null && $game->getAwayScore() !== null;
         });
-    
+
         // Calculate win percentage in those games
         $wins = 0;
         $losses = 0;
         $ties = 0;
-    
+
         foreach ($games as $game) {
             if ($game->getHomeTeam() === $team) {
                 if ($game->getHomeScore() > $game->getAwayScore()) {
@@ -276,13 +293,13 @@ class TeamController extends AbstractController
                 }
             }
         }
-    
+
         // Check if there are any games to avoid division by zero
         $gamesCount = count($games);
         if ($gamesCount === 0) {
             return 0;
         }
-    
+
         return ($wins + $ties / 2) / $gamesCount;
     }
 
@@ -291,7 +308,7 @@ class TeamController extends AbstractController
         // Group teams by the same win percentage
         $teamsGroupedByWinPercentage = $this->getTeamsWithSameWinPercentage($standings);
         $updatedStandings = [];
-    
+
         foreach ($teamsGroupedByWinPercentage as $group) {
             // Only process groups with two or more teams
             if (count($group) >= 2) {
@@ -299,14 +316,14 @@ class TeamController extends AbstractController
                 usort($group, function ($team1, $team2) {
                     $team1Entity = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $team1['name']]);
                     $team2Entity = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $team2['name']]);
-                    
+
                     $team1WinpercentageInDivision = $this->calculateDivisionWinpercentage($team1Entity);
                     $team2WinpercentageInDivision = $this->calculateDivisionWinpercentage($team2Entity);
-    
+
                     // Compare division win percentages
                     return $team2WinpercentageInDivision <=> $team1WinpercentageInDivision;
                 });
-    
+
                 // Append the sorted group to updated standings
                 $updatedStandings = array_merge($updatedStandings, $group);
             } else {
@@ -314,7 +331,7 @@ class TeamController extends AbstractController
                 $updatedStandings = array_merge($updatedStandings, $group);
             }
         }
-    
+
         return $updatedStandings;
     }
 
@@ -327,7 +344,7 @@ class TeamController extends AbstractController
     //Might implement the rest down the road
     {
         $teams = $this->entityManager->getRepository(NflTeam::class)->findBy(['conference' => $conference, 'division' => $division]);
-    
+
         $standings = array_map(function ($team) {
             return [
                 'name' => $team->getName(),
@@ -340,9 +357,9 @@ class TeamController extends AbstractController
                 'netPoints' => $team->getNetPoints()
             ];
         }, $teams);
-    
+
         $this->orderByWinpercentage($standings);
-    
+
         if (!$this->detectWinpercentageTie($standings)) {
             return $this->json($standings, 200);
         }
@@ -359,5 +376,4 @@ class TeamController extends AbstractController
         //return new JsonResponse($standings, 200);
 
     }
-}   
-?>
+}

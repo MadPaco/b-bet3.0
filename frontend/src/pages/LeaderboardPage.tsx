@@ -78,12 +78,12 @@ const LeaderboardPage: React.FC = () => {
               isOpen={openAccordion === week}
               toggleAccordion={() => setOpenAccordion(prev => (prev === week ? null : week))}
             >
-                {Object.keys(leaderboardData).map((username) => (
-                  <div key={username} className="flex justify-between items-center p-2 bg-gray-900 hover:bg-gray-800 transition-colors duration-300">
-                    <span className="font-medium text-gray-200">{username}</span>
-                    <span className="text-gray-400">{leaderboardData[username][`Week ${week}`] || 0}</span>
-                  </div>
-                ))}
+              {Object.keys(leaderboardData).map((username) => (
+                <div key={username} className="flex justify-between items-center p-2 bg-gray-900 hover:bg-gray-800 transition-colors duration-300">
+                  <span className="font-medium text-gray-200">{username}</span>
+                  <span className="text-gray-400">{leaderboardData[username][`Week ${week}`] || 0}</span>
+                </div>
+              ))}
             </Accordion>
           </div>
         ))}

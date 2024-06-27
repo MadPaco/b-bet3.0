@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -26,12 +27,11 @@ class AuthController extends AbstractController
 
     #[Route('/api/register', name: 'user_register', methods: ['POST'])]
     public function register(
-        Request $request, 
-        EntityManagerInterface $entityManager, 
-        UserPasswordHasherInterface $passwordEncoder, 
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordEncoder,
         JWTTokenManagerInterface $JWTManager,
-    ): Response
-    {
+    ): Response {
         $data = $request->request->all();
         $profilePicture = $request->files->get('profilePicture');
 
@@ -48,7 +48,7 @@ class AuthController extends AbstractController
         $user->setRoles(['ROLE_USER']);
         $user->setUsername($data['username']);
         $user->setCreatedAt(new \DateTime());
-        
+
         // Handle favorite team
         $teamRepository = $entityManager->getRepository(NflTeam::class);
         $favTeam = $teamRepository->findOneBy(['name' => $data['favTeam']]);
@@ -59,7 +59,7 @@ class AuthController extends AbstractController
 
         // Handle profile picture
         if ($profilePicture instanceof UploadedFile) {
-            $newFilename = uniqid().'.'.$profilePicture->guessExtension();
+            $newFilename = uniqid() . '.' . $profilePicture->guessExtension();
             try {
                 $profilePicture->move(
                     $this->getParameter('profile_pictures_directory'), // directory path
@@ -81,4 +81,3 @@ class AuthController extends AbstractController
         return new JsonResponse(['token' => $token]);
     }
 }
-?>

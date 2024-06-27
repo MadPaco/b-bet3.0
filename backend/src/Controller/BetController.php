@@ -27,7 +27,7 @@ class BetController extends AbstractController
     }
 
     #[Route('/api/bet/addBets', name: 'add_bets', methods: ['POST'])]
-    public function addBet(Request $request, ): Response
+    public function addBet(Request $request,): Response
     {
         $data = json_decode($request->getContent(), true);
         $user = $this->getUser();
@@ -35,13 +35,13 @@ class BetController extends AbstractController
         if (empty($data)) {
             return new JsonResponse(['message' => 'Invalid data![No data provided!]'], Response::HTTP_BAD_REQUEST);
         }
-        
-        foreach ($data as $betData){
+
+        foreach ($data as $betData) {
 
 
 
             $game = $this->entityManager->getRepository(Game::class)->find($betData['gameID']);
-            $bet = $this->entityManager->getRepository(Bet::class)->findOneBy(['game' => $game, 'user' => $user]);  
+            $bet = $this->entityManager->getRepository(Bet::class)->findOneBy(['game' => $game, 'user' => $user]);
             //there is no bet for this game and user yet, so create one
             if (!$bet) {
                 $bet = new Bet();
@@ -51,10 +51,10 @@ class BetController extends AbstractController
                 $bet->setEditCount(0);
             }
 
-            if ($bet->getHomePrediction() !== $betData['homePrediction'] || $bet->getAwayPrediction() !== $betData['awayPrediction']){
+            if ($bet->getHomePrediction() !== $betData['homePrediction'] || $bet->getAwayPrediction() !== $betData['awayPrediction']) {
                 $bet->setEditCount($bet->getEditCount() + 1);
             }
-            
+
             //set the values in both cases if they differ from the old values
             if ($bet->getHomePrediction() !== $betData['homePrediction']) {
                 $bet->setHomePrediction($betData['homePrediction']);
@@ -65,7 +65,9 @@ class BetController extends AbstractController
 
             $bet->setLastEdit(new \DateTime());
 
-            
+
+
+
             $this->entityManager->persist($bet);
             $this->entityManager->flush();
         }
@@ -82,18 +84,17 @@ class BetController extends AbstractController
 
         if ($weekNumber) {
             $bets = $this->entityManager->getRepository(Bet::Class)->findBetsByWeekNumber($weekNumber);
-        }
-        else {
+        } else {
             $bets = $this->entityManager->getRepository(Bet::Class)->findAll();
         }
-        
-        if ($userID){
-            $bets = array_filter($bets, function($bet) use ($userID){
+
+        if ($userID) {
+            $bets = array_filter($bets, function ($bet) use ($userID) {
                 return $bet->getUser()->getId() == $userID;
             });
             $bets = array_values($bets);
         }
-        
+
         $betData = [];
         foreach ($bets as $bet) {
             $betData[] = [
@@ -117,5 +118,3 @@ class BetController extends AbstractController
 
 
 }
-
-?>

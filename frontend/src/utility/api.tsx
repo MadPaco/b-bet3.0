@@ -14,6 +14,22 @@ export async function fetchTeamInfo(team: string) {
   return await response.json();
 }
 
+export async function fetchAllTeamLogos() {
+  const token = localStorage.getItem('token');
+  const response = await fetch(
+    'http://127.0.0.1:8000/api/team/fetchAllLogos',
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return await response;
+};
+
+
 //return the primary color of the team, or grey if no team is selected
 export async function fetchPrimaryColor(team: string | null): Promise<string> {
   if (!team) {
@@ -172,7 +188,7 @@ export async function fetchNewToken(): Promise<void> {
       throw error;
     });
 }
-  
+
 
 interface UserUpdateBody {
   username?: string;
@@ -347,12 +363,24 @@ export async function submitResults(scores: {
 
 export async function fetchUserStats(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/stats/${username}`,
+    `http://127.0.0.1:8000/api/stats/userStats/${username}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
     },
   );
+  return response;
+}
+
+export async function fetchLeadboard() {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/stats/leaderboard`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  )
   return response;
 }

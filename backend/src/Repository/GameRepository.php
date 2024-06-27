@@ -26,7 +26,7 @@ class GameRepository extends ServiceEntityRepository
             ->setParameter('conference', $conference)
             ->setParameter('division', $division)
             ->getQuery();
-    
+
         return $qb->getResult();
     }
 
@@ -44,10 +44,40 @@ class GameRepository extends ServiceEntityRepository
             ->setParameter('division', $team->getDivision())
             ->setParameter('conference', $team->getConference())
             ->getQuery();
-    
+
         return $qb->getResult();
     }
 
-}
+    public function findFinishedGames()
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->where('g.homeScore IS NOT NULL')
+            ->andWhere('g.awayScore IS NOT NULL')
+            ->getQuery();
 
-?>
+        return $qb->getResult();
+    }
+
+    public function findLatestWeekWithResults()
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->select('MAX(g.weekNumber)')
+            ->where('g.homeScore IS NOT NULL')
+            ->andWhere('g.awayScore IS NOT NULL')
+            ->getQuery();
+
+        return $qb->getSingleScalarResult();
+    }
+
+    public function getWinsOfTeam(NflTeam $team)
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->select('COUNT(g.id)')
+            ->where('g.homeTeam = :team AND g.homeScore > g.awayScore')
+            ->orWhere('g.awayTeam = :team AND g.awayScore > g.homeScore')
+            ->setParameter('team', $team)
+            ->getQuery();
+        //return an array with the games where the given team won
+        return $qb->getResult();
+    }
+}

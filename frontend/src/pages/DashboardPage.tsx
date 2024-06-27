@@ -23,7 +23,7 @@ const Dashboard: React.FC = () => {
             <DivisionPanel />
           </div>
         </div>
-        
+
         {/* Right Column */}
         <div className="flex flex-col space-y-6 lg:flex-1">
           <div className="flex-1">

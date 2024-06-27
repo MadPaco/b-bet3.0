@@ -21,19 +21,19 @@ const AllBetsPage: React.FC = () => {
     const getAllBets = async () => {
       const fetchedBets = await fetchBets(weekNumber);
       const data = await fetchedBets.json(); // Await the json method
-      setBets(data); // Now data is an array, not a Promise
+      setBets(data);
     };
-  
+
     getAllBets();
   }, [weekNumber]);
 
   useEffect(() => {
     const getGames = async () => {
       const fetchedGames = await fetchSchedule(weekNumber);
-      const data = await fetchedGames.json(); // Await the json method
-      setGames(data); // Now data is an array, not a Promise
+      const data = await fetchedGames.json();
+      setGames(data);
     };
-  
+
     getGames();
   }, [weekNumber]);
 
@@ -71,7 +71,7 @@ const AllBetsPage: React.FC = () => {
             const title = (
               <div>
                 <div className='flex items-center justify-between p-2'>
-                {/* Away team section */}
+                  {/* Away team section */}
                   <div className='flex flex-col items-center w-1/3'>
                     <img
                       className="w-10 h-auto mb-1"
@@ -95,17 +95,17 @@ const AllBetsPage: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                {game.homeScore !== null && game.awayScore !== null ?
-                  <div className='flex justify-center'>
-                    <span className='text-white'>{game.awayScore} - {game.homeScore}</span>
-                  </div>
-                  : <div className='flex justify-center'>
-                    <span className='text-white'>No score yet</span>  
+                  {game.homeScore !== null && game.awayScore !== null ?
+                    <div className='flex justify-center'>
+                      <span className='text-white'>{game.awayScore} - {game.homeScore}</span>
                     </div>
-                }
+                    : <div className='flex justify-center'>
+                      <span className='text-white'>No score yet</span>
+                    </div>
+                  }
                 </div>
               </div>
-              
+
 
             );
 
@@ -116,17 +116,17 @@ const AllBetsPage: React.FC = () => {
                   isOpen={openAccordion === game.id}
                   toggleAccordion={() => setOpenAccordion(prev => prev === game.id ? null : game.id)}
                 >
-                  
+
                   {gameBets.map((bet: Bet) => (
                     <div key={bet.id} className="p-2 flex space-between">
                       <div className='mx-3'>
-                        {bet.username}: 
+                        {bet.username}:
                       </div>
                       {game.homeScore !== null && game.awayScore !== null ?
                         <div className={getColorClass(bet.points)}>
-                           {bet.awayPrediction} - {bet.homePrediction} ({bet.points} points)
+                          {bet.awayPrediction} - {bet.homePrediction} ({bet.points} points)
                         </div>
-                      :
+                        :
                         <div className='text-gray-500'>
                           {bet.awayPrediction} - {bet.homePrediction}
                         </div>
