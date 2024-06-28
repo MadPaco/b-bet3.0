@@ -22,7 +22,4 @@ class BetRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
 }
-
-?>

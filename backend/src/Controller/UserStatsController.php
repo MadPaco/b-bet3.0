@@ -150,6 +150,9 @@ class UserStatsController extends AbstractController
                 }
             }
         }
+        if ($totalBets === 0) {
+            return 0;
+        }
         return $correctBets / $totalBets;
     }
 
@@ -168,6 +171,9 @@ class UserStatsController extends AbstractController
                     }
                 }
             }
+        }
+        if ($totalBets === 0) {
+            return 0;
         }
         return $correctBets / $totalBets;
     }
@@ -197,6 +203,9 @@ class UserStatsController extends AbstractController
                     }
                 }
             }
+        }
+        if ($totalBets === 0) {
+            return 0;
         }
         return $correctBets / $totalBets;
     }

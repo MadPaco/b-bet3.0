@@ -22,7 +22,7 @@ const ProfileForm: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
-
+  const [newProfilePictureUrl, setNewProfilePictureUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialUsername) {
@@ -31,7 +31,7 @@ const ProfileForm: React.FC = () => {
           if (data.profilePicture === null) {
             setProfilePicture('assets/images/defaultUser.webp');
           }
-          else{
+          else {
             setProfilePicture(data.profilePicture);
           }
           if (data.bio) {
@@ -44,7 +44,8 @@ const ProfileForm: React.FC = () => {
 
   useEffect(() => {
     if (profilePicture) {
-      const fetchProfilePicture = async () => {        try {
+      const fetchProfilePicture = async () => {
+        try {
           const response = await fetch(`http://127.0.0.1:8000/profile-picture/${profilePicture}`);
           if (response.ok) {
             setProfilePictureUrl(response.url);
@@ -62,19 +63,19 @@ const ProfileForm: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-  
+
     // Use FormData to handle file uploads
     const formData = new FormData();
-  
+
     if (password !== '') {
       formData.append('password', password);
     }
-  
+
     if (emailState !== '' && emailState !== initialEmail) {
       formData.append('email', emailState);
     }
@@ -90,7 +91,7 @@ const ProfileForm: React.FC = () => {
     if (profilePicture) {
       formData.append('profilePicture', profilePicture);
     }
-  
+
     try {
       // Assuming updateUser is capable of handling FormData
       await updateUser(initialUsername, formData);
@@ -125,7 +126,13 @@ const ProfileForm: React.FC = () => {
         break;
       case 'profilePicture':
         if (files && files[0]) {
-          setProfilePicture(files[0]);
+          const file = files[0];
+          setProfilePicture(file);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setNewProfilePictureUrl(reader.result as string);
+          };
+          reader.readAsDataURL(file);
         }
         break;
       default:
@@ -207,18 +214,18 @@ const ProfileForm: React.FC = () => {
               />
             </div>
             <div>
-                <label htmlFor='profilePicture'>Profile Picture:</label>
-                <img src={profilePictureUrl ? profilePictureUrl : 'error'}></img>
-                {editMode && (
-                    <input
-                    id='profilePicture'
-                    name='profilePicture'
-                    type='file'
-                    accept='image/*'
-                    onChange={handleInputChange}
-                    className='appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
-                    />
-                )}
+              <label htmlFor='profilePicture'>Profile Picture:</label>
+              <img src={newProfilePictureUrl ? newProfilePictureUrl : profilePictureUrl} alt="Profile Preview" />
+              {editMode && (
+                <input
+                  id='profilePicture'
+                  name='profilePicture'
+                  type='file'
+                  accept='image/*'
+                  onChange={handleInputChange}
+                  className='appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
+                />
+              )}
             </div>
             <div>
               <label htmlFor="password" className="sr-only">New Password</label>
