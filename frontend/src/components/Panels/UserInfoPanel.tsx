@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
-import { fetchUserInfo } from '../../utility/api';
+import { fetchUserInfo, fetchUserStats } from '../../utility/api';
 
 interface UserInfoPanelProps { }
 
@@ -9,6 +9,20 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
   const { username, createdAt } = useAuth();
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
+  const [stats, setStats] = useState<UserStats | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetchUserStats(username);
+        const data = await response.json();
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      }
+    }
+    fetchStats();
+  }, [username]);
 
   useEffect(() => {
     if (username) {
@@ -51,6 +65,14 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
           <div>
             <p>User: {username}</p>
             <p>Member since: {createdAt?.toLocaleDateString()}</p>
+            {stats ? (
+              <div>
+                <p>Points: {stats.totalPoints}</p>
+                <p>Rank: {stats.currentPlace}</p>
+              </div>
+
+            ) : null}
+
           </div>
         </div>
       ) : (

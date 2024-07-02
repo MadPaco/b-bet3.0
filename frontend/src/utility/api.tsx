@@ -396,3 +396,15 @@ export async function fetchAllAchievements() {
   );
   return response;
 }
+
+export async function fetchLatestUserAchievement(username: string) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/userAchievement/${username}/fetchLatest`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  )
+  return response;
+}

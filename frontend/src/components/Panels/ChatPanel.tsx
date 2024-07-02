@@ -24,6 +24,7 @@ const ChatPanel: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const chatBottom = useRef<null | HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const container = useRef<HTMLDivElement>(null)
 
   const handleSendMessage = async () => {
     // filter out empty messages
@@ -46,14 +47,6 @@ const ChatPanel: React.FC = () => {
         }
         setNewMessage('');
         fetchMessages();
-        if (chatBottom.current) {
-          setTimeout(() => {
-            if (chatBottom.current) {
-              chatBottom.current.scrollIntoView({ behavior: 'smooth' });
-            }
-          }, 100);
-        }
-
       } catch (error) {
         console.error(error);
       }
@@ -89,6 +82,9 @@ const ChatPanel: React.FC = () => {
 
       setMessages(fetchedMessages);
       setIsLoading(false);
+      if (container.current) {
+        container.current.scrollTop = container.current.scrollHeight;
+      }
     } catch (error) {
       console.error(error);
     }
@@ -142,16 +138,10 @@ const ChatPanel: React.FC = () => {
     ? colorClasses[primaryColor as keyof typeof colorClasses]
     : 'bg-gray-400 hover:bg-gray-300';
 
-  useEffect(() => {
-    if (chatBottom.current) {
-      chatBottom.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
-
   return (
     <div className="p-3 m-4 cursor-pointer rounded-md backdrop-blur-sm text-white bg-gray-500 shadow-inner shadow-white">
       <h2 className="text-xl font-semibold mb-2 text-center">Chat</h2>
-      <div className="overflow-auto h-80 mb-4 border-3 border-gray-900 p-4 bg-gray-700 rounded-md flex flex-col">
+      <div ref={container} className="overflow-auto h-80 mb-4 border-3 border-gray-900 p-4 bg-gray-700 rounded-md flex flex-col">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -248,7 +238,6 @@ const ChatPanel: React.FC = () => {
             )}
           </div>
         ))}
-        <div ref={chatBottom} />
       </div>
       <form
         onSubmit={(e) => {

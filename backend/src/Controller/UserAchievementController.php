@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\UserAchievement;
 use App\Entity\Achievement;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,39 +19,38 @@ class UserAchievementController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/api/userAchievements/fetchAll', name: 'fetch_all_user_achievements', methods: ['GET'])]
-    public function getAllUserAchievements(): JsonResponse
+    #[Route('/api/userAchievement/{username}/fetchAll', name: 'fetch_all_user_achievements', methods: ['GET'])]
+    public function fetchAllUserAchievements($username): JsonResponse
     {
-        $userAchievements = $this->entityManager->getRepository(UserAchievement::class)->findAll();
-        $response = [];
-
-        foreach ($userAchievements as $userAchievement) {
-            $response[] = [
-                'id' => $userAchievement->getId(),
-                'user' => $userAchievement->getUser(),
-                'achievement' => $userAchievement->getAchievement(),
-                'dateEarned' => $userAchievement->getDateEarned(),
-            ];
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
+        if (!$user) {
+            return new JsonResponse(['message' => 'User not found!'], 404);
         }
 
-        return new JsonResponse($response, 200);
+        $userAchievements = $this->entityManager->getRepository(UserAchievement::class)->findBy(['user' => $user]);
+        if (!$userAchievements) {
+            return new JsonResponse(['message' => 'No achievements found for this user!'], 200);
+        }
+        return new JsonResponse($userAchievements, 200);
     }
 
-    #[Route('/api/userAchievements/fetchByUser/{userID}', name: 'fetch_user_achievements', methods: ['GET'])]
-    public function getUserAchievements(int $userID): JsonResponse
+    #[Route('/api/userAchievement/{username}/fetchLatest', name: 'fetch_latest_user_achievement', methods: ['GET'])]
+    public function fetchLatestUserAchievement($username)
     {
-        $userAchievements = $this->entityManager->getRepository(UserAchievement::class)->findBy(['Id' => $userID]);
-        $response = [];
-
-        foreach ($userAchievements as $userAchievement) {
-            $response[] = [
-                'id' => $userAchievement->getId(),
-                'user' => $userAchievement->getUser(),
-                'achievement' => $userAchievement->getAchievement(),
-                'dateEarned' => $userAchievement->getDateEarned(),
-            ];
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
+        if (!$user) {
+            return new JsonResponse(['message' => 'User not found!'], 404);
         }
 
-        return new JsonResponse($response, 200);
+        $latestUserAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy(['user' => $user], ['dateEarned' => 'DESC']);
+        if (!$latestUserAchievement) {
+            return new JsonResponse(['message' => 'No achievements found for this user!'], 200);
+        }
+        return new JsonResponse([
+            'name' => $latestUserAchievement->getAchievement()->getName(),
+            'dateEarned' => $latestUserAchievement->getDateEarned(),
+            'flavorText' => $latestUserAchievement->getAchievement()->getFlavorText(),
+            'image' => $latestUserAchievement->getAchievement()->getImage(),
+        ], 200);
     }
 }
