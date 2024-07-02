@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Game;
-use App\Entity\NflTeam;
 use App\Entity\Bet;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,17 +12,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Service\BetValidator;
+use App\Service\PredictionsAchievementChecker;
 
 class BetController extends AbstractController
 {
     private $entityManager;
-    private $request;
     private $validator;
+    private $predictionsAchievementChecker;
 
-    public function __construct(EntityManagerInterface $entityManager, BetValidator $validator)
+    public function __construct(EntityManagerInterface $entityManager, BetValidator $validator, PredictionsAchievementChecker $predictionsAchievementChecker)
     {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
+        $this->predictionsAchievementChecker = $predictionsAchievementChecker;
     }
 
     #[Route('/api/bet/addBets', name: 'add_bets', methods: ['POST'])]
@@ -37,8 +38,6 @@ class BetController extends AbstractController
         }
 
         foreach ($data as $betData) {
-
-
 
             $game = $this->entityManager->getRepository(Game::class)->find($betData['gameID']);
             $bet = $this->entityManager->getRepository(Bet::class)->findOneBy(['game' => $game, 'user' => $user]);
@@ -65,12 +64,11 @@ class BetController extends AbstractController
 
             $bet->setLastEdit(new \DateTime());
 
-
-
-
             $this->entityManager->persist($bet);
             $this->entityManager->flush();
         }
+        $this->predictionsAchievementChecker->checkAllAchievements($user);
+
         return new JsonResponse(['message' => 'Bet added or updated!']);
     }
 

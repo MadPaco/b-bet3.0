@@ -5,8 +5,9 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
 use App\Entity\Achievement;
+use DateTimeInterface;
 
-#[ORM\Entity(repositoryClass: UserAchievementRepository::class)]
+#[ORM\Entity(repositoryClass: 'App\Repository\UserAchievementRepository')]
 
 class UserAchievement
 {
@@ -64,5 +65,3 @@ class UserAchievement
         return $this;
     }
 }
-
-?>

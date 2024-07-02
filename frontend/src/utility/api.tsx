@@ -27,7 +27,7 @@ export async function fetchAllTeamLogos() {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
   return await response;
-};
+}
 
 
 //return the primary color of the team, or grey if no team is selected
@@ -382,5 +382,17 @@ export async function fetchLeadboard() {
       },
     },
   )
+  return response;
+}
+
+export async function fetchAllAchievements() {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/achievements/fetchAll`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
   return response;
 }

@@ -21,6 +21,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const RulesPage = lazy(() => import('./pages/RulesPage'));
 const StatsPage = lazy(() => import('./pages/StatsPage'));
+const AchievementsPage = lazy(() => import('./pages/AchievementsPage'));
 
 const App: React.FC = () => {
   return (
@@ -38,9 +39,10 @@ const App: React.FC = () => {
               <Route path="/allBets" element={<AllBetsPage />} />
               <Route path="/allUsers" element={<AllUsersPage />} />
               <Route path="/1vs1" element={<HeadToHeadPage />} />
+              <Route path="/achievements" element={<AchievementsPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/predictions" element={<PredictionsPage />} />
-              <Route path="/myProfile" element={<ProfilePage />} />
+              <Route path="/editProfile" element={<ProfilePage />} />
               <Route path="/users/:username" element={<UserProfilePage />} />
               <Route path="/rules" element={<RulesPage />} />
               <Route path="/stats" element={<StatsPage />} />

@@ -80,4 +80,16 @@ class GameRepository extends ServiceEntityRepository
         //return an array with the games where the given team won
         return $qb->getResult();
     }
+
+    public function getEarliestGameDate($weeknumber)
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->select('MIN(g.date)')
+            ->where('g.weekNumber = :weeknumber')
+            ->setParameter('weeknumber', $weeknumber)
+            ->getQuery();
+
+        $result = $qb->getSingleScalarResult();
+        return $result ? new \DateTime($result) : null;
+    }
 }

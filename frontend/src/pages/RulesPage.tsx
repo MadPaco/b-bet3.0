@@ -22,6 +22,11 @@ const RulesPage: React.FC = () => {
                     </li>
                     <li>Picking the right winner gives 1 point.</li>
                   </ul>
+                  <p>
+                    FAQ:
+                    Q:What is a hit?
+                    A:A hit is when you score atleast 1 point, meaning you correctly predicted the winner.
+                  </p>
                 </p>
               </>
             }

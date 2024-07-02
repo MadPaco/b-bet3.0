@@ -1,0 +1,119 @@
+Amount of Predictions:
+
+First Down - Correctly predict your first game.
+"Congratulations on your first down! You've made your first correct prediction. Keep the momentum going!"
+
+Seasoned Pro - Place 50 predictions.
+"You're getting the hang of this! With 50 predictions under your belt, you're now a seasoned pro."
+
+Expert - Place 100 predictions.
+"100 predictions! You're officially an expert in NFL predictions. "
+
+Gridiron Guru - Place 200 predictions.
+"200 predictions! You're a true gridiron guru, with knowledge as deep as the playbook."
+
+Hall of Famer - Predict every game of the regular season.
+"You've predicted every game of the regular season. Welcome to the Hall of Fame!"
+
+Timing and Strategy:
+
+Early Bird - Place ALL predictions at least 24h before the first kickoff.
+"The early bird catches the worm! You made all your predictions well in advance."
+
+Two-Minute Drill - Place a bet at most 2 minutes before kickoff and score at least 1 point.
+"Two minutes to go and you nailed it! Just like the Patriots in Super Bowl LI."
+
+Trick Play - Change a prediction at least 4 times in a week and score points.
+"PHILLY PHILLY"
+ 
+Weekly and Cumulative Performance:
+
+Pigskin Prophet - Score 1 point in every game in a week (check that there are no games left in the week when implementing).
+"All-seeing, all-knowing. You're the Pigskin Prophet!"
+
+Touchdown - Score 7 points in a week.
+"Touchdown! Keep driving down the field!"
+
+Pick Six - Correctly predict 6 games in a single week.
+"Pick Six! You've correctly predicted 6 games this week."
+
+MVP of the Week - Have the highest score in a week.
+"MVP! You had the highest score this week. You're the Most Valuable Predictor!"
+
+Consistency is Key - Score points in 10 weeks.
+"Consistency is your game. You've scored points in 10 consecutive weeks."
+
+Playoff Push - Score the most points in the last 6 weeks of the regular season.
+"You've made a strong playoff push by scoring the most points in the final 6 weeks of the season!"
+
+Headstart - Score the most points in the first 6 weeks.
+"You've taken an early lead! Scoring the most points in the first 6 weeks."
+
+Midseason Form - Score the most points in weeks 7-12.
+"You're in peak midseason form, scoring the most points in weeks 7-12!"
+
+Bowl Game Secured - Hit in more than 50% of the games in the regular season.
+"You've secured your bowl game by hitting on more than 50% of all predictions this season."
+
+Sunday Funday - Hit on every game that is played on Sunday.
+"Sunday Funday! You've hit on every game played on Sunday."
+
+Pro Bowler - Score at least 100 points in total.
+"You have been voted into the pro bowl, scoring 100 points in total. You're among the best of the best."
+
+All Pro - Score 200 points in the season.
+"All Pro! With 200 points this season, you're in an elite class of predictors."
+
+Streaks and Trends:
+
+Consistent Performer - Score at least 5 points in 5 consecutive weeks.
+
+Deep Run - Score at least 5 points in 8 consecutive weeks.
+"Deep Run! Your streak of scoring at least 5 points in 8 consecutive weeks is impressive."
+
+Hot Streak - Score at least 10 points in 3 consecutive weeks.
+"You're on fire! A hot streak of 10 points in 3 consecutive weeks."
+
+Bench Warmer - Score less than 5 points in 5 consecutive weeks.
+"It's been a tough stretch, but atleast the bench is warm."
+
+Comeback King - Score the most points in a week after scoring the least points the week before.
+
+
+Slump Buster - End a streak of three weeks with less than 5 points by scoring more than 10 points in a week.
+"That's more like it! You're still in the race."
+
+Special Predictions:
+
+Underdog Lover - Predict an underdog to win and hit.
+"Who doesn't like to root for david?"
+
+Nostradamus - Predict the exact score of a game correctly.
+"Amazing foresight, well deserved 5 points."
+
+Upset Specialist - Predict a big upset (underdog has -300 odds or worse).
+"You also knew that the Giants would win in 2007 right?"
+
+Nail-Biter - Correctly predict the margin of 5 games where the margin of victory is 3 points or less.
+
+
+Blowout Boss - Correctly predict the margin of 5 games where the margin of victory is 14 points or more.
+Hometown Hero - Correctly predict the outcome of all games for your favorite team in a season.
+
+Game-Specific Achievements:
+
+Home Advantage (Team Name) - Correctly predict the outcome of all home games for a team in a season.
+Away Specialist (Team Name) - Correctly predict the outcome of all away games for a team in a season.
+Division Master (Division Name) - Correctly predict all games within a single division for a season.
+Monday Night Master - Correctly predict the outcome of all Monday Night Football games in the regular season.
+Wildcard Wonder - Correctly predict all wildcard games in the playoffs.
+Super Bowl Prophet - Correctly predict the Super Bowl winner.
+Primetime Player - Correctly predict all primetime games (Thursday, Sunday, and Monday night games) in a week.
+Audible - Change the winner of a game 10 minutes before kickoff and win
+
+Mocking Achievements
+Bye Week - Score 0 points in a week.
+Aaron Rodgers 2023 - Hit on the Thursday night game, but lose every other game this week.
+Fumble - change the winner of a match before the game and lose 
+Punt Return - Change a prediction and end up with fewer points than if you hadn’t changed it.
+
