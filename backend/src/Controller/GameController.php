@@ -24,7 +24,7 @@ class GameController extends AbstractController
     #[Route('/api/game/fetchWeek/', name: 'fetch_schedule', methods: ['GET'])]
     public function fetchSchedule(Request $request): Response
     {
-        
+
         $weekNumber = $request->query->get('weekNumber');
         //fetch the games from a specific week is we have submitted a weekNumber, else fetch all games
         //order the by date for the frontend
@@ -62,7 +62,7 @@ class GameController extends AbstractController
     #[Route('/api/game/fetchGame/', name: 'fetch_game', methods: ['GET'])]
     public function fetchGame(Request $request): Response
     {
-        
+
         $gameID = $request->query->get('gameID');
         $game = $this->entityManager->getRepository(Game::class)->find($gameID);
         return $this->json($game);
@@ -72,7 +72,7 @@ class GameController extends AbstractController
     public function editGame(Request $request): Response
     {
         //Only allow admins to edit games
-        if (!in_array('ADMIN', $this->getUser()->getRoles())){
+        if (!in_array('ADMIN', $this->getUser()->getRoles())) {
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
         $gameID = $request->query->get('gameID');
@@ -81,7 +81,7 @@ class GameController extends AbstractController
         $game->setWeekNumber($data['weekNumber']);
         $game->setDate(new \DateTime($data['date']));
         $game->setLocation($data['location']);
-        
+
         $homeTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $data['homeTeam']]);
         $game->setHomeTeam($homeTeam);
         $awayTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['name' => $data['awayTeam']]);
@@ -124,7 +124,7 @@ class GameController extends AbstractController
     #[Route('/api/game/deleteGame/', name: 'delete_game', methods: ['POST'])]
     public function deleteGame(Request $request): Response
     {
-        if (!in_array('ADMIN', $this->getUser()->getRoles())){
+        if (!in_array('ADMIN', $this->getUser()->getRoles())) {
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -134,9 +134,4 @@ class GameController extends AbstractController
         $this->entityManager->flush();
         return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
     }
-
-    
 }
-
-
-?>

@@ -373,6 +373,18 @@ export async function fetchUserStats(username: string) {
   return response;
 }
 
+export async function fetchShortUserStats(username: string) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/stats/userStats/${username}/short`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
+
 export async function fetchLeadboard() {
   const response = await fetch(
     `http://127.0.0.1:8000/api/stats/leaderboard`,
@@ -406,5 +418,17 @@ export async function fetchLatestUserAchievement(username: string) {
       },
     },
   )
+  return response;
+}
+
+export async function fetchUpcomingGames() {
+  const response = await fetch(
+    'http://127.0.0.1:8000/api/schedule/upcomingGames',
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
   return response;
 }

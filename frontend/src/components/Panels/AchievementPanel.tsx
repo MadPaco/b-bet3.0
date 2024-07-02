@@ -3,12 +3,12 @@ import { useAuth } from '../auth/AuthContext';
 import { fetchLatestUserAchievement } from '../../utility/api';
 import { useEffect, useState } from 'react';
 
-interface MessageOverviewPanelProps { }
+interface AchievementPanelProps { }
 
 
 
 
-const MessageOverviewPanel: React.FC<MessageOverviewPanelProps> = () => {
+const AchievementPanel: React.FC<AchievementPanelProps> = () => {
   const { username } = useAuth();
   const [latestAchievement, setLatestAchievement] = useState<Achievement | null>(null);
 
@@ -28,11 +28,10 @@ const MessageOverviewPanel: React.FC<MessageOverviewPanelProps> = () => {
     <Panel>
       {username ? (
         <div className="flex items-center flex-col">
-          <h2 className='text-xl font-semibold mb-2' >Achievements</h2>
+          <h2 className='text-xl font-semibold mb-2' >Latest Achievement</h2>
           <div className="flex items-center">
             {latestAchievement ? (
               <div className='lg:w-1/3 text-center bg-gray-700 p-3 rounded-xl shadow-inner shadow-white flex items-center flex-col' >
-                <h3 className="text-lg font-semibold">Latest Achievement</h3>
                 <p>{latestAchievement.name}</p>
                 <img className='lg:w-3/4 m-2' src={`/assets/images/achievements/${latestAchievement.image}`}></img>
                 <p>{latestAchievement.flavorText}</p>
@@ -48,4 +47,4 @@ const MessageOverviewPanel: React.FC<MessageOverviewPanelProps> = () => {
   );
 };
 
-export default MessageOverviewPanel;
+export default AchievementPanel;

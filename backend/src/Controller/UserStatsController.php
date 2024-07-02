@@ -320,6 +320,18 @@ class UserStatsController extends AbstractController
         ], 200);
     }
 
+    #[Route('/api/stats/userStats/{username}/short', name: 'fetch_user_stats_short', methods: ['GET'])]
+    public function fetchShortStats(string $username): JsonResponse
+    {
+        // this method is used to fetch the user stats for the userinfopanel
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
+        return new JsonResponse([
+            'totalPoints' => $this->getTotalPoints($user),
+            'currentPlace' => array_search($user->getUsername(), array_column($this->calculateLeaderboard(), 'username')) + 1,
+            'hitRate' => $this->calculateHitrate($user),
+        ], 200);
+    }
+
     #[Route('api/stats/leaderboard', name: 'fetch_leaderboard', methods: ['GET'])]
     public function fetchLeaderboard(): JsonResponse
     {

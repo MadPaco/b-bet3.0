@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
-import { fetchUserInfo, fetchUserStats } from '../../utility/api';
+import { fetchUserInfo, fetchShortUserStats } from '../../utility/api';
 
 interface UserInfoPanelProps { }
 
@@ -14,7 +14,7 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetchUserStats(username);
+        const response = await fetchShortUserStats(username);
         const data = await response.json();
         setStats(data);
       } catch (error) {
@@ -69,6 +69,7 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
               <div>
                 <p>Points: {stats.totalPoints}</p>
                 <p>Rank: {stats.currentPlace}</p>
+                <p>Hitrate: {stats.hitRate * 100}%</p>
               </div>
 
             ) : null}
