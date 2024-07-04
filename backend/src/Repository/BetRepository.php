@@ -14,6 +14,34 @@ class BetRepository extends ServiceEntityRepository
         parent::__construct($registry, Bet::class);
     }
 
+
+    // functions used by ResultsAchievementChecker
+    // *******************************************
+    public function findHitsByUser(User $user)
+    {
+        return $this->createQueryBuilder('bet')
+            ->select('bet.id')
+            ->where('bet.user =:user')
+            ->andwhere('bet.points != 0')
+            ->setParameter('user', $user)
+            ->getQuery()->getResult();
+    }
+
+    public function findTwoMinuteDrillHit(User $user)
+    {
+        return $this->createQueryBuilder('bet')
+            ->innerJoin('App\Entity\Game', 'game', 'WITH', 'bet.game_id = game.id')
+            ->where('bet.user_id = :user')
+            ->andWhere('bet.points >= 1')
+            ->andWhere('bet.last_edit >= DATE_SUB(game.date, INTERVAL 2 MINUTE)')
+            ->andWhere('bet.last_edit <= game.date')
+            ->setParameter('user', $user->getId())
+            ->getQuery()
+            ->getResult();
+    }
+
+    // functions used by PredictionsAchievementChecker
+    // *******************************************
     public function findBetsByWeeknumber($weekNumber)
     {
         return $this->createQueryBuilder('bet')

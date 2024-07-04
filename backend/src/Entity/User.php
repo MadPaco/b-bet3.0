@@ -1,12 +1,10 @@
 <?php
 
 namespace App\Entity;
-use App\Repository\UserRepository;
+
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Entity\NflTeam;
 use App\Entity\Message;
@@ -16,7 +14,7 @@ use App\Entity\ChatroomMessage;
 use Doctrine\Common\Collections\ArrayCollection;
 
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Entity(repositoryClass: "App\Repository\UserRepository")]
 
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
@@ -40,7 +38,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(name: "favTeam", referencedColumnName: "id", nullable: false)]
     private $favTeam;
-    
+
     #[ORM\OneToMany(targetEntity: Message::class, mappedBy: "sender")]
     private $sentMessages;
 
@@ -87,14 +85,14 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         if (empty($roles)) {
             $roles[] = 'ROLE_USER';
         }
-    
+
         return array_unique($roles);
     }
-    
+
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
-    
+
         return $this;
     }
 
@@ -142,16 +140,17 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
 
-    
 
-    public function __construct() {
+
+    public function __construct()
+    {
         $this->sentMessages = new ArrayCollection();
         $this->receivedMessages = new ArrayCollection();
         $this->bets = new ArrayCollection();
         $this->userAchievements = new ArrayCollection();
         $this->chatroomMessages = new ArrayCollection();
     }
-    
+
     public function getSentMessages(): Collection
     {
         return $this->sentMessages;
@@ -166,7 +165,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->bets;
     }
-        
+
     public function getProfilePicture(): ?string
     {
         return $this->profilePicture;
@@ -210,6 +209,4 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         // For example, it could return the username, email, or a UUID.
         return $this->username;
     }
-    
-}  
-?>
+}

@@ -409,9 +409,9 @@ export async function fetchAllAchievements() {
   return response;
 }
 
-export async function fetchLatestUserAchievement(username: string) {
+export async function fetchThreeLatestUserAchievement(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/userAchievement/${username}/fetchLatest`,
+    `http://127.0.0.1:8000/api/userAchievement/${username}/fetchThreeLatest`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -424,6 +424,18 @@ export async function fetchLatestUserAchievement(username: string) {
 export async function fetchUpcomingGames() {
   const response = await fetch(
     'http://127.0.0.1:8000/api/schedule/upcomingGames',
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
+
+export async function fetchFavTeamBanner(username: string) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/user/${username}/fetchFavTeamBanner`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,

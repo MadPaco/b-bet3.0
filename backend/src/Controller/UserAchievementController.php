@@ -34,7 +34,7 @@ class UserAchievementController extends AbstractController
         return new JsonResponse($userAchievements, 200);
     }
 
-    #[Route('/api/userAchievement/{username}/fetchLatest', name: 'fetch_latest_user_achievement', methods: ['GET'])]
+    #[Route('/api/userAchievement/{username}/fetchThreeLatest', name: 'fetch_latest_user_achievement', methods: ['GET'])]
     public function fetchLatestUserAchievement($username)
     {
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
@@ -42,15 +42,19 @@ class UserAchievementController extends AbstractController
             return new JsonResponse(['message' => 'User not found!'], 404);
         }
 
-        $latestUserAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy(['user' => $user], ['dateEarned' => 'DESC']);
-        if (!$latestUserAchievement) {
+        $latestUserAchievements = $this->entityManager->getRepository(UserAchievement::class)->findBy(['user' => $user], ['dateEarned' => 'DESC']);
+        if (!$latestUserAchievements) {
             return new JsonResponse(['message' => 'No achievements found for this user!'], 200);
         }
-        return new JsonResponse([
-            'name' => $latestUserAchievement->getAchievement()->getName(),
-            'dateEarned' => $latestUserAchievement->getDateEarned(),
-            'flavorText' => $latestUserAchievement->getAchievement()->getFlavorText(),
-            'image' => $latestUserAchievement->getAchievement()->getImage(),
-        ], 200);
+        $threeLatestAchievements = [];
+        for ($i = 0; $i < 3; $i++) {
+            $threeLatestAchievements[$i] = [
+                'name' => $latestUserAchievements[$i]->getAchievement()->getName(),
+                'dateEarned' => $latestUserAchievements[$i]->getDateEarned(),
+                'flavorText' => $latestUserAchievements[$i]->getAchievement()->getFlavorText(),
+                'image' => $latestUserAchievements[$i]->getAchievement()->getImage(),
+            ];
+        }
+        return new JsonResponse($threeLatestAchievements);
     }
 }

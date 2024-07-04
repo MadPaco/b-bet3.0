@@ -26,17 +26,15 @@ class PredictionsAchievementChecker
         $this->entityManager = $entityManager;
     }
 
-    private function hasAchievement(User $user, $achievementName)
+    private function hasAchievement(User $user, $achievement): bool
     {
-        $achievement = $this->entityManager->getRepository(Achievement::class)->findOneBy(['name' => $achievementName]);
         $userAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy(['user' => $user, 'achievement' => $achievement]);
-        if ($userAchievement) {
-            return true;
-        }
+        return $userAchievement !== null;
     }
 
-    private function awardAchievement(User $user, $achievementName)
+    private function awardAchievement(User $user, $achievementName): void
     {
+
         $achievement = $this->entityManager->getRepository(Achievement::class)->findOneBy(['name' => $achievementName]);
         $newAchievement = new UserAchievement();
         $newAchievement->setUser($user);
@@ -46,7 +44,7 @@ class PredictionsAchievementChecker
         $this->entityManager->flush();
     }
 
-    private function checkAchievement(User $user, $achievementName, $predictionsCount, $threshold)
+    private function checkAchievement(User $user, $achievementName, $predictionsCount, $threshold): bool
     {
         if ($this->hasAchievement($user, $achievementName)) {
             return true;
@@ -60,27 +58,27 @@ class PredictionsAchievementChecker
         }
     }
 
-    private function checkSeasonedPro(User $user, $predictionsCount)
+    private function checkSeasonedPro(User $user, $predictionsCount): bool
     {
         return $this->checkAchievement($user, 'Seasoned Pro', $predictionsCount, 50);
     }
 
-    private function checkExpert(User $user, $predictionsCount)
+    private function checkExpert(User $user, $predictionsCount): bool
     {
         return $this->checkAchievement($user, 'Expert', $predictionsCount, 100);
     }
 
-    private function checkGridironGuru(User $user, $predictionsCount)
+    private function checkGridironGuru(User $user, $predictionsCount): bool
     {
         return $this->checkAchievement($user, 'Gridiron Guru', $predictionsCount, 200);
     }
 
-    private function checkHallOfFamer(User $user, $predictionsCount)
+    private function checkHallOfFamer(User $user, $predictionsCount): bool
     {
         return $this->checkAchievement($user, 'Hall of Famer', $predictionsCount, 272);
     }
 
-    private function checkEarlyBird(User $user)
+    private function checkEarlyBird(User $user): void
     {
         $latestCompletedWeek = $this->entityManager->getRepository(Bet::class)->findLatestCompletedWeekNumber();
         $earliestGame = $this->entityManager->getRepository(Game::class)->getEarliestGameDate($latestCompletedWeek);

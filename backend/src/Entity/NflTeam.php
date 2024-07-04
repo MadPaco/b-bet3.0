@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -20,6 +21,9 @@ class NflTeam
 
     #[ORM\Column(type: "string", length: 255)]
     private $logo;
+
+    #[ORM\Column(type: "string", length: 255)]
+    private $banner;
 
     #[ORM\Column(type: "string", length: 255)]
     private $location;
@@ -86,6 +90,17 @@ class NflTeam
     public function setLogo(string $logo): self
     {
         $this->logo = $logo;
+        return $this;
+    }
+
+    public function getBanner(): ?string
+    {
+        return $this->banner;
+    }
+
+    public function setBanner(string $banner): self
+    {
+        $this->banner = $banner;
         return $this;
     }
 
@@ -199,4 +214,3 @@ class NflTeam
         return $this;
     }
 }
-?>
