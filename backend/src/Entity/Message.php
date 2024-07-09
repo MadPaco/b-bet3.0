@@ -13,11 +13,11 @@ class Message
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "sentMessages")]
     #[ORM\JoinColumn(name: "sender_id", referencedColumnName: "id")]
     private $sender;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "receivedMessages")]
     #[ORM\JoinColumn(name: "receiver_id", referencedColumnName: "id")]
     private $receiver;
 
@@ -76,5 +76,3 @@ class Message
         return $this;
     }
 }
-
-?>

@@ -32,7 +32,7 @@ class AuthController extends AbstractController
         UserPasswordHasherInterface $passwordEncoder,
         JWTTokenManagerInterface $JWTManager,
     ): Response {
-        $data = $request->request->all();
+        $data = json_decode($request->getContent(), true);
         $profilePicture = $request->files->get('profilePicture');
 
         // Validate non-file data

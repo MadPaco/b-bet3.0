@@ -53,11 +53,17 @@ class Game
     private $homeScore;
 
     #[ORM\Column(name: 'awayScore', type: 'integer', nullable: true)]
-    private $awayScore; 
+    private $awayScore;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId($id): self
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getWeekNumber(): ?int
@@ -115,10 +121,11 @@ class Game
         return $this;
     }
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->bets = new ArrayCollection();
     }
-    
+
     public function getBets(): Collection
     {
         return $this->bets;
@@ -179,5 +186,25 @@ class Game
         return $this;
     }
 
+    public function addBet(Bet $bet): self
+    {
+        if (!$this->bets->contains($bet)) {
+            $this->bets[] = $bet;
+            $bet->setGame($this);
+        }
 
+        return $this;
+    }
+
+    public function removeBet(Bet $bet): self
+    {
+        if ($this->bets->removeElement($bet)) {
+            // set the owning side to null (unless already changed)
+            if ($bet->getGame() === $this) {
+                $bet->setGame(null);
+            }
+        }
+
+        return $this;
+    }
 }

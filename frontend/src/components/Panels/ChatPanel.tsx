@@ -22,7 +22,6 @@ const ChatPanel: React.FC = () => {
   const { username } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const chatBottom = useRef<null | HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const container = useRef<HTMLDivElement>(null)
 

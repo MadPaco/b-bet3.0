@@ -26,23 +26,24 @@ const UserEdit: React.FC<UserEditProps> = ({ username }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const saveChanges = async () => {
-    const postBody: { [key: string]: string | string[] } = {};
+    const formData = new FormData();
+
     if (usernameState !== initalUser.username) {
-      postBody['username'] = usernameState;
+      formData.append('username', usernameState);
     }
     if (favTeam !== initalUser.favTeam) {
-      postBody['favTeam'] = favTeam;
+      formData.append('favTeam', favTeam);
     }
     if (email !== initalUser.email) {
-      postBody['email'] = email;
+      formData.append('email', email);
     }
     if (roles !== initalUser.roles) {
-      postBody['roles'] = roles;
+      roles.forEach(role => formData.append('roles[]', role));
     }
     if (password !== '' && password === confirmPassword) {
-      postBody['password'] = password;
+      formData.append('password', password);
     }
-    await updateUser(username, postBody);
+    await updateUser(username, formData);
   };
 
   useEffect(() => {

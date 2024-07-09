@@ -1,6 +1,8 @@
 <?php
+
 namespace App\DataFixtures;
 
+use App\Entity\Achievement;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -14,7 +16,7 @@ class AppFixtures extends Fixture
 
     public function __construct(UserPasswordHasherInterface $passwordEncoder)
     {
-    $this->passwordEncoder = $passwordEncoder;
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     public function load(ObjectManager $manager)
@@ -64,6 +66,7 @@ class AppFixtures extends Fixture
         $manager->persist($teamFour);
 
         $gameOne = new Game();
+        $gameOne->setId(1);
         $gameOne->setWeekNumber(1);
         $gameOne->setDate(new \DateTime('2021-09-09 20:20:00'));
         $gameOne->setLocation('Statefarm Stadium');
@@ -72,6 +75,7 @@ class AppFixtures extends Fixture
         $manager->persist($gameOne);
 
         $gameTwo = new Game();
+        $gameTwo->setId(2);
         $gameTwo->setWeekNumber(1);
         $gameTwo->setDate(new \DateTime('2021-09-09 20:20:00'));
         $gameTwo->setLocation('M&T Bank Stadium');
@@ -99,7 +103,36 @@ class AppFixtures extends Fixture
         $admin->setRoles(['USER', 'ADMIN']);
         $manager->persist($admin);
 
+        $achievement = new Achievement();
+
+
+        $manager->flush();
+
+        $filePath = '/var/lib/mysql-files/achievements.csv';
+
+        if (!file_exists($filePath)) {
+            throw new \Exception('CSV file not found: ' . $filePath);
+        }
+
+        $handle = fopen($filePath, 'r');
+        if ($handle === false) {
+            throw new \Exception('Cannot open CSV file: ' . $filePath);
+        }
+
+        // Read CSV file line by line
+        while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+            $achievement = new Achievement();
+            $achievement->setId($data[0]);
+            $achievement->setName($data[1]);
+            $achievement->setDescription($data[2]);
+            $achievement->setImage($data[3]);
+            $achievement->setFlavorText($data[4]);
+            $achievement->setCategory($data[5]);
+            $manager->persist($achievement);
+        }
+
+        fclose($handle);
+
         $manager->flush();
     }
 }
-?>

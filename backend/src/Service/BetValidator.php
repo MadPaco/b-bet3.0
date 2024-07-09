@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,21 +18,18 @@ class BetValidator
 
     public function validateBetData($betData): ?JsonResponse
     {
-
-        $requiredKeys = ['gameID', 'homePrediction', 'awayPrediction'];
-
         if (empty($betData) || !is_array($betData)) {
             return new JsonResponse(['message' => 'Invalid data![No data provided!]'], Response::HTTP_BAD_REQUEST);
         }
-    
+
         if (!array_key_exists('gameID', $betData) || !array_key_exists('homePrediction', $betData) || !array_key_exists('awayPrediction', $betData)) {
             return new JsonResponse(['message' => 'Invalid data![Not all parameters provided!]'], Response::HTTP_BAD_REQUEST);
         }
-    
+
         if (!isset($betData['gameID']) || !isset($betData['homePrediction']) || !isset($betData['awayPrediction'])) {
             return new JsonResponse(['message' => 'Invalid data![Not all parameters provided!]'], Response::HTTP_BAD_REQUEST);
         }
-    
+
         if ($betData['gameID'] === null || $betData['homePrediction'] === null || $betData['awayPrediction'] === null) {
             return new JsonResponse(['message' => 'Invalid data![Not all parameters provided!]'], Response::HTTP_BAD_REQUEST);
         }
@@ -39,11 +37,11 @@ class BetValidator
         if (empty($betData)) {
             return new JsonResponse(['message' => 'Invalid data![No data provided!]'], Response::HTTP_BAD_REQUEST);
         }
-    
+
         if (!isset($betData['gameID']) || !isset($betData['homePrediction']) || !isset($betData['awayPrediction'])) {
             return new JsonResponse(['message' => 'Invalid data![Not all parameters provided!]'], Response::HTTP_BAD_REQUEST);
         }
-    
+
         if ($betData['gameID'] === null || $betData['homePrediction'] === null || $betData['awayPrediction'] === null) {
             return new JsonResponse(['message' => 'Invalid data![Not all parameters provided!]'], Response::HTTP_BAD_REQUEST);
         }
@@ -66,6 +64,4 @@ class BetValidator
         }
         return null;
     }
-
 }
-?>

@@ -7,10 +7,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Game;
 
-class ResultValidator {
+class ResultValidator
+{
 
     private $entityManager;
-    
+
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
@@ -28,7 +29,7 @@ class ResultValidator {
     //     }
     // }
     // etc, where the key is the game id
-    
+
     public function validateData($data): ?JsonResponse
     {
         //check for missing/empty/null/incorrect formatted values
@@ -42,7 +43,7 @@ class ResultValidator {
             return new JsonResponse(['message' => 'Invalid data![Data is not an array!]'], Response::HTTP_BAD_REQUEST);
         }
 
-        if (!$decodedData){
+        if (!$decodedData) {
             return new JsonResponse(['message' => 'Invalid data![Data is not valid JSON!]'], Response::HTTP_BAD_REQUEST);
         }
 
@@ -51,7 +52,7 @@ class ResultValidator {
             if (!is_numeric($gameID)) {
                 return new JsonResponse(['message' => 'Invalid data![Missing or invalid gameID!]'], Response::HTTP_BAD_REQUEST);
             }
-            
+
             if (!array_key_exists('homeTeamScore', $game) || !array_key_exists('awayTeamScore', $game)) {
                 return new JsonResponse(['message' => 'Invalid data![HomeTeamScore or AwayteamScore not set!]'], Response::HTTP_BAD_REQUEST);
             }
@@ -68,9 +69,8 @@ class ResultValidator {
                 return new JsonResponse(['message' => 'Invalid data![HomeTeamScore or AwayteamScore is not an integer!]'], Response::HTTP_BAD_REQUEST);
             }
 
-            // In the past, I had users submit scores like 100-0 to taunt a team, let's allow
-            // this within reason
-            // I set a limit to prevent very large scores that would break the UI
+            // teams never score more than 100 points, 
+            // 1000+ is surely a typo
             if ($game['homeTeamScore'] >= 1000 || $game['awayTeamScore'] >= 1000) {
                 return new JsonResponse(['message' => 'Invalid data![HomeTeamScore or AwayteamScore is too high!]'], Response::HTTP_BAD_REQUEST);
             }
@@ -78,10 +78,7 @@ class ResultValidator {
             if (empty($decodedData)) {
                 return new JsonResponse(['message' => 'Invalid data! [Missing gameID]'], Response::HTTP_BAD_REQUEST);
             }
-            
         }
         return null;
     }
 }
-
-?>

@@ -13,15 +13,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Service\ResultsAchievementChecker;
+use App\Service\ResultValidator;
 
 class ResultsController extends AbstractController
 {
     private $entityManager;
     private $achievementChecker;
-    public function __construct(EntityManagerInterface $entityManager, ResultsAchievementChecker $achievementChecker)
+    private $validator;
+
+    public function __construct(EntityManagerInterface $entityManager, ResultsAchievementChecker $achievementChecker, ResultValidator $validator)
     {
         $this->entityManager = $entityManager;
         $this->achievementChecker = $achievementChecker;
+        $this->validator = $validator;
     }
 
     #[Route('/api/game/fetchResults', name: 'fetch_results', methods: ['GET'])]
@@ -51,18 +55,30 @@ class ResultsController extends AbstractController
             return new Response('Unauthorized', 401);
         }
 
+        // Validate the JSON structure
+        $validationResponse = $this->validator->validateData($request->getContent());
+        if ($validationResponse !== null) {
+            return $validationResponse;
+        }
+
         $data = json_decode($request->getContent(), true);
 
+        if (!is_array($data)) {
+            return new JsonResponse(['message' => 'Invalid data format'], Response::HTTP_BAD_REQUEST);
+        }
 
         $updatedGames = [];
         foreach ($data as $gameID => $game) {
+            if (!is_array($game)) {
+                continue; // Skip invalid game data
+            }
+
             $gameEntity = $this->entityManager->getRepository(Game::class)->find($gameID);
             if (!$gameEntity) {
-                error_log('Game not found for ID: ' . $gameID);
                 continue;
             }
 
-            if ($game['homeTeamScore'] === null || $game['awayTeamScore'] === null) {
+            if (!isset($game['homeTeamScore']) || !isset($game['awayTeamScore']) || $game['homeTeamScore'] === null || $game['awayTeamScore'] === null) {
                 continue;
             }
 
@@ -75,12 +91,6 @@ class ResultsController extends AbstractController
             $awayTeam = $this->entityManager->getRepository(NflTeam::class)->findOneBy(['id' => $awayTeamID]);
 
             if (!$homeTeam || !$awayTeam) {
-                if (!$homeTeam) {
-                    error_log('Home team not found: ' . $game['homeTeam']);
-                }
-                if (!$awayTeam) {
-                    error_log('Away team not found: ' . $game['awayTeam']);
-                }
                 return new Response('Team not found', 404);
             }
 
@@ -89,10 +99,10 @@ class ResultsController extends AbstractController
             $prevAwayScore = $gameEntity->getAwayScore();
 
             // Revert previous records
-            $homeTeam->setPointsFor($homeTeam->getPointsFor() - $prevHomeScore);
-            $homeTeam->setPointsAgainst($homeTeam->getPointsAgainst() - $prevAwayScore);
-            $awayTeam->setPointsFor($awayTeam->getPointsFor() - $prevAwayScore);
-            $awayTeam->setPointsAgainst($awayTeam->getPointsAgainst() - $prevHomeScore);
+            $homeTeam->setPointsFor($homeTeam->getPointsFor() - intval($prevHomeScore));
+            $homeTeam->setPointsAgainst($homeTeam->getPointsAgainst() - intval($prevAwayScore));
+            $awayTeam->setPointsFor($awayTeam->getPointsFor() - intval($prevAwayScore));
+            $awayTeam->setPointsAgainst($awayTeam->getPointsAgainst() - intval($prevHomeScore));
 
             if ($prevHomeScore > $prevAwayScore) {
                 $homeTeam->setWins($homeTeam->getWins() - 1);
@@ -106,27 +116,29 @@ class ResultsController extends AbstractController
             }
 
             // Update scores and records with new values
-            $homeTeam->setPointsFor($homeTeam->getPointsFor() + $game['homeTeamScore']);
-            $homeTeam->setPointsAgainst($homeTeam->getPointsAgainst() + $game['awayTeamScore']);
-            $awayTeam->setPointsFor($awayTeam->getPointsFor() + $game['awayTeamScore']);
-            $awayTeam->setPointsAgainst($awayTeam->getPointsAgainst() + $game['homeTeamScore']);
+            $homeTeamScore = intval($game['homeTeamScore']);
+            $awayTeamScore = intval($game['awayTeamScore']);
+
+            $homeTeam->setPointsFor($homeTeam->getPointsFor() + $homeTeamScore);
+            $homeTeam->setPointsAgainst($homeTeam->getPointsAgainst() + $awayTeamScore);
+            $awayTeam->setPointsFor($awayTeam->getPointsFor() + $awayTeamScore);
+            $awayTeam->setPointsAgainst($awayTeam->getPointsAgainst() + $homeTeamScore);
             $homeTeam->setNetPoints($homeTeam->getPointsFor() - $homeTeam->getPointsAgainst());
             $awayTeam->setNetPoints($awayTeam->getPointsFor() - $awayTeam->getPointsAgainst());
 
-            if ($game['homeTeamScore'] > $game['awayTeamScore']) {
+            if ($homeTeamScore > $awayTeamScore) {
                 $homeTeam->setWins($homeTeam->getWins() + 1);
                 $awayTeam->setLosses($awayTeam->getLosses() + 1);
-            } elseif ($game['homeTeamScore'] < $game['awayTeamScore']) {
+            } elseif ($homeTeamScore < $awayTeamScore) {
                 $homeTeam->setLosses($homeTeam->getLosses() + 1);
                 $awayTeam->setWins($awayTeam->getWins() + 1);
-            } elseif ($game['homeTeamScore'] === $game['awayTeamScore']) {
+            } elseif ($homeTeamScore === $awayTeamScore) {
                 $homeTeam->setTies($homeTeam->getTies() + 1);
                 $awayTeam->setTies($awayTeam->getTies() + 1);
             }
 
-
-            $gameEntity->setHomeScore($game['homeTeamScore']);
-            $gameEntity->setAwayScore($game['awayTeamScore']);
+            $gameEntity->setHomeScore($homeTeamScore);
+            $gameEntity->setAwayScore($awayTeamScore);
 
             $this->entityManager->persist($homeTeam);
             $this->entityManager->persist($awayTeam);
@@ -142,25 +154,23 @@ class ResultsController extends AbstractController
         return new Response('success', 200);
     }
 
+
+
     public function updatePoints(array $updatedGames)
     {
-        error_log('Updated games: ' . count($updatedGames));
         $users = $this->entityManager->getRepository(User::class)->findAll();
         if (!$users) {
             return new Response('No users found', 404);
         }
 
         foreach ($users as $user) {
-            error_log('Found user: ' . $user->getUsername());
             foreach ($updatedGames as $game) {
                 if (!$game instanceof Game) {
-                    error_log('Invalid game object, skipping');
                     continue;
                 }
 
                 $prediction = $this->entityManager->getRepository(Bet::class)->findOneBy(['user' => $user, 'game' => $game]);
                 if (!$prediction) {
-                    error_log('Prediction not found, skipping');
                     continue;
                 }
 
@@ -174,20 +184,15 @@ class ResultsController extends AbstractController
 
     private function calculatePoints(Bet $prediction, Game $game): int
     {
-        error_log('Calculating points for prediction: ' . $prediction->getId());
         if ($prediction->getHomePrediction() === $game->getHomeScore() && $prediction->getAwayPrediction() === $game->getAwayScore()) {
-            error_log("Condition 1 met: assigning 5 points");
             return 5;
         } elseif ($prediction->getHomePrediction() - $prediction->getAwayPrediction() === $game->getHomeScore() - $game->getAwayScore()) {
-            error_log("Condition 2 met: assigning 3 points");
             return 3;
         } elseif (($prediction->getHomePrediction() > $prediction->getAwayPrediction() && $game->getHomeScore() > $game->getAwayScore())
             || ($prediction->getHomePrediction() < $prediction->getAwayPrediction() && $game->getHomeScore() < $game->getAwayScore())
         ) {
-            error_log("Condition 3 met: assigning 1 point");
             return 1;
         } else {
-            error_log("No conditions met: assigning 0 points");
             return 0;
         }
     }

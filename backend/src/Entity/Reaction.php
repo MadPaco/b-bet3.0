@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -20,7 +21,7 @@ class Reaction
     #[ORM\JoinColumn(name: "userID", referencedColumnName: "id")]
     private $user;
 
-    #[ORM\ManyToOne(targetEntity: ChatroomMessage::class)]
+    #[ORM\ManyToOne(targetEntity: ChatroomMessage::class, inversedBy: 'reactions')]
     #[ORM\JoinColumn(name: "messageID", referencedColumnName: "id")]
     private $message;
 
@@ -69,7 +70,5 @@ class Reaction
             'reactionCode' => $this->getReactionCode(),
             // Include any other properties you want in the response
         ];
+    }
 }
-    
-}
-?>

@@ -190,17 +190,8 @@ export async function fetchNewToken(): Promise<void> {
 }
 
 
-interface UserUpdateBody {
-  username?: string;
-  password?: string;
-  email?: string;
-  roles?: string[];
-}
 
-export async function updateUser(
-  initialUsername: string,
-  formData: FormData,
-) {
+export async function updateUser(initialUsername: string, formData: FormData) {
   const response = await fetch(
     `http://127.0.0.1:8000/api/user/editUser?username=${initialUsername}`,
     {

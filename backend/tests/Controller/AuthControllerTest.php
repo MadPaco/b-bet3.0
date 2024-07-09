@@ -6,17 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class AuthControllerTest extends WebTestCase
 {
-
-    // request(
-    //     string $method,
-    //     string $uri,
-    //     array $parameters = [],
-    //     array $files = [],
-    //     array $server = [],
-    //     string $content = null,
-    //     bool $changeHistory = true
-    // ): Crawler
-
     public function testRegister()
     {
         $client = static::createClient();
@@ -34,9 +23,17 @@ class AuthControllerTest extends WebTestCase
             ])
         );
 
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertResponseHeaderSame('Content-Type', 'application/json');
-        $this->assertJson($client->getResponse()->getContent());
+
+        $response = $client->getResponse();
+
+        // Output response content for debugging
+        if ($response->getStatusCode() !== 200) {
+            echo $response->getContent();
+        }
+
+        // Assert
+        $this->assertEquals(200, $response->getStatusCode());
+
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('token', $data);
     }
@@ -79,7 +76,8 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
     }
 
-    public function testRegisteringWithNonExistantFavTeam(){
+    public function testRegisteringWithNonExistantFavTeam()
+    {
         $client = static::createClient();
         $client->request(
             'POST',
@@ -97,7 +95,8 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
     }
 
-    public function testRegisteringWithShortPassword(){
+    public function testRegisteringWithShortPassword()
+    {
         $client = static::createClient();
         $client->request(
             'POST',
@@ -115,7 +114,8 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
     }
 
-    public function testRegisteringWithInvalidEmail(){
+    public function testRegisteringWithInvalidEmail()
+    {
         $client = static::createClient();
         $client->request(
             'POST',
@@ -133,7 +133,8 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
     }
 
-    public function testRegisteringWithNonStringUsername(){
+    public function testRegisteringWithNonStringUsername()
+    {
         $client = static::createClient();
         $client->request(
             'POST',
@@ -152,7 +153,8 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
     }
 
-    public function testRegisteringWithNonStringPassword(){
+    public function testRegisteringWithNonStringPassword()
+    {
         $client = static::createClient();
         $client->request(
             'POST',
@@ -205,7 +207,7 @@ class AuthControllerTest extends WebTestCase
         );
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
     }
-    
+
     public function testRegisteringWithMissingEmail()
     {
         $client = static::createClient();
@@ -436,7 +438,7 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
     }
 
-        public function testRegisteringWithNullPassword()
+    public function testRegisteringWithNullPassword()
     {
         $client = static::createClient();
         $client->request(

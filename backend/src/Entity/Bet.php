@@ -15,11 +15,11 @@ class Bet
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: Game::class)]
+    #[ORM\ManyToOne(targetEntity: Game::class, inversedBy: 'bets')]
     #[ORM\JoinColumn(nullable: false)]
     private $game;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "bets")]
     #[ORM\JoinColumn(nullable: false)]
     private $user;
 
@@ -119,7 +119,4 @@ class Bet
         $this->editCount = $editCount;
         return $this;
     }
-    
 }
-
-?>

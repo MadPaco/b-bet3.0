@@ -16,11 +16,11 @@ class UserAchievement
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userAchievements')]
     #[ORM\JoinColumn(nullable: false)]
     private $user;
 
-    #[ORM\ManyToOne(targetEntity: Achievement::class)]
+    #[ORM\ManyToOne(targetEntity: Achievement::class, inversedBy: 'userAchievements')]
     #[ORM\JoinColumn(nullable: false)]
     private $achievement;
 

@@ -100,30 +100,32 @@ class UserController extends AbstractController
     #[Route('api/user/editUser', name: 'edit_user', methods: ['POST'])]
     public function editUser(Request $request): Response
     {
-        if (!$request->query->get('username')) {
+        $username = $request->query->get('username');
+        if (!$username) {
             return new JsonResponse(['message' => 'No username provided'], Response::HTTP_BAD_REQUEST);
         }
 
-        $userToChange = $this->userRepository->findOneBy(['username' => $request->query->get('username')]);
+        $userToChange = $this->userRepository->findOneBy(['username' => $username]);
         $authenticatedUser = $this->getUser();
 
         if (!$userToChange) {
             return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
         }
-        if (!$authenticatedUser) {
+        if (!$authenticatedUser instanceof \App\Entity\User) {
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_UNAUTHORIZED);
         }
         if ($authenticatedUser->getUsername() !== $userToChange->getUsername() && !in_array('ADMIN', $authenticatedUser->getRoles())) {
             return new JsonResponse(['message' => 'Not authorized'], Response::HTTP_FORBIDDEN);
         }
 
-        // Handle file upload and other form data
+        // Handle form data and file upload
         $newUsername = $request->request->get('username') ? filter_var($request->request->get('username'), FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
         $newEmail = $request->request->get('email') ? filter_var($request->request->get('email'), FILTER_SANITIZE_EMAIL) : null;
         $newFavTeam = $request->request->get('favTeam') ? filter_var($request->request->get('favTeam'), FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
         $newFavTeamID = $newFavTeam ? $this->nflTeamRepository->findOneBy(['name' => $newFavTeam]) : null;
         $newPassword = $request->request->get('password') ? filter_var($request->request->get('password'), FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
         $newBio = $request->request->get('bio') ? filter_var($request->request->get('bio'), FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+        $file = $request->files->get('profilePicture');
 
         // Check for unique username and email
         if ($newUsername && $newUsername !== $userToChange->getUsername()) {
@@ -139,8 +141,7 @@ class UserController extends AbstractController
             }
         }
 
-        // Handle profile picutre
-        $file = $request->files->get('profilePicture');
+        // Handle profile picture upload
         if ($file) {
             $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $extension = $file->guessExtension();
@@ -150,7 +151,11 @@ class UserController extends AbstractController
             }
 
             $filename = uniqid() . '.' . $extension;
-            $file->move($this->getParameter('profile_pictures_directory'), $filename);
+            try {
+                $file->move($this->getParameter('profile_pictures_directory'), $filename);
+            } catch (FileException $e) {
+                return new JsonResponse(['message' => 'Failed to upload profile picture'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
         }
 
         // Update user entity
@@ -181,8 +186,10 @@ class UserController extends AbstractController
             return new JsonResponse(['message' => 'An error occurred while updating the user', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return new JsonResponse(['message' => 'all good, enjoy'], Response::HTTP_OK);
+        return new JsonResponse(['message' => 'User updated successfully'], Response::HTTP_OK);
     }
+
+
 
     #[Route('api/user/{username}/fetchFavTeamBanner', name: 'fetch_banner', methods: ['GET'])]
     public function fetchBanner($username): JsonResponse

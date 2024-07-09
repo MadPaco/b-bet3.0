@@ -11,11 +11,11 @@ class UserControllerTest extends WebTestCase
 
     protected function setUp(): void
     {
-    parent::setUp();
-    $this->client = static::createClient();
-    $this->logIn($this->client);
+        parent::setUp();
+        $this->client = static::createClient();
+        $this->logIn($this->client);
     }
-    
+
     private function logIn()
     {
         $this->client->request(
@@ -29,9 +29,9 @@ class UserControllerTest extends WebTestCase
                 'password' => 'password',
             ])
         );
-    
+
         $data = json_decode($this->client->getResponse()->getContent(), true);
-    
+
         if (isset($data['token'])) {
             $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
         }
@@ -50,9 +50,9 @@ class UserControllerTest extends WebTestCase
                 'password' => 'admin',
             ])
         );
-    
+
         $data = json_decode($this->client->getResponse()->getContent(), true);
-    
+
         if (isset($data['token'])) {
             $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
         }
@@ -105,8 +105,6 @@ class UserControllerTest extends WebTestCase
         $this->assertArrayHasKey('createdAt', $responseArray);
         $this->assertArrayHasKey('username', $responseArray);
         $this->assertArrayHasKey('roles', $responseArray);
-
-
     }
 
     public function testFetchAllUsers()
@@ -126,12 +124,23 @@ class UserControllerTest extends WebTestCase
     public function testEditUserUsernameAsAdmin()
     {
         $this->logInAsAdmin();
-        // check editing the username 
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+
+        // Create FormData
+        $formData = [
             'username' => 'newUsername'
-        ]));
+        ];
+
+        // Send FormData
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        //confirm that the username has changed
+
+        // Confirm that the username has changed
         $this->client->request(
             'POST',
             '/api/login_check',
@@ -149,44 +158,73 @@ class UserControllerTest extends WebTestCase
     public function testEditUserEmailAsAdmin()
     {
         $this->logInAsAdmin();
-        // check editing the email
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+
+        // Create FormData
+        $formData = [
             'email' => 'anotheremail@test.com'
-        ]));
+        ];
+
+        // Send FormData
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
 
-        //confirm that the email has changed
+        // Confirm that the email has changed
         $this->client->request('GET', '/api/user/fetchUser', ['username' => 'testuser']);
         $responseArray = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('anotheremail@test.com', $responseArray['email']);
-
     }
-
     public function testEditUserFavTeamAsAdmin()
     {
         $this->logInAsAdmin();
-        // check editing the favTeam
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+
+        // Create FormData
+        $formData = [
             'favTeam' => 'Atlanta Falcons'
-        ]));
+        ];
+
+        // Send FormData
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
 
-        //confirm that the favTeam has changed
+        // Confirm that the favTeam has changed
         $this->client->request('GET', '/api/user/fetchUser', ['username' => 'testuser']);
         $responseArray = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Atlanta Falcons', $responseArray['favTeam']);
     }
 
+
     public function testEditUserPasswordAsAdmin()
     {
         $this->logInAsAdmin();
-        // check editing the password
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+
+        // Create FormData
+        $formData = [
             'password' => 'newPassword'
-        ]));
+        ];
+
+        // Send FormData
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
 
-        //confirm that the password has changed
+        // Confirm that the password has changed
         $this->client->request(
             'POST',
             '/api/login_check',
@@ -200,14 +238,24 @@ class UserControllerTest extends WebTestCase
         );
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
     }
-
     public function testEditOwnUsername()
     {
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+        // Create FormData
+        $formData = [
             'username' => 'newUsername'
-        ]));
+        ];
+
+        // Send FormData
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        //confirm that the username has changed
+
+        // Confirm that the username has changed
         $this->client->request(
             'POST',
             '/api/login_check',
@@ -224,12 +272,22 @@ class UserControllerTest extends WebTestCase
 
     public function testEditOwnEmail()
     {
-        // check editing the email
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-            'email' => 'anotheremail@test.com']));
+
+        $formData = [
+            'email' => 'anotheremail@test.com'
+        ];
+
+        // Send FormData
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
 
-        //confirm that the email has changed
+        // Confirm that the email has changed
         $this->client->request('GET', '/api/user/fetchUser', ['username' => 'testuser']);
         $responseArray = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('anotheremail@test.com', $responseArray['email']);
@@ -237,13 +295,20 @@ class UserControllerTest extends WebTestCase
 
     public function testEditOwnFavTeam()
     {
-        // check editing the favTeam
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+        $formData = [
             'favTeam' => 'Atlanta Falcons'
-        ]));
+        ];
+
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
 
-        //confirm that the favTeam has changed
+        // Confirm that the favTeam has changed
         $this->client->request('GET', '/api/user/fetchUser', ['username' => 'testuser']);
         $responseArray = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Atlanta Falcons', $responseArray['favTeam']);
@@ -251,13 +316,21 @@ class UserControllerTest extends WebTestCase
 
     public function testEditOwnPassword()
     {
-        // check editing the password
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+        $formData = [
             'password' => 'newPassword'
-        ]));
+        ];
+
+        // Send FormData
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
 
-        //confirm that the password has changed
+        // Confirm that the password has changed
         $this->client->request(
             'POST',
             '/api/login_check',
@@ -318,11 +391,22 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals(400, $this->client->getResponse()->getStatusCode());
     }
 
-    public function testEditUserWithExistingUsername()  
+    public function testEditUserWithExistingUsername()
     {
-        $this->client->request('POST', '/api/user/editUser?username=testuser', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-            'username' => 'admin'
-        ]));
+
+        // Create FormData
+        $formData = [
+            'username' => 'admin',
+        ];
+
+        // Send FormData
+        $this->client->request(
+            'POST',
+            '/api/user/editUser?username=testuser',
+            $formData,
+            [],
+        );
+
         $this->assertEquals(409, $this->client->getResponse()->getStatusCode());
     }
 
@@ -333,7 +417,4 @@ class UserControllerTest extends WebTestCase
         ]));
         $this->assertEquals(403, $this->client->getResponse()->getStatusCode());
     }
-
 }
-
-?>

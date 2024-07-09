@@ -20,7 +20,7 @@ class Chatroom
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    #[ORM\OneToMany(targetEntity: ChatroomMessage::class, mappedBy: "chatroom")]
+    #[ORM\OneToMany(targetEntity: ChatroomMessage::class, mappedBy: "chatroom", cascade: ['persist', 'remove'])]
     private $messages;
 
     public function getId(): ?int
@@ -39,7 +39,8 @@ class Chatroom
         return $this;
     }
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->messages = new ArrayCollection();
     }
 
@@ -47,7 +48,4 @@ class Chatroom
     {
         return $this->messages;
     }
-
 }
-
-?>

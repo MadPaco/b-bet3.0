@@ -17,11 +17,11 @@ class ChatroomMessage
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: Chatroom::class)]
+    #[ORM\ManyToOne(targetEntity: Chatroom::class, inversedBy: 'messages')]
     #[ORM\JoinColumn(name: "chatroomID", referencedColumnName: "id")]
     private $chatroom;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "chatroomMessages")]
     #[ORM\JoinColumn(name: "senderID", referencedColumnName: "id")]
     private $sender;
 
@@ -33,8 +33,9 @@ class ChatroomMessage
 
     #[ORM\OneToMany(targetEntity: Reaction::class, mappedBy: "message", fetch: "EAGER")]
     private $reactions;
-    
-    public function __construct() {
+
+    public function __construct()
+    {
         $this->reactions = new ArrayCollection();
     }
 
@@ -103,8 +104,4 @@ class ChatroomMessage
         }
         return $this;
     }
-
-
 }
-
-?>

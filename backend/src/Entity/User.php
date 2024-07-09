@@ -60,7 +60,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private $bio;
 
     public function getId(): ?int
