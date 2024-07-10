@@ -7,7 +7,7 @@ use App\Entity\NflTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class GameRepository extends ServiceEntityRepository
+class GameRepository extends ServiceEntityRepository implements GameRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -81,7 +81,7 @@ class GameRepository extends ServiceEntityRepository
         return $qb->getResult();
     }
 
-    public function getEarliestGameDate($weeknumber)
+    public function getEarliestGameDate($weeknumber): \DateTime
     {
         $qb = $this->createQueryBuilder('g')
             ->select('MIN(g.date)')

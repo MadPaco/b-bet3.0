@@ -7,7 +7,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class BetRepository extends ServiceEntityRepository
+class BetRepository extends ServiceEntityRepository implements BetRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -52,7 +52,7 @@ class BetRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findNumberOfRegularSeasonBets(User $user)
+    public function findNumberOfRegularSeasonBets(User $user): int
     {
         return $this->createQueryBuilder('bet')
             ->select('count(bet.id)')
@@ -65,17 +65,52 @@ class BetRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function findLatestCompletedWeekNumber()
-    // a week is considered completed if every bet in that week has a 
-    // home and awayPrediction value that is not null
-    // this is used to check for the early bird achievement
+    public function findLatestCompletedWeekNumber(User $user): int
     {
-        return $this->createQueryBuilder('bet')
-            ->select('max(game.weekNumber)')
-            ->innerJoin('bet.game', 'game')
-            ->where('bet.homePrediction IS NOT NULL')
-            ->andWhere('bet.awayPrediction IS NOT NULL')
+        // Get entity manager
+        $em = $this->getEntityManager();
+
+        // Get number of games for all weeks
+        $numberOfGames = $em->createQueryBuilder()
+            ->select('game.weekNumber, COUNT(game.id) AS numGames')
+            ->from('App\Entity\Game', 'game')
+            ->groupBy('game.weekNumber')
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getResult();
+
+        // Get number of predictions by user for all weeks
+        $numberOfPredictions = $this->createQueryBuilder('bet')
+            ->select('game.weekNumber, COUNT(bet.id) AS numPredictions')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user = :user')
+            ->andWhere('bet.homePrediction IS NOT NULL')
+            ->andWhere('bet.awayPrediction IS NOT NULL')
+            ->setParameter('user', $user)
+            ->groupBy('game.weekNumber')
+            ->getQuery()
+            ->getResult();
+
+        // Convert results to associative arrays
+        $gamesPerWeek = [];
+        foreach ($numberOfGames as $game) {
+            $gamesPerWeek[$game['weekNumber']] = $game['numGames'];
+        }
+
+        $predictionsPerWeek = [];
+        foreach ($numberOfPredictions as $prediction) {
+            $predictionsPerWeek[$prediction['weekNumber']] = $prediction['numPredictions'];
+        }
+
+        // Find the highest week where the number of predictions equals the number of games
+        $latestCompletedWeek = 0;
+        foreach ($gamesPerWeek as $weekNumber => $numGames) {
+            if (isset($predictionsPerWeek[$weekNumber]) && $predictionsPerWeek[$weekNumber] == $numGames) {
+                if ($weekNumber > $latestCompletedWeek) {
+                    $latestCompletedWeek = $weekNumber;
+                }
+            }
+        }
+
+        return $latestCompletedWeek;
     }
 }

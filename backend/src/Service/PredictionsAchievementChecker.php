@@ -7,6 +7,8 @@ use App\Entity\Game;
 use App\Entity\User;
 use App\Entity\Achievement;
 use App\Entity\UserAchievement;
+use App\Repository\BetRepositoryInterface;
+use App\Repository\GameRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
 
@@ -20,10 +22,14 @@ use Doctrine\ORM\EntityManagerInterface;
 class PredictionsAchievementChecker
 {
     private $entityManager;
+    private $betRepository;
+    private $gameRepository;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, GameRepositoryInterface $gameRepository, BetRepositoryInterface $betRepository)
     {
         $this->entityManager = $entityManager;
+        $this->betRepository = $betRepository;
+        $this->gameRepository = $gameRepository;
     }
 
     private function hasAchievement(User $user, $achievement): bool
@@ -80,11 +86,15 @@ class PredictionsAchievementChecker
 
     private function checkEarlyBird(User $user): void
     {
-        $latestCompletedWeek = $this->entityManager->getRepository(Bet::class)->findLatestCompletedWeekNumber();
-        $earliestGame = $this->entityManager->getRepository(Game::class)->getEarliestGameDate($latestCompletedWeek);
+        $latestCompletedWeek = $this->betRepository->findLatestCompletedWeekNumber($user);
+        // if latestCompletedWeek is 0 this means there is no completed week
+        if ($latestCompletedWeek === 0) {
+            return;
+        }
+        $earliestGame = $this->gameRepository->getEarliestGameDate($latestCompletedWeek);
         $now = new \DateTime();
         $diff = $earliestGame->diff($now);
-        if ($diff->days <= 1) {
+        if ($diff->days < 1) {
             return;
         }
         if ($this->hasAchievement($user, 'Early Bird')) {
@@ -92,9 +102,6 @@ class PredictionsAchievementChecker
         }
         $this->awardAchievement($user, 'Early Bird');
     }
-
-
-
 
     public function checkAllAchievements(User $user)
     {
