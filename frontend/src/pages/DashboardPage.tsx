@@ -34,18 +34,18 @@ const Dashboard: React.FC = () => {
         <img className="object-fill object-center h-full w-full" src={`assets/images/${banner}`} alt="Team Banner"></img>
       </div>
 
-      <div className="flex flex-col lg:flex-row lg:space-x-6 lg:pt-2">
+      <div className="flex flex-col xl:flex-row xl:space-x-6 xl:pt-2">
         {/* Left Column */}
-        <div className="flex flex-col lg:w-1/2 space-y-6">
+        <div className="flex flex-col xl:w-1/2 space-y-6">
           <div className="flex-1">
-            <div className='flex flex-wrap lg:h-1/3'>
-              <div className="w-full lg:w-1/3">
+            <div className='flex flex-wrap xl:h-1/3'>
+              <div className="w-full xl:w-1/3">
                 <TeamInfoPanel />
               </div>
-              <div className='w-full lg:w-1/3'>
+              <div className='w-full xl:w-1/3'>
                 <UserInfoPanel />
               </div>
-              <div className='w-full lg:w-1/3'>
+              <div className='w-full xl:w-1/3'>
                 <DivisionPanel />
               </div>
             </div>
@@ -54,11 +54,11 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Right Column */}
-        <div className="flex flex-col lg:h-1/3 space-y-6 lg:flex-1">
+        <div className="flex flex-col xl:h-1/3 xl:flex-1">
           <div className="h-1/4">
             <ChatPanel />
           </div>
-          <div className="h-1/4">
+          <div className="h-1/4 mt-0">
             <UpcomingGamesPanel />
           </div>
         </div>

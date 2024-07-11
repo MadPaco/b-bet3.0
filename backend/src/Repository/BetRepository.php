@@ -17,6 +17,9 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
 
     // functions used by ResultsAchievementChecker
     // *******************************************
+
+    // return all bets where a user has atleast 1 point
+    // used to calculate stats (hitrate etc)
     public function findHitsByUser(User $user)
     {
         return $this->createQueryBuilder('bet')
@@ -42,6 +45,8 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
 
     // functions used by PredictionsAchievementChecker
     // *******************************************
+
+    // return all bets for a given week
     public function findBetsByWeeknumber($weekNumber)
     {
         return $this->createQueryBuilder('bet')
@@ -52,6 +57,8 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
             ->getResult();
     }
 
+    // return the number of predictions placed in the regular season
+    // used to check wether a user is eligible for the Hall of Famer Achievement
     public function findNumberOfRegularSeasonBets(User $user): int
     {
         return $this->createQueryBuilder('bet')
@@ -65,6 +72,7 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
             ->getSingleScalarResult();
     }
 
+    // return the last week where a user placed all bets
     public function findLatestCompletedWeekNumber(User $user): int
     {
         // Get entity manager
@@ -90,7 +98,7 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
             ->getQuery()
             ->getResult();
 
-        // Convert results to associative arrays
+        // Convert results
         $gamesPerWeek = [];
         foreach ($numberOfGames as $game) {
             $gamesPerWeek[$game['weekNumber']] = $game['numGames'];
@@ -101,7 +109,7 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
             $predictionsPerWeek[$prediction['weekNumber']] = $prediction['numPredictions'];
         }
 
-        // Find the highest week where the number of predictions equals the number of games
+        // find the highest week where the number of predictions equals the number of games
         $latestCompletedWeek = 0;
         foreach ($gamesPerWeek as $weekNumber => $numGames) {
             if (isset($predictionsPerWeek[$weekNumber]) && $predictionsPerWeek[$weekNumber] == $numGames) {

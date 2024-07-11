@@ -41,11 +41,18 @@ const AchievementPanel: React.FC<AchievementPanelProps> = () => {
           <div className="flex items-center justify-center flex-wrap p-3">
             {latestAchievements.length > 0 ? (
               latestAchievements.map((achievement, index) => (
-                <div key={index} className="lg:w-1/4 text-center bg-gray-700 p-3 rounded-xl shadow-inner shadow-white flex flex-col m-2 items-center">
-                  <p>{achievement.name}</p>
-                  <img className="lg:w-3/4 m-2" src={`/assets/images/achievements/${achievement.image}`} alt={achievement.name} />
-                  <p>{achievement.flavorText}</p>
-                  <p>{achievement.dateEarned.date}</p>
+                <div
+                  key={index}
+                  className="xl:w-1/4 text-center bg-gray-700 p-3 rounded-xl shadow-inner shadow-white flex flex-col m-2 items-center justify-between h-full"
+                >
+                  <p className="font-bold">{achievement.name}</p>
+                  <div className="flex-grow flex items-center justify-center">
+                    <img className="lg:w-3/4 m-2 rounded-md" src={`/assets/images/achievements/${achievement.image}`} alt={achievement.name} />
+                  </div>
+                  <div className="h-24 flex items-center justify-center overflow-hidden italic">
+                    <p>{achievement.flavorText}</p>
+                  </div>
+                  <p className="text-sm text-gray-400">{achievement.dateEarned.date}</p>
                 </div>
               ))
             ) : (
