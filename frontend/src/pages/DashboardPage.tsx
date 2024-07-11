@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
           <div className="h-1/4">
             <ChatPanel />
           </div>
-          <div className="h-1/4 mt-0">
+          <div className="h-1/4 mt-0 mb-4">
             <UpcomingGamesPanel />
           </div>
         </div>
