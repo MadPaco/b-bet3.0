@@ -38,7 +38,7 @@ const AchievementPanel: React.FC<AchievementPanelProps> = () => {
       {username ? (
         <div className="flex items-center flex-col">
           <h2 className="text-xl font-semibold mb-2">Latest Achievements</h2>
-          <div className="flex items-center justify-center flex-wrap p-3">
+          <div className="flex items-center justify-around flex-wrap p-3">
             {latestAchievements.length > 0 ? (
               latestAchievements.map((achievement, index) => (
                 <div

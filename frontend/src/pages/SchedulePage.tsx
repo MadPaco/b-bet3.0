@@ -49,7 +49,7 @@ const SchedulePage: React.FC = () => {
           {schedule.map((game, index) => (
             <div
               key={index}
-              className={`${colorClass} game flex flex-col items-center bg-opacity-70 rounded-lg p-1 m-3`}
+              className={`${colorClass} game flex flex-col items-center bg-opacity-90 rounded-lg p-1 m-3`}
             >
               {/* Start of date row */}
               <div className="time text-lg font-bold">

@@ -4,44 +4,107 @@ namespace App\Repository;
 
 use App\Entity\Bet;
 use App\Entity\User;
+use App\Repository\GameRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 class BetRepository extends ServiceEntityRepository implements BetRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    private $gameRepository;
+
+    public function __construct(ManagerRegistry $registry, GameRepositoryInterface $gameRepository)
     {
         parent::__construct($registry, Bet::class);
+        $this->gameRepository = $gameRepository;
     }
 
+    // helper functions
+    public function getCountOfHitsByUserForGivenWeek(User $user, $week): int
+    {
+        $query = $this->createQueryBuilder('bet')
+            ->select('COUNT(bet.id)')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user = :user')
+            ->andWhere('bet.points > 0')
+            ->andWhere('game.weekNumber = :week')
+            ->setParameter('user', $user)
+            ->setParameter('week', $week)
+            ->getQuery();
+
+        $result = $query->getSingleScalarResult();
+        return $result;
+    }
+
+    public function getNumberOfBetsInWeek(User $user, $week): int
+    {
+        return $this->createQueryBuilder('bet')
+            ->select('COUNT(bet.id)')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user = :user')
+            ->andWhere('game.weekNumber = :week')
+            ->setParameter('user', $user)
+            ->setParameter('week', $week)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
     // functions used by ResultsAchievementChecker
     // *******************************************
 
-    // return all bets where a user has atleast 1 point
+    // return all bet ids where a user has atleast 1 point
     // used to calculate stats (hitrate etc)
     public function findHitsByUser(User $user)
     {
         return $this->createQueryBuilder('bet')
-            ->select('bet.id')
+            ->select('bet')
             ->where('bet.user =:user')
             ->andwhere('bet.points != 0')
             ->setParameter('user', $user)
-            ->getQuery()->getResult();
+            ->getQuery()->getResult() ?? [];
     }
 
     public function findTwoMinuteDrillHit(User $user)
     {
         return $this->createQueryBuilder('bet')
-            ->innerJoin('App\Entity\Game', 'game', 'WITH', 'bet.game_id = game.id')
-            ->where('bet.user_id = :user')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user = :user')
             ->andWhere('bet.points >= 1')
-            ->andWhere('bet.last_edit >= DATE_SUB(game.date, INTERVAL 2 MINUTE)')
-            ->andWhere('bet.last_edit <= game.date')
-            ->setParameter('user', $user->getId())
+            ->andWhere('bet.lastEdit >= DATE_SUB(game.date, 2, \'MINUTE\')')
+            ->andWhere('bet.lastEdit <= game.date')
+            ->setParameter('user', $user)
             ->getQuery()
             ->getResult();
     }
+
+    public function hasTrickPlayHit(User $user): bool
+    {
+        $queryResult = $this->createQueryBuilder('bet')
+            ->select('COUNT(bet.id)')
+            ->where('bet.editCount >= 4')
+            ->andWhere('bet.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $queryResult > 0;
+    }
+
+    // returns true if the user has a week with a hit in every game
+    public function hasPigskinProphetHit(User $user): bool
+    {
+        $weeks = $this->gameRepository->getWeeks();
+
+        foreach ($weeks as $week) {
+            $weekNumber = $week;
+            $hits = $this->getCountOfHitsByUserForGivenWeek($user, $weekNumber);
+            $totalGames = $this->gameRepository->getNumberOfGamesForGivenWeek($weekNumber);
+            if ($hits == $totalGames && $totalGames > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     // functions used by PredictionsAchievementChecker
     // *******************************************
@@ -73,52 +136,21 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
     }
 
     // return the last week where a user placed all bets
+    // return 0 if no week is found
     public function findLatestCompletedWeekNumber(User $user): int
     {
-        // Get entity manager
-        $em = $this->getEntityManager();
-
-        // Get number of games for all weeks
-        $numberOfGames = $em->createQueryBuilder()
-            ->select('game.weekNumber, COUNT(game.id) AS numGames')
-            ->from('App\Entity\Game', 'game')
-            ->groupBy('game.weekNumber')
-            ->getQuery()
-            ->getResult();
-
-        // Get number of predictions by user for all weeks
-        $numberOfPredictions = $this->createQueryBuilder('bet')
-            ->select('game.weekNumber, COUNT(bet.id) AS numPredictions')
-            ->innerJoin('bet.game', 'game')
-            ->where('bet.user = :user')
-            ->andWhere('bet.homePrediction IS NOT NULL')
-            ->andWhere('bet.awayPrediction IS NOT NULL')
-            ->setParameter('user', $user)
-            ->groupBy('game.weekNumber')
-            ->getQuery()
-            ->getResult();
-
-        // Convert results
-        $gamesPerWeek = [];
-        foreach ($numberOfGames as $game) {
-            $gamesPerWeek[$game['weekNumber']] = $game['numGames'];
-        }
-
-        $predictionsPerWeek = [];
-        foreach ($numberOfPredictions as $prediction) {
-            $predictionsPerWeek[$prediction['weekNumber']] = $prediction['numPredictions'];
-        }
-
-        // find the highest week where the number of predictions equals the number of games
         $latestCompletedWeek = 0;
-        foreach ($gamesPerWeek as $weekNumber => $numGames) {
-            if (isset($predictionsPerWeek[$weekNumber]) && $predictionsPerWeek[$weekNumber] == $numGames) {
-                if ($weekNumber > $latestCompletedWeek) {
-                    $latestCompletedWeek = $weekNumber;
-                }
+        // Get number of games for all weeks
+        $weeks = $this->gameRepository->getWeeks();
+
+        foreach ($weeks as $week) {
+            $totalGames = $this->gameRepository->getNumberOfGamesForGivenWeek($week);
+            $numberOfBets = $this->getNumberOfBetsInWeek($user, $week);
+
+            if ($numberOfBets == $totalGames && $totalGames > 0) {
+                $latestCompletedWeek = $week;
             }
         }
-
         return $latestCompletedWeek;
     }
 }

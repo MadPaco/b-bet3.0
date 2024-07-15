@@ -63,8 +63,7 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
             className="w-24 h-24 object-contain mr-4 rounded-full"
           />
           <div>
-            <p>User: {username}</p>
-            <p>Member since: {createdAt?.toLocaleDateString()}</p>
+            <p>{username}</p>
             {stats ? (
               <div>
                 <p>Points: {stats.totalPoints}</p>

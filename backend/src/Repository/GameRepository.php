@@ -14,7 +14,7 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
         parent::__construct($registry, Game::class);
     }
 
-    public function findGamesWithSameDivisionAndConference(string $conference, string $division)
+    public function findGamesWithSameDivisionAndConference(string $conference, string $division): array
     {
         $qb = $this->createQueryBuilder('g')
             ->innerJoin('g.homeTeam', 'home')
@@ -30,7 +30,7 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
         return $qb->getResult();
     }
 
-    public function findDivisionGamesForTeam(NflTeam $team)
+    public function findDivisionGamesForTeam(NflTeam $team): array
     {
         $qb = $this->createQueryBuilder('g')
             ->innerJoin('g.homeTeam', 'home')
@@ -48,7 +48,7 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
         return $qb->getResult();
     }
 
-    public function findFinishedGames()
+    public function findFinishedGames(): array
     {
         $qb = $this->createQueryBuilder('g')
             ->where('g.homeScore IS NOT NULL')
@@ -58,7 +58,7 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
         return $qb->getResult();
     }
 
-    public function findLatestWeekWithResults()
+    public function findLatestWeekWithResults(): int
     {
         $qb = $this->createQueryBuilder('g')
             ->select('MAX(g.weekNumber)')
@@ -66,10 +66,12 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
             ->andWhere('g.awayScore IS NOT NULL')
             ->getQuery();
 
-        return $qb->getSingleScalarResult();
+        $result = $qb->getSingleScalarResult();
+
+        return $result !== null ? (int) $result : 0;
     }
 
-    public function getWinsOfTeam(NflTeam $team)
+    public function getWinsOfTeam(NflTeam $team): int
     {
         $qb = $this->createQueryBuilder('g')
             ->select('COUNT(g.id)')
@@ -77,8 +79,8 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
             ->orWhere('g.awayTeam = :team AND g.awayScore > g.homeScore')
             ->setParameter('team', $team)
             ->getQuery();
-        //return an array with the games where the given team won
-        return $qb->getResult();
+        // Return a single scalar result (the count of wins)
+        return (int) $qb->getSingleScalarResult();
     }
 
     public function getEarliestGameDate($weeknumber): \DateTime
@@ -91,5 +93,25 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
 
         $result = $qb->getSingleScalarResult();
         return $result ? new \DateTime($result) : null;
+    }
+
+    public function getNumberOfGamesForGivenWeek($weeknumber): int
+    {
+        return $this->createQueryBuilder('game')
+            ->select('Count(game.id)')
+            ->where('game.weekNumber =:weeknumber')
+            ->setParameter('weeknumber', $weeknumber)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getWeeks(): array
+    {
+        $result = $this->createQueryBuilder('game')
+            ->select('DISTINCT game.weekNumber')
+            ->getQuery()
+            ->getResult();
+
+        return array_map('intval', array_column($result, 'weekNumber'));
     }
 }

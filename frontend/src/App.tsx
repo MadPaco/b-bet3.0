@@ -28,7 +28,14 @@ const App: React.FC = () => {
     <Router>
       <AuthProvider>
         <ColorProvider>
-          <Suspense fallback={<SyncLoader color={'#36d7b7'} />}>
+          <Suspense
+            fallback={
+              <div className="flex justify-center items-center h-screen bg-gray-900">
+                <SyncLoader color={'#36d7b7'} />
+              </div>
+            }
+          >
+
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/" element={<IndexPage />} />

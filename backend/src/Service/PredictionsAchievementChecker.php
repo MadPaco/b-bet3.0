@@ -3,10 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Bet;
-use App\Entity\Game;
 use App\Entity\User;
-use App\Entity\Achievement;
-use App\Entity\UserAchievement;
 use App\Repository\BetRepositoryInterface;
 use App\Repository\GameRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,49 +16,16 @@ use Doctrine\ORM\EntityManagerInterface;
 // Hall of Famer (all regular season predictions)
 // Early bird (place all predictions for the week 24hours before the first game)
 
-class PredictionsAchievementChecker
+class PredictionsAchievementChecker extends AchievementCheckerBase
 {
-    private $entityManager;
     private $betRepository;
     private $gameRepository;
 
     public function __construct(EntityManagerInterface $entityManager, GameRepositoryInterface $gameRepository, BetRepositoryInterface $betRepository)
     {
-        $this->entityManager = $entityManager;
+        parent::__construct($entityManager);
         $this->betRepository = $betRepository;
         $this->gameRepository = $gameRepository;
-    }
-
-    private function hasAchievement(User $user, $achievement): bool
-    {
-        $userAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy(['user' => $user, 'achievement' => $achievement]);
-        return $userAchievement !== null;
-    }
-
-    private function awardAchievement(User $user, $achievementName): void
-    {
-
-        $achievement = $this->entityManager->getRepository(Achievement::class)->findOneBy(['name' => $achievementName]);
-        $newAchievement = new UserAchievement();
-        $newAchievement->setUser($user);
-        $newAchievement->setAchievement($achievement);
-        $newAchievement->setDateEarned(new \DateTime());
-        $this->entityManager->persist($newAchievement);
-        $this->entityManager->flush();
-    }
-
-    private function checkAchievement(User $user, $achievementName, $predictionsCount, $threshold): bool
-    {
-        if ($this->hasAchievement($user, $achievementName)) {
-            return true;
-        }
-
-        if ($predictionsCount >= $threshold && !$this->hasAchievement($user, $achievementName)) {
-            $this->awardAchievement($user, $achievementName);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     private function checkSeasonedPro(User $user, $predictionsCount): bool
@@ -87,7 +51,6 @@ class PredictionsAchievementChecker
     private function checkEarlyBird(User $user): void
     {
         $latestCompletedWeek = $this->betRepository->findLatestCompletedWeekNumber($user);
-        // if latestCompletedWeek is 0 this means there is no completed week
         if ($latestCompletedWeek === 0) {
             return;
         }
@@ -105,12 +68,9 @@ class PredictionsAchievementChecker
 
     public function checkAllAchievements(User $user)
     {
-
         $this->checkEarlyBird($user);
 
         $predictionsCount = count($this->entityManager->getRepository(Bet::class)->findBy(['user' => $user]));
-        // 272 is the total number of regular season games
-        // check how many regular season predictions the user has made
         $regularSeasonPredictionsCount = $this->entityManager->getRepository(Bet::class)->findNumberOfRegularSeasonBets($user);
 
         if (!$this->checkSeasonedPro($user, $predictionsCount)) {

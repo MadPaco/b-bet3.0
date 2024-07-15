@@ -4,23 +4,24 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Entity\Achievement;
-use App\Entity\UserAchievement;
 use App\Entity\Bet;
-use App\Repository\UserAchievementRepository;
-use App\Repository\UserRepository;
+use App\Entity\Game;
+use App\Repository\AchievementRepository;
+use App\Repository\BetRepositoryInterface;
+use App\Repository\GameRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
 // this class checks and awards achievements to users based on the results
 
 // implement the following achievements:
 // (hitting means scoring atleast 1 point)
-// First Down - Correctly predict your first game - DONE
-// Two-Minute Drill - Place a prediction at most 2 minutes before kickoff and hit on it
-// Trick Play - Change a prediction at least 4 times in a week and score points
+// (DONE) First Down - Correctly predict your first game 
+// (DONE) Two-Minute Drill - Place a prediction at most 2 minutes before kickoff and hit on it 
+// (DONE) Trick Play - Change a prediction at least 4 times in a week and score points
 // Audible - Change the winner of a game 10 minutes before kickoff and win
-// Pigskin Prophet – Hit on all games in a week
-// Touchdown - Score 7 points in a week
-// Pick Six - Hit on 6 games in a single week
+// (DONE) Pigskin Prophet – Hit on all games in a week
+// (DONE) Touchdown - Score 7 points in a week
+// (DONE) Pick Six - Hit on 6 games in a single week
 // MVP of the Week - Have the highest score in a week
 // Consistency is Key - Score points in 10 weeks
 // Consistent Performer - Score at least 10 points in 5 consecutive weeks
@@ -53,59 +54,122 @@ use Doctrine\ORM\EntityManagerInterface;
 
 
 
-class ResultsAchievementChecker
+class ResultsAchievementChecker extends AchievementCheckerBase
 {
-    private $entityManager;
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
+    private $betRepository;
+    private $achievementRepository;
+    private $gameRepository;
 
-    private function hasAchievement(User $user, Achievement $achievement): bool
+    public function __construct(EntityManagerInterface $entityManager, BetRepositoryInterface $betRepository, AchievementRepository $achievementRepository, GameRepositoryInterface $gameRepository)
     {
-        $userAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy([
-            'user' => $user,
-            'achievement' => $achievement,
-        ]);
-        return $userAchievement !== null;
-    }
-
-    private function awardAchievement(User $user, Achievement $achievement): void
-    {
-        $newAchievement = new UserAchievement();
-        $newAchievement->setUser($user);
-        $newAchievement->setAchievement($achievement);
-        $newAchievement->setDateEarned(new \DateTime());
-        $this->entityManager->persist($newAchievement);
-        $this->entityManager->flush();
+        parent::__construct($entityManager);
+        $this->betRepository = $betRepository;
+        $this->achievementRepository = $achievementRepository;
+        $this->gameRepository = $gameRepository;
     }
 
     private function checkFirstDown(User $user): void
     {
-        $achievement = $this->entityManager->getRepository(Achievement::class)->findOneBy(['name' => 'First Down']);
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'First Down']);
         if (!$achievement) {
             return;
         }
-        if (!$this->hasAchievement($user, $achievement)) {
-            $betsWithHit = $this->entityManager->getRepository(Bet::class)->findHitsByUser($user);
-            if (count($betsWithHit) > 0) {
-                $this->awardAchievement($user, $achievement);
-            } else return;
+        if ($this->hasAchievement($user, $achievement)) {
+            return;
         }
+
+        $betsWithHit = $this->betRepository->findHitsByUser($user);;
+        if (count($betsWithHit) > 0) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+        return;
     }
 
     private function checkTwoMinuteDrill(User $user): void
     {
-        $achievement = $this->entityManager->getRepository(Achievement::class)->findOneBy(['name' => 'Two Minute Drill']);
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Two-Minute Drill']);
         if (!$achievement) {
             return;
         }
-        if (!$this->hasAchievement($user, $achievement)) {
-            $twoMinuteDrillHits = $this->entityManager->getRepository(Bet::class)->findTwoMinuteDrillHit($user);
-            if (count($twoMinuteDrillHits) > 0) {
-                $this->awardAchievement($user, $achievement);
-            } else return;
+        if ($this->hasAchievement($user, $achievement)) {
+            return;
         }
+        $twoMinuteDrillHits = $this->betRepository->findTwoMinuteDrillHit($user);
+        if (count($twoMinuteDrillHits) > 0) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+        return;
+    }
+
+    private function checkTrickPlay(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Trick Play']);
+        if (!$achievement) {
+            return;
+        }
+        if ($this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        if ($this->betRepository->hasTrickPlayHit($user)) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+        return;
+    }
+
+    private function checkPigskinProphet(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Pigskin Prophet']);
+        if (!$achievement) {
+            return;
+        }
+        if ($this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        if ($this->betRepository->hasPigskinProphetHit($user)) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+        return;
+    }
+
+    private function checkTouchdown(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Touchdown']);
+        if (!$achievement) {
+            return;
+        }
+        if ($this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $betsWithHit = $this->betRepository->findHitsByUser($user);
+        $points = 0;
+        foreach ($betsWithHit as $bet) {
+            $points += $bet->getPoints();
+        }
+        if ($points >= 7) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+        return;
+    }
+
+    private function checkPickSix(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Pick Six']);
+        if (!$achievement) {
+            return;
+        }
+        if ($this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $latestWeek = $this->gameRepository->findLatestWeekWithResults();
+        if ($latestWeek === 0) {
+            return;
+        }
+        $countOfHits = $this->betRepository->getCountOfHitsByUserForGivenWeek($user, $latestWeek);
+        if ($countOfHits >= 6) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+
+        return;
     }
 
     private function checkAllAchievements(User $user): void
@@ -114,6 +178,10 @@ class ResultsAchievementChecker
         $achievementChecks = [
             [$this, 'checkFirstDown'],
             [$this, 'checkTwoMinuteDrill'],
+            [$this, 'checkTrickPlay'],
+            [$this, 'checkPigskinProphet'],
+            [$this, 'checkTouchdown'],
+            [$this, 'checkPickSix'],
         ];
 
         foreach ($achievementChecks as $check) {
