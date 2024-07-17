@@ -185,6 +185,8 @@ class ResultsController extends AbstractController
     private function calculatePoints(Bet $prediction, Game $game): int
     {
         if ($prediction->getHomePrediction() === $game->getHomeScore() && $prediction->getAwayPrediction() === $game->getAwayScore()) {
+            // award nostradamus achievement
+            $this->achievementChecker->checkNostradamus($prediction->getUser());
             return 5;
         } elseif ($prediction->getHomePrediction() - $prediction->getAwayPrediction() === $game->getHomeScore() - $game->getAwayScore()) {
             return 3;

@@ -222,4 +222,93 @@ class BetRepositoryTest extends KernelTestCase
         $result = $this->betRepository->findLatestCompletedWeekNumber($this->user);
         $this->assertEquals(1, $result);
     }
+
+    //******* getHighestScoringUser Tests *******
+    //*******************************************
+    public function testGetHighestScoringUser()
+    {
+
+
+        // testing if the function returns null when there are no bets
+        $this->assertNull($this->betRepository->getHighestScoringUser(1));
+
+        // testing if the function returns the user with the highest score
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->persist($this->betTwo);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getHighestScoringUser(1);
+        $this->assertEquals($this->user->getId(), $result->getId());
+
+        //testing if the other user if there is a higher score
+        $userTwo = $this->entityManager->getRepository(User::class)->findOneBy(['username' => 'testuser']);
+        $betThree = new Bet();
+        $betThree->setUser($userTwo);
+        $betThree->setGame($this->gameOne);
+        $betThree->setPoints(3);
+
+        $this->entityManager->persist($betThree);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getHighestScoringUser(1);
+        $this->assertEquals($userTwo->getId(), $result->getId());
+    }
+
+    //******* hasUpsetHit Tests *******
+    //*********************************
+    public function testHasUpsetHit()
+    {
+        // testing if the function returns true when there is an upset hit
+        $this->gameOne->setHomeScore(0);
+        $this->gameOne->setHomeOdds(300);
+        $this->gameOne->setAwayScore(1);
+        $this->gameOne->setAwayOdds(-300);
+        $this->betOne->setHomePrediction(0);
+        $this->betOne->setAwayPrediction(1);
+        $this->betOne->setPoints(1);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->hasUpsetHit($this->user);
+        $this->assertTrue($result);
+
+        // testing if the function returns false when there is no upset hit
+        $this->gameOne->setHomeScore(1);
+        $this->gameOne->setHomeOdds(300);
+        $this->gameOne->setAwayScore(0);
+        $this->gameOne->setAwayOdds(-300);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->hasUpsetHit($this->user);
+        $this->assertFalse($result);
+    }
+
+    //******* hasPerfectlyBalancedHit Tests *******
+    //*********************************************
+    public function testHasPerfectlyBalancedHit()
+    {
+        // testing if the function returns true when there is a perfectly balanced hit
+        $this->gameOne->setHomeScore(0);
+        $this->gameOne->setAwayScore(0);
+        $this->betOne->setHomePrediction(1);
+        $this->betOne->setAwayPrediction(1);
+        $this->betOne->setPoints(3);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->hasPerfectlyBalancedHit($this->user);
+        $this->assertTrue($result);
+
+        // testing if the function returns false when there is no perfectly balanced hit
+        $this->gameOne->setHomeScore(1);
+        $this->gameOne->setAwayScore(0);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->hasPerfectlyBalancedHit($this->user);
+        $this->assertFalse($result);
+    }
 }

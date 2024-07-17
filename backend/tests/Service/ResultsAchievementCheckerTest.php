@@ -10,9 +10,8 @@ use App\Repository\AchievementRepository;
 use App\Repository\UserAchievementRepository;
 use App\Repository\BetRepositoryInterface;
 use App\Repository\UserRepository;
-use App\Repository\GameRepository;
 use App\Entity\Bet;
-use App\Entity\Game;
+use App\Entity\Achievement;
 use App\Repository\GameRepositoryInterface;
 
 use function PHPUnit\Framework\assertNotNull;
@@ -57,228 +56,261 @@ class ResultsAchievementCheckerTest extends WebTestCase
         $this->user = $this->userRepository->findOneBy(['username' => 'admin']);
     }
 
-
-    public function testCheckFirstDown()
+    protected function tearDown(): void
     {
-        $achievement = $this->achievementRepository->findOneBy(['name' => 'First Down']);
+        parent::tearDown();
+        $this->entityManager->close();
+        $this->entityManager = null;
+    }
+
+    // helper functions
+
+    private function setUpAchievement($achievementName): Achievement
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => $achievementName]);
         assertNotNull($achievement);
+        return $achievement;
+    }
 
-        $firstDownReflection = $this->reflectedChecker->getMethod('checkFirstDown');
-        assertNotNull($firstDownReflection);
-        $firstDownReflection->setAccessible(true);
+    private function setUpReflection($methodName): \ReflectionMethod
+    {
+        $method = $this->reflectedChecker->getMethod($methodName);
+        assertNotNull($method);
+        $method->setAccessible(true);
+        return $method;
+    }
 
+    private function assertUserAchievement($user, $achievement, bool $shouldExist): void
+    {
+        $userAchievement = $this->userAchievementRepository->findOneBy(
+            [
+                'user' => $user,
+                'achievement' => $achievement
+            ]
+        );
+        if ($shouldExist) {
+            assertNotNull($userAchievement);
+        } else {
+            assertNull($userAchievement);
+        }
+    }
+    // tests
+
+    public function testCheckFirstDown(): void
+    {
+        $achievement = $this->setUpAchievement('First Down');
+        $checkFirstDownReflection = $this->setUpReflection('checkFirstDown');
         //this will return a hit meaning that the achievement should be awarded 
         //after executing checkFirstDown
         $bet = new Bet;
         $this->betRepository->method('findHitsByUser')->with($this->user)->willReturn([$bet]);
 
         //check that the user doesn"t have the achievement yet
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $achievement
-            ]
-        );
-        assertNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, false);
 
         //invoke the check
-        $firstDownReflection->invoke($this->achievementChecker, $this->user);
+        $checkFirstDownReflection->invoke($this->achievementChecker, $this->user);
 
         //check that the achievement has beeen awarded
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $achievement
-            ]
-        );
-        assertNotNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, true);
     }
 
-    public function testCheckTwoMinuteDrill()
+    public function testCheckTwoMinuteDrill(): void
     {
-        $achievement = $this->achievementRepository->findOneBy(['name' => 'Two-Minute Drill']);
-        assertNotNull($achievement);
+        $achievement = $this->setUpAchievement('Two-Minute Drill');
 
-        $twoMinuteDrillReflection = $this->reflectedChecker->getMethod('checkTwoMinuteDrill');
-        assertNotNull($twoMinuteDrillReflection);
-        $twoMinuteDrillReflection->setAccessible(true);
+        $checkTwoMinuteDrillReflection = $this->setUpReflection('checkTwoMinuteDrill');
 
         //check that the user doesn"t have the achievement yet
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $achievement
-            ]
-        );
-        assertNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, false);
 
         $bet = new Bet;
         $this->betRepository->method('findTwoMinuteDrillHit')->with($this->user)->willReturn([$bet]);
-        $twoMinuteDrillReflection->invoke($this->achievementChecker, $this->user);
+        $checkTwoMinuteDrillReflection->invoke($this->achievementChecker, $this->user);
 
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $achievement
-            ]
-        );
-        assertNotNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, true);
     }
 
-    public function testCheckTrickPlay()
+    public function testCheckTrickPlay(): void
     {
-        $achievement = $this->achievementRepository->findOneBy(['name' => 'Trick Play']);
-        assertNotNull($achievement);
+        $achievement = $this->setUpAchievement('Trick Play');
 
-        $trickPlayReflection = $this->reflectedChecker->getMethod('checkTrickPlay');
-        assertNotNull($trickPlayReflection);
-        $trickPlayReflection->setAccessible(true);
+        $checkTrickPlayReflection = $this->setUpReflection('checkTrickPlay');
 
         //check that the user doesn"t have the achievement yet
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $achievement
-            ]
-        );
-        assertNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, false);
 
         $this->betRepository->method('hasTrickPlayHit')->with($this->user)->willReturn(true);
-        $trickPlayReflection->invoke($this->achievementChecker, $this->user);
+        $checkTrickPlayReflection->invoke($this->achievementChecker, $this->user);
 
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $achievement
-            ]
-        );
-        assertNotNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, true);
     }
 
-    public function testCheckPigskinProphet()
+    public function testCheckPigskinProphet(): void
     {
-        $pigskinProphetReflection = $this->reflectedChecker->getMethod('checkPigskinProphet');
-        assertNotNull($pigskinProphetReflection);
-        $pigskinProphetReflection->setAccessible(true);
+        $achievement = $this->setUpAchievement('Pigskin Prophet');
+        $checkPigskinProphetReflection = $this->setUpReflection('checkPigskinProphet');
 
         // there are 2 games in the db for week 1, but no scores
         // check that the user doesn"t have the achievement yet
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $this->achievementRepository->findOneBy(['name' => 'Pigskin Prophet'])
-            ]
-        );
-        assertNull($userAchievement);
-
-        //invoke the check
-        $pigskinProphetReflection->invoke($this->achievementChecker, $this->user);
-        //check that the achievement has not been awarded
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $this->achievementRepository->findOneBy(['name' => 'Pigskin Prophet'])
-            ]
-        );
-        assertNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, false);
 
         //set the user to have a hit in the pigskin prophet
         $this->betRepository->method('hasPigskinProphetHit')->with($this->user)->willReturn(true);
 
         //invoke the check
-        $pigskinProphetReflection->invoke($this->achievementChecker, $this->user);
+        $checkPigskinProphetReflection->invoke($this->achievementChecker, $this->user);
+
         //check that the achievement has been awarded
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $this->achievementRepository->findOneBy(['name' => 'Pigskin Prophet'])
-            ]
-        );
-        assertNotNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, true);
     }
 
-    public function testCheckTouchdown()
+    public function testCheckTouchdown(): void
     {
-        $touchdownReflection = $this->reflectedChecker->getMethod('checkTouchdown');
-        assertNotNull($touchdownReflection);
-        $touchdownReflection->setAccessible(true);
+        $checkTouchdownReflection = $this->setUpReflection('checkTouchdown');
 
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $this->achievementRepository->findOneBy(['name' => 'Touchdown'])
-            ]
-        );
-        assertNull($userAchievement);
+        $achievement = $this->setUpAchievement('Touchdown');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
 
         $bet = new Bet;
         $bet->setPoints(7);
         $this->betRepository->method('findHitsByUser')->with($this->user)->willReturn([$bet]);
 
-        $touchdownReflection->invoke($this->achievementChecker, $this->user);
+        $checkTouchdownReflection->invoke($this->achievementChecker, $this->user);
         //check that the achievement has been awarded
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $this->achievementRepository->findOneBy(['name' => 'Touchdown'])
-            ]
-        );
-        assertNotNull($userAchievement);
+
+        $this->assertUserAchievement($this->user, $achievement, true);
     }
 
-    public function testPickSix()
+    public function testPickSix(): void
     {
-        $pickSixReflection = $this->reflectedChecker->getMethod('checkPickSix');
-        assertNotNull($pickSixReflection);
-        $pickSixReflection->setAccessible(true);
+        $checkPickSixReflection = $this->setUpReflection('checkPickSix');
+        $achievement = $this->setUpAchievement('Pick Six');
+        $this->assertUserAchievement($this->user, $achievement, false);
 
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $this->achievementRepository->findOneBy(['name' => 'Pick Six'])
-            ]
-        );
-        assertNull($userAchievement);
         $this->gameRepository->method('findLatestWeekWithResults')->willReturn(1);
         $this->betRepository->method('getCountOfHitsByUserForGivenWeek')->with($this->user, 1)->willReturn(6);
+        $checkPickSixReflection->invoke($this->achievementChecker, $this->user);
 
-        $pickSixReflection->invoke($this->achievementChecker, $this->user);
-        //check that the achievement has been awarded
-        $userAchievement = $this->userAchievementRepository->findOneBy(
-            [
-                'user' => $this->user,
-                'achievement' => $this->achievementRepository->findOneBy(['name' => 'Pick Six'])
-            ]
-        );
-        assertNotNull($userAchievement);
+        $this->assertUserAchievement($this->user, $achievement, true);
     }
 
-    public function testPickSixNoResults()
-    { {
-            $pickSixReflection = $this->reflectedChecker->getMethod('checkPickSix');
-            assertNotNull($pickSixReflection);
-            $pickSixReflection->setAccessible(true);
+    public function testPickSixNoResults(): void
+    {
+        $checkPickSixReflection = $this->setUpReflection('checkPickSix');
 
-            $userAchievement = $this->userAchievementRepository->findOneBy(
-                [
-                    'user' => $this->user,
-                    'achievement' => $this->achievementRepository->findOneBy(['name' => 'Pick Six'])
-                ]
-            );
-            assertNull($userAchievement);
-            // if findLatestWeekWithResults return 0 there are not results set yet
-            $this->gameRepository->method('findLatestWeekWithResults')->willReturn(0);
-            $this->betRepository->method('getCountOfHitsByUserForGivenWeek')->with($this->user, 0)->willReturn(6);
+        $achievement = $this->setUpAchievement('Pick Six');
 
-            $pickSixReflection->invoke($this->achievementChecker, $this->user);
-            //check that the achievement has been awarded
-            $userAchievement = $this->userAchievementRepository->findOneBy(
-                [
-                    'user' => $this->user,
-                    'achievement' => $this->achievementRepository->findOneBy(['name' => 'Pick Six'])
-                ]
-            );
-            assertNull($userAchievement);
-        }
+        // if findLatestWeekWithResults return 0 there are not results set yet
+        $this->gameRepository->method('findLatestWeekWithResults')->willReturn(0);
+        $this->betRepository->method('getCountOfHitsByUserForGivenWeek')->with($this->user, 0)->willReturn(6);
+
+        $checkPickSixReflection->invoke($this->achievementChecker, $this->user);
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckMVPOfTheWeek(): void
+    {
+        $checkMVPOfTheWeekReflection = $this->setUpReflection('checkMVPOfTheWeek');
+
+        $achievement = $this->setUpAchievement('MVP of the Week');
+
+        $this->gameRepository->method('findLatestWeekWithResults')->willReturn(1);
+        $this->gameRepository->method('isFinished')->with(1)->willReturn(true);
+        $this->betRepository->method('getHighestScoringUser')->with(1)->willReturn($this->user);
+
+        $checkMVPOfTheWeekReflection->invoke($this->achievementChecker);
+        //check that the achievement has been awarded
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckBowlGameSecured(): void
+    {
+        $checkBowlGameReflection = $this->setUpReflection('checkBowlGameSecured');
+        $achievement = $this->setUpAchievement('Bowl Game Secured');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getCountOfAllHitsByUser')->with($this->user)->willReturn(150);
+        $checkBowlGameReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckBowlGameSecuredNotEnoughHits(): void
+    {
+        $checkBowlGameReflection = $this->setUpReflection('checkBowlGameSecured');
+        $achievement = $this->setUpAchievement('Bowl Game Secured');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getCountOfAllHitsByUser')->with($this->user)->willReturn(135);
+        $checkBowlGameReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckProBowler(): void
+    {
+        $checkProBowlerReflection = $this->setUpReflection('checkProBowler');
+        $achievement = $this->setUpAchievement('Pro Bowler');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getTotalPointsByUser')->with($this->user)->willReturn(100);
+        $checkProBowlerReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckProBowlerNotEnoughPoints(): void
+    {
+        $checkProBowlerReflection = $this->setUpReflection('checkProBowler');
+        $achievement = $this->setUpAchievement('Pro Bowler');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getTotalPointsByUser')->with($this->user)->willReturn(99);
+        $checkProBowlerReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckAllPro(): void
+    {
+        $checkAllProReflection = $this->setUpReflection('checkAllPro');
+        $achievement = $this->setUpAchievement('All Pro');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getTotalPointsByUser')->with($this->user)->willReturn(200);
+        $checkAllProReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckAllProNotEnoughPoints(): void
+    {
+        $checkAllProReflection = $this->setUpReflection('checkAllPro');
+        $achievement = $this->setUpAchievement('All Pro');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getTotalPointsByUser')->with($this->user)->willReturn(199);
+        $checkAllProReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckUpsetSpecialist(): void
+    {
+        $checkUpsetSpecialistReflection = $this->setUpReflection('checkUpsetSpecialist');
+        $achievement = $this->setUpAchievement('Upset Specialist');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('hasUpsetHit')->with($this->user)->willReturn(true);
+        $checkUpsetSpecialistReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckPerfectlyBalanced(): void
+    {
+        $checkPerfectlyBalancedReflection = $this->setUpReflection('checkPerfectlyBalanced');
+        $achievement = $this->setUpAchievement('Perfectly Balanced');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('hasPerfectlyBalancedHit')->with($this->user)->willReturn(true);
+        $checkPerfectlyBalancedReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
     }
 }

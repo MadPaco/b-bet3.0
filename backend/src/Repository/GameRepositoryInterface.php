@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use Doctrine\Persistence\ObjectRepository;
 use App\Entity\NflTeam;
+use App\Entity\Game;
 
 interface GameRepositoryInterface extends ObjectRepository
 {
@@ -11,6 +12,7 @@ interface GameRepositoryInterface extends ObjectRepository
     public function getWeeks(): array;
     public function getNumberOfGamesForGivenWeek($weeknumber): int;
     public function getWinsOfTeam(NflTeam $team): int;
+    public function isFinished(int $weekNumber): bool;
     public function findLatestWeekWithResults(): int;
     public function findFinishedGames(): array;
     public function findDivisionGamesForTeam(NflTeam $team): array;

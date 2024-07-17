@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\User;
+use App\Entity\Bet;
 
 interface BetRepositoryInterface
 {
@@ -14,4 +15,10 @@ interface BetRepositoryInterface
     public function findLatestCompletedWeekNumber(User $user): int;
     public function hasTrickPlayHit(User $user): bool;
     public function hasPigskinProphetHit(User $user): bool;
+    public function getHighestScoringUser(int $week): ?User;
+    public function getCountOfAllHitsByUser(User $user): int;
+    public function getTotalPointsByUser(User $user): int;
+    public function hasUpsetHit(User $user): bool;
+    public function hasPerfectlyBalancedHit(User $user): bool;
+    
 }

@@ -9,8 +9,8 @@ use PHPUnit\Framework\TestCase;
 
 use function PHPUnit\Framework\assertEmpty;
 use function PHPUnit\Framework\assertEquals;
-
-
+use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertTrue;
 
 class GameRepositoryTest extends KernelTestCase
 {
@@ -175,6 +175,30 @@ class GameRepositoryTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         assertEquals(22, $this->gameRepository->findLatestWeekWithResults());
+    }
+
+    //******* isFinished Tests *******
+    //********************************
+    public function testIsFinished()
+    {
+        assertFalse($this->gameRepository->isFinished(1));
+        $gameOne = $this->gameRepository->findOneBy(['id' => 1]);
+        $gameTwo = $this->gameRepository->findOneBy(['id' => 2]);
+
+        $gameOne->setHomeScore(1);
+        $gameOne->setAwayScore(0);
+
+        $gameTwo->setHomeScore(1);
+        $gameTwo->setAwayScore(0);
+
+        $this->entityManager->persist($gameOne);
+
+        assertFalse($this->gameRepository->isFinished(1));
+
+        $this->entityManager->persist($gameTwo);
+        $this->entityManager->flush();
+
+        assertTrue($this->gameRepository->isFinished(1));
     }
 
     // to do: findFinishedGames, findDivisionGamesForTeam, findGamesWithSameDivisionAndConference

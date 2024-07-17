@@ -114,4 +114,22 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
 
         return array_map('intval', array_column($result, 'weekNumber'));
     }
+
+    public function isFinished(int $week): bool
+    {
+        $finishedGames = $this->createQueryBuilder('game')
+            ->select('COUNT(game.id)')
+            ->where('game.weekNumber = :week')
+            ->andWhere('game.homeScore IS NOT NULL')
+            ->andWhere('game.awayScore IS NOT NULL')
+            ->setParameter('week', $week)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $numberOfGamesInWeek = $this->getNumberOfGamesForGivenWeek($week);
+        if ($finishedGames === $numberOfGamesInWeek) {
+            return true;
+        }
+        return false;
+    }
 }
