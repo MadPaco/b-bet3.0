@@ -20,30 +20,29 @@ use Doctrine\ORM\EntityManagerInterface;
 // (DONE) Touchdown - Score 7 points in a week
 // (DONE) Pick Six - Hit on 6 games in a single week
 // (DONE) MVP of the Week - Have the highest score in a week
-// Consistency is Key - Score points in 10 weeks
-// Consistent Performer - Score at least 10 points in 5 consecutive weeks
-// Deep Run - Score at least 10 points in 10 consecutive weeks
-// Hot Streak - Score at least 15 points in 3 consecutive weeks
-// Bench Warmer - Score less than 5 points in 5 consecutive weeks
-// Headstart - Score the most points in the first 6 weeks
-// Midseason Form - Score the most points in weeks 7-12
-// Playoff Push - Score the most points in weeks 13-18
+// (DONE) Consistency is Key - Score points in 10 weeks (does not have to be consecutive)
+// (DONE) Consistent Performer - Score at least 10 points in 5 consecutive weeks
+// (DONE) Deep Run - Score at least 10 points in 10 consecutive weeks
+// (DINE) Hot Streak - Score at least 15 points in 3 consecutive weeks
+// (DONE) Bench Warmer - Score less than 5 points in 5 consecutive weeks
+// (DONE) Headstart - Score the most points in the first 6 weeks
+// (DONE) Midseason Form - Score the most points in weeks 7-12
+// (DONE) Playoff Push - Score the most points in weeks 13-18
 // (DONE) Bowl Game Secured - Hit in more than 50% of the games in the regular season
 // Sunday Funday - Hit on every game that is played on Sunday in  a single week
 // (DONE) Pro Bowler - Score at least 100 points in total
 // (DONE) All Pro - Score 200 points in the season.
-// Bench Warmer - Score less than 5 points in 5 consecutive weeks
-// Slump Buster - End a streak of three weeks with less than 5 points by scoring more than 10 points in a week
-// Underdog Lover - Predict an underdog to win and hit
+// (DONE) Slump Buster - End a streak of three weeks with less than 5 points by scoring more than 10 points in a week
+// (DONE) Underdog Lover - Predict an underdog to win and hit
 // (DONE) Nostradamus - Predict the exact score of a game correctly
 // (DONE) Upset Specialist - Predict a big upset (-300 odds or worse)
-// (DONE)Perfectly Balanced - Predict a game that ends in a tie
-// Nail-Biter - Correctly predict the margin of 5 games where the margin of victory is 3 points or less
-// Blowout Boss - Correctly predict the margin of 5 games where the margin of victory is 14 points or more
+// (DONE) Perfectly Balanced - Predict a game that ends in a tie
+// (DONE) Nail-Biter - Correctly predict the margin of 5 games where the margin of victory is 3 points or less
+// (DONE) Sweep - Correctly predict the margin of 5 games where the margin of victory is 14 points or more
 // Hometown Hero – Hit on all games for your favorite team in the regular season
 // Super Bowl Prophet - Correctly predict the Super Bowl winner
 // Primetime Player - Correctly predict all primetime games (games played after 2' clock german time) in a week
-// Bye Week - Score 0 points in a week
+// (DONE) Bye Week - Score 0 points in a week
 // Aaron Rodgers 2023 - Hit on the Thursday night game, but lose every other game this week
 // Fumble - change the winner of a match before the game and lose 
 // Punt Return - Change a prediction and end up with fewer points than if you hadn’t changed it
@@ -65,16 +64,29 @@ class ResultsAchievementChecker extends AchievementCheckerBase
         $this->gameRepository = $gameRepository;
     }
 
+    //helper function
+    private function checkConsecutivePoints(User $user, int $minPoints, int $minStreak, bool $lessThan = false): bool
+    {
+        $latestWeek = $this->gameRepository->getLatestFinishedWeek();
+        $pointsByWeek = $this->betRepository->getTotalPointsByUserForAllWeeks($user, 1, $latestWeek);
+        $consecutiveWeeks = 0;
+        foreach ($pointsByWeek as $points) {
+            if (($lessThan && $points < $minPoints) || (!$lessThan && $points >= $minPoints)) {
+                $consecutiveWeeks++;
+                if ($consecutiveWeeks >= $minStreak) {
+                    return true;
+                }
+            } else {
+                $consecutiveWeeks = 0;
+            }
+        }
+
+        return false;
+    }
+
     private function checkFirstDown(User $user): void
     {
         $achievement = $this->achievementRepository->findOneBy(['name' => 'First Down']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($user, $achievement)) {
-            return;
-        }
-
         $betsWithHit = $this->betRepository->findHitsByUser($user);;
         if (count($betsWithHit) > 0) {
             $this->awardAchievement($user, $achievement->getName());
@@ -85,12 +97,6 @@ class ResultsAchievementChecker extends AchievementCheckerBase
     private function checkTwoMinuteDrill(User $user): void
     {
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Two-Minute Drill']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($user, $achievement)) {
-            return;
-        }
         $twoMinuteDrillHits = $this->betRepository->findTwoMinuteDrillHit($user);
         if (count($twoMinuteDrillHits) > 0) {
             $this->awardAchievement($user, $achievement->getName());
@@ -101,12 +107,6 @@ class ResultsAchievementChecker extends AchievementCheckerBase
     private function checkTrickPlay(User $user): void
     {
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Trick Play']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($user, $achievement)) {
-            return;
-        }
         if ($this->betRepository->hasTrickPlayHit($user)) {
             $this->awardAchievement($user, $achievement->getName());
         }
@@ -116,12 +116,6 @@ class ResultsAchievementChecker extends AchievementCheckerBase
     private function checkPigskinProphet(User $user): void
     {
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Pigskin Prophet']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($user, $achievement)) {
-            return;
-        }
         if ($this->betRepository->hasPigskinProphetHit($user)) {
             $this->awardAchievement($user, $achievement->getName());
         }
@@ -131,12 +125,6 @@ class ResultsAchievementChecker extends AchievementCheckerBase
     private function checkTouchdown(User $user): void
     {
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Touchdown']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($user, $achievement)) {
-            return;
-        }
         $betsWithHit = $this->betRepository->findHitsByUser($user);
         $points = 0;
         foreach ($betsWithHit as $bet) {
@@ -151,12 +139,6 @@ class ResultsAchievementChecker extends AchievementCheckerBase
     private function checkPickSix(User $user): void
     {
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Pick Six']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($user, $achievement)) {
-            return;
-        }
         $latestWeek = $this->gameRepository->findLatestWeekWithResults();
         if ($latestWeek === 0) {
             return;
@@ -180,16 +162,10 @@ class ResultsAchievementChecker extends AchievementCheckerBase
             return;
         }
         $achievement = $this->achievementRepository->findOneBy(['name' => 'MVP of the Week']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($highestScoringUser, $achievement)) {
-            return;
-        }
         $this->awardAchievement($highestScoringUser, $achievement->getName());
     }
 
-    public function checkBowlGameSecured(User $user): void
+    private function checkBowlGameSecured(User $user): void
     {
         // in college football, a team must have a record of .500 or better
         // at the end of the season to be eligible for a bowl game
@@ -197,27 +173,27 @@ class ResultsAchievementChecker extends AchievementCheckerBase
         // which is 136 hits in a season with 272 games
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Bowl Game Secured']);
         $numberOfHits = $this->betRepository->getCountOfAllHitsByUser($user);
-        if ($this->hasAchievement($user, $achievement) || $numberOfHits < 136) {
+        if ($numberOfHits < 136) {
             return;
         }
         $this->awardAchievement($user, $achievement->getName());
     }
 
-    public function checkProBowler(User $user): void
+    private function checkProBowler(User $user): void
     {
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Pro Bowler']);
         $totalPoints = $this->betRepository->getTotalPointsByUser($user);
-        if ($this->hasAchievement($user, $achievement) || $totalPoints < 100 || !$totalPoints) {
+        if ($totalPoints < 100 || !$totalPoints) {
             return;
         }
         $this->awardAchievement($user, $achievement->getName());
     }
 
-    public function checkAllPro(User $user): void
+    private function checkAllPro(User $user): void
     {
         $achievement = $this->achievementRepository->findOneBy(['name' => 'All Pro']);
         $totalPoints = $this->betRepository->getTotalPointsByUser($user);
-        if ($this->hasAchievement($user, $achievement) || $totalPoints < 200 || !$totalPoints) {
+        if ($totalPoints < 200 || !$totalPoints) {
             return;
         }
         $this->awardAchievement($user, $achievement->getName());
@@ -230,44 +206,190 @@ class ResultsAchievementChecker extends AchievementCheckerBase
         // update points function in the ResultsController to avoid
         // running this check for every user every week
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Nostradamus']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($user, $achievement)) {
-            return;
-        }
         $this->awardAchievement($user, $achievement->getName());
     }
 
-    public function checkUpsetSpecialist(User $user): void
+    private function checkUpsetSpecialist(User $user): void
     {
         //Predict a big upset (-300 odds or worse)   
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Upset Specialist']);
-        if (!$achievement) {
-            return;
-        }
-        if ($this->hasAchievement($user, $achievement)) {
-            return;
-        }
         if ($this->betRepository->hasUpsetHit($user)) {
             $this->awardAchievement($user, $achievement->getName());
         }
     }
 
-    public function checkPerfectlyBalanced(User $user): void
+    private function checkPerfectlyBalanced(User $user): void
     {
         //Predict a game that ends in a tie
         $achievement = $this->achievementRepository->findOneBy(['name' => 'Perfectly Balanced']);
-        if (!$achievement) {
+        if ($this->betRepository->hasPerfectlyBalancedHit($user)) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+    }
+
+    //Consistency is Key - Score points in 10 weeks
+    private function checkConsistencyIsKey(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Consistency is Key']);
+        $countOfWeeksWithPoints = 0;
+        $latestWeek = $this->gameRepository->getLatestFinishedWeek();
+        for ($week = 1; $week <= $latestWeek; $week++) {
+            $points = $this->betRepository->getTotalPointsByUserForWeek($user, $week);
+            if ($points > 0) {
+                $countOfWeeksWithPoints++;
+            }
+        }
+        if ($countOfWeeksWithPoints >= 10) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+    }
+    //Headstart - Score the most points in the first 6 weeks
+    private function checkHeadstart(): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Headstart']);
+        $headstartWinner = $this->betRepository->getWinnerThroughWeeks(1, 6);
+        if (!$this->gameRepository->isFinished(6) || !$achievement || !$headstartWinner) {
+            return;
+        }
+        $this->awardAchievement($headstartWinner, $achievement->getName());
+    }
+    private function checkMidseasonForm(): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Midseason Form']);
+        $midseasonFormWinner = $this->betRepository->getWinnerThroughWeeks(7, 12);
+        if (!$this->gameRepository->isFinished(12) || !$midseasonFormWinner || $this->hasAchievement($midseasonFormWinner, $achievement)) {
+            return;
+        }
+        $this->awardAchievement($midseasonFormWinner, $achievement->getName());
+    }
+
+    private function checkPlayoffPush(): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Playoff Push']);
+        $playoffPushWinner = $this->betRepository->getWinnerThroughWeeks(13, 18);
+        if (
+            !$achievement
+            || !$this->gameRepository->isFinished(18)
+            || !$playoffPushWinner
+            || $this->hasAchievement($playoffPushWinner, $achievement)
+        ) {
+            return;
+        }
+        $this->awardAchievement($playoffPushWinner, $achievement->getName());
+    }
+
+    private function checkDeepRun(User $user): bool
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Deep Run']);
+        if (!$achievement || $this->hasAchievement($user, $achievement) || !$this->checkConsecutivePoints($user, 10, 10, false)) {
+            return false;
+        }
+        $this->awardAchievement($user, $achievement->getName());
+    }
+
+    private function checkHotStreak(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Hot Streak']);
+        if (!$achievement || $this->hasAchievement($user, $achievement) || !$this->checkConsecutivePoints($user, 15, 3, false)) {
+            return;
+        }
+        $this->awardAchievement($user, $achievement->getName());
+    }
+
+    private function checkBenchWarmer(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Bench Warmer']);
+        if (!$achievement || $this->hasAchievement($user, $achievement) || !$this->checkConsecutivePoints($user, 5, 5, true)) {
+            return;
+        }
+        $this->awardAchievement($user, $achievement->getName());
+    }
+
+    private function checkConsistentPerformer(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Consistent Performer']);
+        if (!$achievement || $this->hasAchievement($user, $achievement) || !$this->checkConsecutivePoints($user, 10, 5)) {
+            return;
+        }
+        $this->awardAchievement($user, $achievement->getName());
+    }
+
+    private function checkSlumpBuster(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Slump Buster']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $latestWeek = $this->gameRepository->getLatestFinishedWeek();
+        $pointsByWeek = $this->betRepository->getTotalPointsByUserForAllWeeks($user, 1, $latestWeek);
+
+        $consecutiveWeeks = 0;
+        foreach ($pointsByWeek as $points) {
+            if ($points < 5) {
+                $consecutiveWeeks++;
+            } else {
+                if ($consecutiveWeeks >= 3 && $points > 10) {
+                    $this->awardAchievement($user, $achievement->getName());
+                }
+                $consecutiveWeeks = 0;
+            }
+        }
+        return;
+    }
+
+    private function checkByeWeek(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Bye Week']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
             return;
         }
         if ($this->hasAchievement($user, $achievement)) {
             return;
         }
-        if ($this->betRepository->hasPerfectlyBalancedHit($user)) {
+        $pointsByWeek = $this->betRepository->getTotalPointsByUserForAllWeeks($user);
+        foreach ($pointsByWeek as $week => $points) {
+            if ($points === 0 && $this->gameRepository->isFinished($week)) {
+                $this->awardAchievement($user, $achievement->getName());
+                return;
+            }
+        }
+    }
+
+    private function checkUnderdogLover(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Underdog Lover']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        if ($this->betRepository->hasUnderdogLoverHit($user)) {
             $this->awardAchievement($user, $achievement->getName());
         }
     }
+
+    private function checkNailBiter(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Nail-Biter']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $nailbiterCount = $this->betRepository->getNailbiterHitCount($user);
+        if ($nailbiterCount >= 5) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+    }
+
+    public function checkSweep(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Sweep']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $blowoutCount = $this->betRepository->getSweepHitCount($user);
+        if ($blowoutCount >= 5) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+    }
+
 
     private function checkAllAchievements(User $user): void
     {
@@ -284,6 +406,19 @@ class ResultsAchievementChecker extends AchievementCheckerBase
             [$this, 'checkProBowler'],
             [$this, 'checkAllPro'],
             [$this, 'checkUpsetSpecialist'],
+            [$this, 'checkPerfectlyBalanced'],
+            [$this, 'checkConsistencyIsKey'],
+            [$this, 'checkHeadstart'],
+            [$this, 'checkMidseasonForm'],
+            [$this, 'checkPlayoffPush'],
+            [$this, 'checkDeepRun'],
+            [$this, 'checkHotStreak'],
+            [$this, 'checkBenchWarmer'],
+            [$this, 'checkConsistentPerformer'],
+            [$this, 'checkSlumpBuster'],
+            [$this, 'checkByeWeek'],
+            [$this, 'checkUnderdogLover'],
+            [$this, 'checkNailBiter'],
         ];
 
         foreach ($achievementChecks as $check) {

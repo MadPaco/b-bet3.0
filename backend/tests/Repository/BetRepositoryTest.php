@@ -3,9 +3,11 @@
 namespace App\Tests\Repository;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use App\Repository\BetRepository;
 use App\Entity\Bet;
 use App\Entity\User;
 use App\Entity\Game;
+use App\Repository\GameRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 
@@ -15,6 +17,7 @@ class BetRepositoryTest extends KernelTestCase
 {
     private $entityManager;
     private $betRepository;
+    private $mockedGameRepository;
     private $user;
     public $gameOne;
     public $gameTwo;
@@ -27,6 +30,8 @@ class BetRepositoryTest extends KernelTestCase
         $container = self::getContainer();
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->betRepository = $this->entityManager->getRepository(Bet::class);
+        $this->mockedBetRepository = $this->createMock(BetRepository::class);
+        $this->mockedGameRepository = $this->createMock(GameRepository::class);
         $this->user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => 'admin']);
         $this->gameOne = $this->entityManager->getRepository(Game::class)->findOneBy(['id' => 1]);
         $this->gameTwo = $this->entityManager->getRepository(Game::class)->findOneBy(['id' => 2]);
@@ -310,5 +315,240 @@ class BetRepositoryTest extends KernelTestCase
 
         $result = $this->betRepository->hasPerfectlyBalancedHit($this->user);
         $this->assertFalse($result);
+    }
+
+    //******* getTotalPointsByUserForWeek Tests *******
+    //*************************************************
+    public function testGetTotalPointsByUserForWeek()
+    {
+        // testing if the function returns the correct number of points
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getTotalPointsByUserForWeek($this->user, 1);
+        $this->assertEquals(1, $result);
+
+        // testing if the function returns 0 when there are no points
+        $this->betOne->setPoints(0);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+        $result = $this->betRepository->getTotalPointsByUserForWeek($this->user, 1);
+        $this->assertEquals(0, $result);
+
+        // testing if the function returns 0 when there are no bets
+        $result = $this->betRepository->getTotalPointsByUserForWeek($this->user, 2);
+        $this->assertEquals(0, $result);
+
+        //testing multiple bets
+        $this->betTwo->setPoints(3);
+        $this->entityManager->persist($this->betTwo);
+        $this->entityManager->flush();
+        $result = $this->betRepository->getTotalPointsByUserForWeek($this->user, 1);
+        $this->assertEquals(3, $result);
+
+        $this->betOne->setPoints(5);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+        $result = $this->betRepository->getTotalPointsByUserForWeek($this->user, 1);
+        $this->assertEquals(8, $result);
+    }
+
+    //******* getWinnerThroughWeeks Tests *******
+    //****************************************
+    public function testGetWinnerThroughWeeks()
+    {
+        // testing if the function returns the correct winner
+        $this->betOne->setPoints(3);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $userTwo = $this->entityManager->getRepository(User::class)->findOneBy(['username' => 'testuser']);
+        $testUserBet = new Bet();
+        $testUserBet->setUser($userTwo);
+        $testUserBet->setPoints(0);
+        $testUserBet->setGame($this->gameOne);
+        $this->entityManager->persist($testUserBet);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getWinnerThroughWeeks(1, 6);
+        $this->assertEquals($this->user->getId(), $result->getId());
+
+        // now test changing the winner
+        $testUserBet->setPoints(5);
+        $this->entityManager->persist($testUserBet);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getWinnerThroughWeeks(1, 6);
+        $this->assertEquals($userTwo->getId(), $result->getId());
+
+        // add a bet in week 6 for the first user
+        $gameWeekSix = new Game();
+        $gameWeekSix->setWeekNumber(6);
+        $gameWeekSix->setDate(new \DateTime('2021-09-12 13:00:00'));
+        $gameWeekSix->setLocation('heaven');
+
+        $betWeekSix = new Bet();
+        $betWeekSix->setUser($this->user);
+        $betWeekSix->setGame($gameWeekSix);
+        $betWeekSix->setPoints(5);
+        $this->entityManager->persist($gameWeekSix);
+        $this->entityManager->persist($betWeekSix);
+        $this->entityManager->flush();
+
+        // test that the function still returns the correct winner
+        $result = $this->betRepository->getWinnerThroughWeeks(1, 6);
+        $this->assertEquals($this->user->getId(), $result->getId());
+
+        // add a game in week 7 for user 2 and check if the result stays the sam
+        $gameWeekSeven = new Game();
+        $gameWeekSeven->setWeekNumber(7);
+        $gameWeekSeven->setDate(new \DateTime('2021-09-12 13:00:00'));
+        $gameWeekSeven->setLocation('heaven');
+
+        $betWeekSeven = new Bet();
+        $betWeekSeven->setUser($userTwo);
+        $betWeekSeven->setGame($gameWeekSeven);
+        $betWeekSeven->setPoints(5);
+        $this->entityManager->persist($gameWeekSeven);
+        $this->entityManager->persist($betWeekSeven);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getWinnerThroughWeeks(1, 6);
+        $this->assertEquals($this->user->getId(), $result->getId());
+    }
+
+    //******* getTotalPointsByUserForAllWeeks Tests *******
+    //*****************************************************
+
+    public function testGetTotalPointsByUserForAllWeeks()
+    {
+        $weeks = range(1, 3);
+        $this->mockedGameRepository->method('getWeeks')->willReturn($weeks);
+
+        // Assume bets only for week 1
+        $this->betOne->setPoints(3);
+        $this->betTwo->setPoints(5);
+        $this->betOne->getGame()->setWeekNumber(1);
+        $this->betTwo->getGame()->setWeekNumber(1);
+
+        // No bets for weeks 2 and 3
+        $gameWeekTwo = new Game();
+        $gameWeekTwo->setWeekNumber(2);
+        $gameWeekTwo->setDate(new \DateTime('2021-09-12 13:00:00'));
+        $gameWeekTwo->setLocation('heaven');
+
+        $gameWeekThree = new Game();
+        $gameWeekThree->setWeekNumber(3);
+        $gameWeekThree->setDate(new \DateTime('2021-09-12 13:00:00'));
+        $gameWeekThree->setLocation('heaven');
+
+        $this->entityManager->persist($gameWeekTwo);
+        $this->entityManager->persist($gameWeekThree);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->persist($this->betTwo);
+        $this->entityManager->flush();
+
+        $expectedPoints = [
+            1 => 8,  // Total points for week 1
+            2 => 0,  // No bets for week 2
+            3 => 0   // No bets for week 3
+        ];
+
+        $result = $this->betRepository->getTotalPointsByUserForAllWeeks($this->user);
+
+        $this->assertEquals($expectedPoints, $result);
+    }
+
+    //******* hasUnderdogLoverHit Tests *******
+    //*****************************************
+    public function testHasUnderdogLoverHit()
+    {
+        $this->gameOne->setHomeScore(0);
+        $this->gameOne->setHomeOdds(300);
+        $this->gameOne->setAwayScore(1);
+        $this->gameOne->setAwayOdds(-300);
+        $this->betOne->setHomePrediction(0);
+        $this->betOne->setAwayPrediction(1);
+        $this->betOne->setPoints(5);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->hasUnderdogLoverHit($this->user);
+        $this->assertTrue($result);
+    }
+
+    public function testHasNoUnderdogLoverHit()
+    {
+        $this->gameOne->setHomeScore(0);
+        $this->gameOne->setHomeOdds(-300);
+        $this->gameOne->setAwayScore(1);
+        $this->gameOne->setAwayOdds(300);
+        $this->betOne->setHomePrediction(0);
+        $this->betOne->setAwayPrediction(1);
+        $this->betOne->setPoints(5);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->hasUnderdogLoverHit($this->user);
+        $this->assertFalse($result);
+    }
+
+    //******* getNailbiterHitCount Tests *******
+    //******************************************
+    public function testGetNailBiterHitCount()
+    {
+        $this->gameOne->setHomeScore(1);
+        $this->gameOne->setAwayScore(0);
+        $this->betOne->setPoints(5);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getNailbiterHitCount($this->user);
+        $this->assertEquals(1, $result);
+
+        $this->gameTwo->setHomeScore(1);
+        $this->gameTwo->setAwayScore(0);
+        $this->betTwo->setPoints(5);
+        $this->entityManager->persist($this->gameTwo);
+        $this->entityManager->persist($this->betTwo);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getNailbiterHitCount($this->user);
+        $this->assertEquals(2, $result);
+    }
+
+    //******* getSweepHitCount Tests *******
+    //********************************************
+    public function testGetSweepHitCount()
+    {
+        $this->gameOne->setHomeScore(21);
+        $this->gameOne->setAwayScore(0);
+        $this->betOne->setPoints(5);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getSweepHitCount($this->user);
+        $this->assertEquals(1, $result);
+
+        $this->gameTwo->setHomeScore(21);
+        $this->gameTwo->setAwayScore(0);
+        $this->betTwo->setPoints(5);
+        $this->entityManager->persist($this->gameTwo);
+        $this->entityManager->persist($this->betTwo);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getSweepHitCount($this->user);
+        $this->assertEquals(2, $result);
+
+        $this->gameTwo->setAwayScore(1);
+        $this->entityManager->persist($this->gameTwo);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getSweepHitCount($this->user);
+        $this->assertEquals(1, $result);
     }
 }

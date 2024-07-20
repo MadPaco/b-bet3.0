@@ -26,7 +26,13 @@ abstract class AchievementCheckerBase
 
     protected function awardAchievement(User $user, $achievementName): void
     {
+        if (!$achievementName) {
+            return;
+        }
         $achievement = $this->entityManager->getRepository(Achievement::class)->findOneBy(['name' => $achievementName]);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
         $newAchievement = new UserAchievement();
         $newAchievement->setUser($user);
         $newAchievement->setAchievement($achievement);

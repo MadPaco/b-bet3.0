@@ -13,6 +13,7 @@ interface GameRepositoryInterface extends ObjectRepository
     public function getNumberOfGamesForGivenWeek($weeknumber): int;
     public function getWinsOfTeam(NflTeam $team): int;
     public function isFinished(int $weekNumber): bool;
+    public function getLatestFinishedWeek(): int;
     public function findLatestWeekWithResults(): int;
     public function findFinishedGames(): array;
     public function findDivisionGamesForTeam(NflTeam $team): array;

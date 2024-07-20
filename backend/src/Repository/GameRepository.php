@@ -14,6 +14,26 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
         parent::__construct($registry, Game::class);
     }
 
+    public function getLatestFinishedWeek(): int
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->select('MAX(g.weekNumber)')
+            ->where('g.homeScore IS NOT NULL')
+            ->andWhere('g.awayScore IS NOT NULL')
+            ->getQuery();
+
+        $result = $qb->getSingleScalarResult();
+
+        if ($result === null) {
+            return 0;
+        }
+
+        if (!$this->isFinished($result)) {
+            return $result - 1;
+        }
+        return $result;
+    }
+
     public function findGamesWithSameDivisionAndConference(string $conference, string $division): array
     {
         $qb = $this->createQueryBuilder('g')

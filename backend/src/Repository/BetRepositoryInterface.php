@@ -18,7 +18,12 @@ interface BetRepositoryInterface
     public function getHighestScoringUser(int $week): ?User;
     public function getCountOfAllHitsByUser(User $user): int;
     public function getTotalPointsByUser(User $user): int;
+    public function getTotalPointsByUserForWeek(User $user, int $week): int;
+    public function getTotalPointsByUserForAllWeeks(User $user): array;
     public function hasUpsetHit(User $user): bool;
     public function hasPerfectlyBalancedHit(User $user): bool;
-    
+    public function getWinnerThroughWeeks(int $begin, int $end): ?User;
+    public function hasUnderdogLoverHit(User $user): bool;
+    public function getNailbiterHitCount(User $user): int;
+    public function getSweepHitCount(User $user): int;
 }

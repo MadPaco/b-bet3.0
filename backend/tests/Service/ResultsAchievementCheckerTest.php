@@ -11,6 +11,7 @@ use App\Repository\UserAchievementRepository;
 use App\Repository\BetRepositoryInterface;
 use App\Repository\UserRepository;
 use App\Entity\Bet;
+use App\Entity\Game;
 use App\Entity\Achievement;
 use App\Repository\GameRepositoryInterface;
 
@@ -94,6 +95,53 @@ class ResultsAchievementCheckerTest extends WebTestCase
             assertNull($userAchievement);
         }
     }
+
+    // used for consistency is key test
+    private function generateCalls(): array
+    {
+        $calls = [];
+        for ($i = 1; $i <= 22; $i++) {
+            $calls[] = [$this->user, $i];
+        }
+        return $calls;
+    }
+
+    public function generateReturns($amountOfHits): array
+    {
+        $returns = [];
+        for ($i = 1; $i <= $amountOfHits; $i++) {
+            $returns[] = 1;
+        }
+        for ($i = $amountOfHits + 1; $i <= 22; $i++) {
+            $returns[] = 0;
+        }
+        return $returns;
+    }
+
+    public function setUpGame($week): Game
+    {
+        $game = new Game;
+        $game->setWeekNumber($week);
+        $game->setLocation('heaven');
+        $game->setDate(new \DateTime('2021-09-09 20:00:00'));
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+
+        return $game;
+    }
+
+    public function setUpBet($user, $game, $points): Bet
+    {
+        $bet = new Bet;
+        $bet->setUser($user);
+        $bet->setGame($game);
+        $bet->setPoints($points);
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+
+        return $bet;
+    }
+
     // tests
 
     public function testCheckFirstDown(): void
@@ -312,5 +360,261 @@ class ResultsAchievementCheckerTest extends WebTestCase
         $this->betRepository->method('hasPerfectlyBalancedHit')->with($this->user)->willReturn(true);
         $checkPerfectlyBalancedReflection->invoke($this->achievementChecker, $this->user);
         $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckConsistencyIsKey(): void
+    {
+        $checkConsistencyIsKeyReflection = $this->setUpReflection('checkConsistencyIsKey');
+        $achievement = $this->setUpAchievement('Consistency is Key');
+        $callValues = $this->generateCalls();
+        $returnValues = $this->generateReturns(10);
+
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(10);
+        // Mock getTotalPointsByUserForWeek for 10 different weeks
+        $this->betRepository->method('getTotalPointsByUserForWeek')
+            ->withConsecutive(...$callValues)
+            ->willReturnOnConsecutiveCalls(...$returnValues);
+
+        // Check that the user doesn't have the achievement yet
+        $this->assertUserAchievement($this->user, $achievement, false);
+
+        // Invoke the checkConsistencyIsKey method
+        $checkConsistencyIsKeyReflection->invoke($this->achievementChecker, $this->user);
+
+        // Check that the achievement has been awarded
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckConsistencyIsKeyNotEnoughHits(): void
+    {
+        $checkConsistencyIsKeyReflection = $this->setUpReflection('checkConsistencyIsKey');
+        $achievement = $this->setUpAchievement('Consistency is Key');
+        $callValues = $this->generateCalls();
+        $returnValues = $this->generateReturns(9);
+
+        // Mock getTotalPointsByUserForWeek for 10 different weeks
+        $this->betRepository->method('getTotalPointsByUserForWeek')
+            ->withConsecutive(...$callValues)
+            ->willReturnOnConsecutiveCalls(...$returnValues);
+
+        // Check that the user doesn't have the achievement yet
+        $this->assertUserAchievement($this->user, $achievement, false);
+
+        // Invoke the checkConsistencyIsKey method
+        $checkConsistencyIsKeyReflection->invoke($this->achievementChecker, $this->user);
+
+        // Check that the achievement has not been awarded
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckConsistencyIsKeyWeekNotFinished(): void
+    {
+        $checkConsistencyIsKeyReflection = $this->setUpReflection('checkConsistencyIsKey');
+        $achievement = $this->setUpAchievement('Consistency is Key');
+        $callValues = $this->generateCalls();
+        $returnValues = $this->generateReturns(10);
+
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(9);
+        // Mock getTotalPointsByUserForWeek for 10 different weeks
+        $this->betRepository->method('getTotalPointsByUserForWeek')
+            ->withConsecutive(...$callValues)
+            ->willReturnOnConsecutiveCalls(...$returnValues);
+
+        // Check that the user doesn't have the achievement yet
+        $this->assertUserAchievement($this->user, $achievement, false);
+
+        // Invoke the checkConsistencyIsKey method
+        $checkConsistencyIsKeyReflection->invoke($this->achievementChecker, $this->user);
+
+        // Check that the achievement has been awarded
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckHeadstart(): void
+    {
+        $checkHeadstartReflection = $this->setUpReflection('checkHeadstart');
+        $achievement = $this->setUpAchievement('Headstart');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getWinnerThroughWeeks')->with(1, 6)->willReturn($this->user);
+        $this->gameRepository->method('isFinished')->with(6)->willReturn(true);
+        $checkHeadstartReflection->invoke($this->achievementChecker);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckHeadstartWeekSixNotFinished(): void
+    {
+        $checkHeadstartReflection = $this->setUpReflection('checkHeadstart');
+        $achievement = $this->setUpAchievement('Headstart');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getWinnerThroughWeeks')->with(1, 6)->willReturn($this->user);
+        $this->gameRepository->method('isFinished')->with(6)->willReturn(false);
+        $checkHeadstartReflection->invoke($this->achievementChecker);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testMidseasonForm(): void
+    {
+        $checkMidseasonFormReflection = $this->setUpReflection('checkMidseasonForm');
+        $achievement = $this->setUpAchievement('Midseason Form');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getWinnerThroughWeeks')->with(7, 12)->willReturn($this->user);
+        $this->gameRepository->method('isFinished')->with(12)->willReturn(true);
+        $checkMidseasonFormReflection->invoke($this->achievementChecker);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckMidseasonFormWeekTwelveNotFinished(): void
+    {
+        $checkMidseasonFormReflection = $this->setUpReflection('checkMidseasonForm');
+        $achievement = $this->setUpAchievement('Midseason Form');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getWinnerThroughWeeks')->with(7, 12)->willReturn($this->user);
+        $this->gameRepository->method('isFinished')->with(12)->willReturn(false);
+        $checkMidseasonFormReflection->invoke($this->achievementChecker);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckPlayoffPush(): void
+    {
+        $checkPlayoffPushReflection = $this->setUpReflection('checkPlayoffPush');
+        $achievement = $this->setUpAchievement('Playoff Push');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getWinnerThroughWeeks')->with(13, 18)->willReturn($this->user);
+        $this->gameRepository->method('isFinished')->with(18)->willReturn(true);
+        $checkPlayoffPushReflection->invoke($this->achievementChecker);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckPlayoffPushWeekEighteenNotFinished(): void
+    {
+        $checkPlayoffPushReflection = $this->setUpReflection('checkPlayoffPush');
+        $achievement = $this->setUpAchievement('Playoff Push');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getWinnerThroughWeeks')->with(13, 18)->willReturn($this->user);
+        $this->gameRepository->method('isFinished')->with(18)->willReturn(false);
+        $checkPlayoffPushReflection->invoke($this->achievementChecker);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckConsecutivePoints(): void
+    {
+        //Inputs: User $user, int $minPoints, int $minStreak, bool $lessThan = false
+        $checkConsecutivePointsReflection = $this->setUpReflection('checkConsecutivePoints');
+        $this->betRepository->method('getTotalPointsByUserForAllWeeks')->with($this->user)->willReturn([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]);
+
+        // check a streak of 1 game with 3 or more points
+        $result = $checkConsecutivePointsReflection->invoke($this->achievementChecker, $this->user, 1, 18, false);
+        $this->assertTrue($result);
+
+        // check for a streak of 18 games with less than 1 points
+        $result = $checkConsecutivePointsReflection->invoke($this->achievementChecker, $this->user, 1, 18, true);
+        $this->assertFalse($result);
+
+        // check for a streak of 5 games with 5 or more points
+        $result = $checkConsecutivePointsReflection->invoke($this->achievementChecker, $this->user, 5, 5, false);
+        $this->assertTrue($result);
+
+        // check for a streak of 5 games with less than 5 points
+        $result = $checkConsecutivePointsReflection->invoke($this->achievementChecker, $this->user, 5, 5, true);
+        $this->assertFalse($result);
+    }
+
+    public function testCheckByeWeek()
+    {
+        $checkByeWeekReflection = $this->setUpReflection('checkByeWeek');
+        $achievement = $this->setUpAchievement('Bye Week');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getTotalPointsByUserForAllWeeks')->with($this->user)->willReturn([1 => 0]);
+        $this->gameRepository->method('isFinished')->with(1)->willReturn(true);
+        $checkByeWeekReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckByeWeekNotFinished()
+    {
+        $checkByeWeekReflection = $this->setUpReflection('checkByeWeek');
+        $achievement = $this->setUpAchievement('Bye Week');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getTotalPointsByUserForAllWeeks')->with($this->user)->willReturn([1 => 0]);
+        $this->gameRepository->method('isFinished')->with(1)->willReturn(false);
+        $checkByeWeekReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckByeWeekNoZeroWeek()
+    {
+        $checkByeWeekReflection = $this->setUpReflection('checkByeWeek');
+        $achievement = $this->setUpAchievement('Bye Week');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getTotalPointsByUserForAllWeeks')->with($this->user)->willReturn([1 => 1, 2 => 1]);
+        $this->gameRepository->method('isFinished')->with(1)->willReturn(true);
+        $checkByeWeekReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckNailBiter()
+    {
+        $checkNailBiterReflection = $this->setUpReflection('checkNailBiter');
+        $achievement = $this->setUpAchievement('Nail-Biter');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getNailbiterHitCount')->with($this->user)->willReturn(5);
+        $checkNailBiterReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckNailBiterNotEnougHits()
+    {
+        $checkNailBiterReflection = $this->setUpReflection('checkNailBiter');
+        $achievement = $this->setUpAchievement('Nail-Biter');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getNailbiterHitCount')->with($this->user)->willReturn(4);
+        $checkNailBiterReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckSweep()
+    {
+        $checkBlowoutBossReflection = $this->setUpReflection('checkSweep');
+        $achievement = $this->setUpAchievement('Sweep');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getSweepHitCount')->with($this->user)->willReturn(5);
+        $checkBlowoutBossReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckSweepNotEnoughHits()
+    {
+        $checkBlowoutBossReflection = $this->setUpReflection('checkSweep');
+        $achievement = $this->setUpAchievement('Sweep');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('getSweepHitCount')->with($this->user)->willReturn(4);
+        $checkBlowoutBossReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
     }
 }
