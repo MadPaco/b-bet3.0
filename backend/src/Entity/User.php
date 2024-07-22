@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Entity\NflTeam;
+use App\Entity\PreseasonPrediction;
 use App\Entity\Message;
 use App\Entity\UserAchievement;
 use App\Entity\Bet;
@@ -62,6 +63,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(type: 'text', nullable: true)]
     private $bio;
+
+    #[ORM\OneToOne(targetEntity: PreseasonPrediction::class, mappedBy: "user", cascade: ["persist", "remove"])]
+    private $preseasonPredictions;
 
     public function getId(): ?int
     {
@@ -197,6 +201,18 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->chatroomMessages;
     }
+
+    public function getPreseasonPredictions(): ?PreseasonPrediction
+    {
+        return $this->preseasonPredictions;
+    }
+
+    public function setPreseasonPredictions(PreseasonPrediction $preseasonPredictions): self
+    {
+        $this->preseasonPredictions = $preseasonPredictions;
+        return $this;
+    }
+
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here

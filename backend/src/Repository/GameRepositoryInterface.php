@@ -18,4 +18,6 @@ interface GameRepositoryInterface extends ObjectRepository
     public function findFinishedGames(): array;
     public function findDivisionGamesForTeam(NflTeam $team): array;
     public function findGamesWithSameDivisionAndConference(string $conference, string $division): array;
+    public function getPrimetimeGamesForWeek(int $week): array;
+    public function getSundayGamesForWeek(int $week): array;
 }

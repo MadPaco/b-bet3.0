@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Bet;
 use App\Entity\User;
+use App\Entity\NflTeam;
 use App\Repository\GameRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -154,7 +155,7 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
     // *******************************************
 
     // return all bets for a given week
-    public function findBetsByWeeknumber($weekNumber)
+    public function findBetsByWeeknumber($weekNumber): array
     {
         return $this->createQueryBuilder('bet')
             ->innerJoin('bet.game', 'game')
@@ -337,5 +338,64 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
             ->getSingleScalarResult();
 
         return $queryResult;
+    }
+
+    public function getTeamHits(User $user, NflTeam $team): int
+    {
+        $query = $this->createQueryBuilder('bet')
+            ->select('COUNT(bet.id)')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user =:user')
+            ->andWhere('bet.points > 0')
+            // AND game.weekNumber < 19 is used to exclude playoff games
+            ->andWhere('(
+                (game.homeTeam =:team AND game.homeScore > game.awayScore AND game.weekNumber < 19)
+                OR
+                (game.awayTeam =:team AND game.awayScore > game.homeScore AND game.weekNumber < 19)
+            )')
+            ->setParameter('user', $user)
+            ->setParameter('team', $team)
+            ->getQuery();
+
+        return $query->getSingleScalarResult();
+    }
+
+    public function getPrimetimeBetsForWeek(User $user, int $week): array
+    {
+        // primetime condition
+        // there are some games played at 1/3 am german time
+        // while technically not primetime, they are included in the query
+        // I did this after asking some users wether they consider those to be primetime games
+
+        // so we have to return all bets that have a game.date between 1 am and 4 am german time
+
+        return $this->createQueryBuilder('bet')
+            ->select('bet')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user =:user')
+            ->andWhere('game.weekNumber =:week')
+            ->andWhere('(
+                (HOUR(game.date) >= 1 AND HOUR(game.date) < 4)
+            )')
+            ->setParameter('user', $user)
+            ->setParameter('week', $week)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getSundayBetsForWeek(User $user, int $week): array
+    {
+        return $this->createQueryBuilder('bet')
+            ->select('bet')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user =:user')
+            ->andWhere('game.weekNumber =:week')
+            ->andWhere('((HOUR(game.date) > 12 AND HOUR(game.date) < 24 AND DAYOFWEEK(game.date) = 1)
+                    OR 
+                    (HOUR(game.date) > 0 AND HOUR(game.date) < 4 AND DAYOFWEEK(game.date) = 2))')
+            ->setParameter('user', $user)
+            ->setParameter('week', $week)
+            ->getQuery()
+            ->getResult();
     }
 }

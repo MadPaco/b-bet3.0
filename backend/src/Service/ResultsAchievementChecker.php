@@ -29,7 +29,7 @@ use Doctrine\ORM\EntityManagerInterface;
 // (DONE) Midseason Form - Score the most points in weeks 7-12
 // (DONE) Playoff Push - Score the most points in weeks 13-18
 // (DONE) Bowl Game Secured - Hit in more than 50% of the games in the regular season
-// Sunday Funday - Hit on every game that is played on Sunday in  a single week
+// (DONE) Sunday Funday - Hit on every game that is played on Sunday in  a single week
 // (DONE) Pro Bowler - Score at least 100 points in total
 // (DONE) All Pro - Score 200 points in the season.
 // (DONE) Slump Buster - End a streak of three weeks with less than 5 points by scoring more than 10 points in a week
@@ -39,9 +39,9 @@ use Doctrine\ORM\EntityManagerInterface;
 // (DONE) Perfectly Balanced - Predict a game that ends in a tie
 // (DONE) Nail-Biter - Correctly predict the margin of 5 games where the margin of victory is 3 points or less
 // (DONE) Sweep - Correctly predict the margin of 5 games where the margin of victory is 14 points or more
-// Hometown Hero – Hit on all games for your favorite team in the regular season
+// (DONE) Hometown Hero – Hit on all games for your favorite team in the regular season
 // Super Bowl Prophet - Correctly predict the Super Bowl winner
-// Primetime Player - Correctly predict all primetime games (games played after 2' clock german time) in a week
+// (DONE) Primetime Player - Correctly predict all primetime games (games played after 1' clock german time) in a week
 // (DONE) Bye Week - Score 0 points in a week
 // Aaron Rodgers 2023 - Hit on the Thursday night game, but lose every other game this week
 // Fumble - change the winner of a match before the game and lose 
@@ -390,6 +390,72 @@ class ResultsAchievementChecker extends AchievementCheckerBase
         }
     }
 
+    public function checkHometownHero(User $user): void
+    {
+        // all teams play their last game in week 18, so any checks before this are useless
+        if ($this->gameRepository->isFinished(18) === false) {
+            return;
+        }
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Hometown Hero']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $favTeam = $user->getFavTeam();
+        if (!$favTeam) {
+            error_log('User ' . $user->getUsername() . ' does not have a favorite team');
+            return;
+        }
+        $favTeamHits = $this->betRepository->getTeamHits($user, $favTeam);
+        // a team plays 17 games in a season
+        if ($favTeamHits == 17) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+    }
+
+    public function checkPrimetimePlayer(User $user): void
+    {
+        // get all primetime bets for a week
+        // get all primetime games for a week
+        // compare the count and check that all bets are hits
+
+        $latestWeek = $this->gameRepository->getLatestFinishedWeek();
+        $primetimeBets = $this->betRepository->getPrimetimeBetsForWeek($user, $latestWeek);
+        $primetimeGames = $this->gameRepository->getPrimetimeGamesForWeek($latestWeek);
+        if (count($primetimeBets) != count($primetimeGames) || !$primetimeBets || !$primetimeGames) {
+            return;
+        }
+        foreach ($primetimeBets as $bet) {
+            if ($bet->getPoints() == 0) {
+                return;
+            }
+        }
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Primetime Player']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $this->awardAchievement($user, $achievement->getName());
+    }
+
+    public function checkSundayFunday(User $user): void
+    {
+        $latestWeek = $this->gameRepository->getLatestFinishedWeek();
+        $sundayBets = $this->betRepository->getSundayBetsForWeek($user, $latestWeek);
+        $sundayGames = $this->gameRepository->getSundayGamesForWeek($latestWeek);
+
+        if (count($sundayBets) != count($sundayGames) || !$sundayBets || !$sundayGames) {
+            return;
+        }
+        foreach ($sundayBets as $bet) {
+            if ($bet->getPoints() == 0) {
+                return;
+            }
+        }
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Sunday Funday']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $this->awardAchievement($user, $achievement->getName());
+    }
 
     private function checkAllAchievements(User $user): void
     {
@@ -419,6 +485,9 @@ class ResultsAchievementChecker extends AchievementCheckerBase
             [$this, 'checkByeWeek'],
             [$this, 'checkUnderdogLover'],
             [$this, 'checkNailBiter'],
+            [$this, 'checkSweep'],
+            [$this, 'checkHometownHero'],
+            [$this, 'checkPrimetimePlayer']
         ];
 
         foreach ($achievementChecks as $check) {
@@ -433,4 +502,10 @@ class ResultsAchievementChecker extends AchievementCheckerBase
             $this->checkAllAchievements($user);
         }
     }
+
+
+    //Correctly predict all primetime games (games played after 2' clock german time) in a week
+    //Note: There is a week in the season where germany switches to winter time
+    //but the US don't until a week later, so the time difference is 1 hour less
+
 }

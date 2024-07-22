@@ -202,4 +202,72 @@ class GameRepositoryTest extends KernelTestCase
     }
 
     // to do: findFinishedGames, findDivisionGamesForTeam, findGamesWithSameDivisionAndConference
+
+    //******* getPrimetimeGamesForWeek Tests *******
+    //**********************************************
+    public function testGetPrimetimeGamesForWeek()
+    {
+        // add a non-primetime game in week 1
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2021-09-09 20:20:00'));
+        $game->setLocation('heaven');
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+
+        $primetimeGames = $this->gameRepository->getPrimetimeGamesForWeek(1);
+        assertEquals(0, count($primetimeGames));
+
+        $primetimeGame = new Game();
+        $primetimeGame->setWeekNumber(1);
+        $primetimeGame->setDate(new \DateTime('2021-09-09 02:20:00'));
+        $primetimeGame->setLocation('heaven');
+        $this->entityManager->persist($primetimeGame);
+        $this->entityManager->flush();
+
+        $primetimeGames = $this->gameRepository->getPrimetimeGamesForWeek(1);
+        assertEquals(1, count($primetimeGames));
+    }
+
+    //******* getSundayGamesForWeek Tests *******
+    //*******************************************
+    public function testGetSundayGamesForWeek()
+    {
+        //Using week 1 data for testing
+
+        // Thursday Night Game 
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:20:00'));
+        $game->setLocation('heaven');
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+
+        $sundayGames = $this->gameRepository->getSundayGamesForWeek(1);
+        assertEquals(0, count($sundayGames));
+
+        //still a thursday game
+        $game->setDate(new \DateTime('2024-09-09 19:20:00'));
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+
+        $sundayGames = $this->gameRepository->getSundayGamesForWeek(1);
+        assertEquals(0, count($sundayGames));
+
+        //sunday game, earliest possible time
+        $game->setDate(new \DateTime('2024-09-08 15:20:00'));
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+
+        $sundayGames = $this->gameRepository->getSundayGamesForWeek(1);
+        assertEquals(1, count($sundayGames));
+
+        //sunday game latest possible time
+        $game->setDate(new \DateTime('2024-09-09 03:00:00'));
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+
+        $sundayGames = $this->gameRepository->getSundayGamesForWeek(1);
+        assertEquals(1, count($sundayGames));
+    }
 }

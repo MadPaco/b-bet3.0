@@ -30,7 +30,6 @@ class BetRepositoryTest extends KernelTestCase
         $container = self::getContainer();
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->betRepository = $this->entityManager->getRepository(Bet::class);
-        $this->mockedBetRepository = $this->createMock(BetRepository::class);
         $this->mockedGameRepository = $this->createMock(GameRepository::class);
         $this->user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => 'admin']);
         $this->gameOne = $this->entityManager->getRepository(Game::class)->findOneBy(['id' => 1]);
@@ -521,7 +520,7 @@ class BetRepositoryTest extends KernelTestCase
     }
 
     //******* getSweepHitCount Tests *******
-    //********************************************
+    //**************************************
     public function testGetSweepHitCount()
     {
         $this->gameOne->setHomeScore(21);
@@ -550,5 +549,63 @@ class BetRepositoryTest extends KernelTestCase
 
         $result = $this->betRepository->getSweepHitCount($this->user);
         $this->assertEquals(1, $result);
+    }
+
+    //******* getPrimetimeBets Tests *******
+    //***************************************
+    public function testGetPrimetimeBets()
+    {
+        $this->gameOne->setDate(new \DateTime('2021-09-12 13:00:00'));
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getPrimetimeBetsForWeek($this->user, 1);
+        $this->assertCount(0, $result);
+
+        $this->gameTwo->setDate(new \DateTime('2021-09-12 02:00:00'));
+        $this->entityManager->persist($this->gameTwo);
+        $this->entityManager->persist($this->betTwo);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getPrimetimeBetsForWeek($this->user, 1);
+        $this->assertCount(1, $result);
+
+        $this->gameOne->setDate(new \DateTime('2021-09-12 03:00:00'));
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getPrimetimeBetsForWeek($this->user, 1);
+        $this->assertCount(2, $result);
+
+        $this->gameOne->setWeekNumber(2);
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getPrimetimeBetsForWeek($this->user, 1);
+        $this->assertCount(1, $result);
+    }
+
+    //******* getSundayBets Tests *******
+    //***********************************
+    public function testGetSundayBets()
+    {
+        // early sunday game
+        $this->gameOne->setDate(new \DateTime('2024-09-08 15:00:00'));
+        $this->entityManager->persist($this->gameOne);
+        $this->entityManager->persist($this->betOne);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getSundayBetsForWeek($this->user, 1);
+        $this->assertCount(1, $result);
+
+        // saturday night game, should not be included
+        $this->gameTwo->setDate(new \DateTime('2024-09-08 02:00:00'));
+        $this->entityManager->persist($this->gameTwo);
+        $this->entityManager->persist($this->betTwo);
+        $this->entityManager->flush();
+
+        $result = $this->betRepository->getSundayBetsForWeek($this->user, 1);
+        $this->assertCount(1, $result);
     }
 }

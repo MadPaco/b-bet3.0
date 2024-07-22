@@ -22,6 +22,10 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+        dql: 
+            string_functions:
+                HOUR: DoctrineExtensions\Query\Mysql\Hour
+                DAYOFWEEK: DoctrineExtensions\Query\Mysql\DayOfWeek
 
 when@test:
     doctrine:

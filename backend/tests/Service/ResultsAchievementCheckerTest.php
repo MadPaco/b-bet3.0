@@ -617,4 +617,166 @@ class ResultsAchievementCheckerTest extends WebTestCase
         $checkBlowoutBossReflection->invoke($this->achievementChecker, $this->user);
         $this->assertUserAchievement($this->user, $achievement, false);
     }
+
+    public function testCheckUnderdogLover()
+    {
+        $checkUnderdogLoverReflection = $this->setUpReflection('checkUnderdogLover');
+        $achievement = $this->setUpAchievement('Underdog Lover');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('hasUnderdogLoverHit')->with($this->user)->willReturn(true);
+        $checkUnderdogLoverReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckUnderdogLoverNoHit()
+    {
+        $checkUnderdogLoverReflection = $this->setUpReflection('checkUnderdogLover');
+        $achievement = $this->setUpAchievement('Underdog Lover');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->betRepository->method('hasUnderdogLoverHit')->with($this->user)->willReturn(false);
+        $checkUnderdogLoverReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckHometownHero()
+    {
+        $checkHometownHeroReflection = $this->setUpReflection('checkHometownHero');
+        $achievement = $this->setUpAchievement('Hometown Hero');
+
+        //check the happy path
+        $team = $this->user->getFavTeam();
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->gameRepository->method('isFinished')->with(18)->willReturn(true);
+        $this->betRepository->method('getTeamHits')->with($this->user, $team)->willReturn(17);
+        $checkHometownHeroReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckHometownHeroNotEnoughHits()
+    {
+        $checkHometownHeroReflection = $this->setUpReflection('checkHometownHero');
+        $achievement = $this->setUpAchievement('Hometown Hero');
+
+        //check the happy path
+        $team = $this->user->getFavTeam();
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->gameRepository->method('isFinished')->with(18)->willReturn(true);
+        $this->betRepository->method('getTeamHits')->with($this->user, $team)->willReturn(16);
+        $checkHometownHeroReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckHometownHeroSeasonNotFinished()
+    {
+        $checkHometownHeroReflection = $this->setUpReflection('checkHometownHero');
+        $achievement = $this->setUpAchievement('Hometown Hero');
+
+        //check the happy path
+        $team = $this->user->getFavTeam();
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $this->gameRepository->method('isFinished')->with(18)->willReturn(false);
+        $this->betRepository->method('getTeamHits')->with($this->user, $team)->willReturn(17);
+        $checkHometownHeroReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckPrimetimePlayer()
+    {
+        $checkPrimetimePlayerReflection = $this->setUpReflection('checkPrimetimePlayer');
+        $achievement = $this->setUpAchievement('Primetime Player');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2021-09-09 02:00:00'));
+        $game->setLocation('heaven');
+        $this->entityManager->persist($game);
+
+        $bet = new Bet;
+        $bet->setPoints(1);
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $this->entityManager->persist($bet);
+
+        $this->entityManager->flush();
+        $this->betRepository->method('getPrimetimeBetsForWeek')->with($this->user)->willReturn([$bet]);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        $this->gameRepository->method('getPrimetimeGamesForWeek')->with(1)->willReturn([$game]);
+
+        $checkPrimetimePlayerReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testSundayFunday()
+    {
+        $checkSundayFundayReflection = $this->setUpReflection('checkSundayFunday');
+        $achievement = $this->setUpAchievement('Sunday Funday');
+
+        //not so happy path
+
+        // Saturday Night game
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-15 02:00:00'));
+        $game->setLocation('heaven');
+        $this->entityManager->persist($game);
+
+        $bet = new Bet;
+        $bet->setPoints(1);
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+
+        //check the not so happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+
+        $this->gameRepository->method('getSundayGamesForWeek')->with(1)->willReturn([$game]);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        $this->betRepository->method('getSundayBetsForWeek')->with($this->user, 1)->willReturn([$bet]);
+
+        $checkSundayFundayReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testSundayFundayNoSundayBet()
+    {
+
+        $checkSundayFundayReflection = $this->setUpReflection('checkSundayFunday');
+        $achievement = $this->setUpAchievement('Sunday Funday');
+
+        //not so happy path
+
+        // Saturday Night game
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-15 02:00:00'));
+        $game->setLocation('heaven');
+        $this->entityManager->persist($game);
+
+        $bet = new Bet;
+        $bet->setPoints(1);
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+
+        //check the not so happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+
+        $this->gameRepository->method('getSundayGamesForWeek')->with(1)->willReturn([$game]);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        $this->betRepository->method('getSundayBetsForWeek')->with($this->user, 1)->willReturn([]);
+
+        $checkSundayFundayReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
 }

@@ -152,4 +152,30 @@ class GameRepository extends ServiceEntityRepository implements GameRepositoryIn
         }
         return false;
     }
+
+    public function getPrimetimeGamesForWeek(int $week): array
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->where('HOUR(g.date) > 1 AND HOUR(g.date) < 4')
+            ->andWhere('g.weekNumber = :week')
+            ->setParameter('week', $week)
+            ->getQuery();
+
+        return $qb->getResult();
+    }
+
+    public function getSundayGamesForWeek(int $week): array
+    {
+        // because we use german time in the db, the primetime games are on monday morning
+        return $this->createQueryBuilder('g')
+            //the games played in europe start earlier so we have to I chose 12 as the starting point
+            //Sunday night games are played on Monday morning in Europe between 1 and 4 (includes a small buffer)
+            ->where('((HOUR(g.date) > 12 AND HOUR(g.date) < 24 AND DAYOFWEEK(g.date) = 1)
+                    OR 
+                    (HOUR(g.date) > 0 AND HOUR(g.date) < 4 AND DAYOFWEEK(g.date) = 2))')
+            ->andWhere('g.weekNumber = :week')
+            ->setParameter('week', $week)
+            ->getQuery()
+            ->getResult();
+    }
 }

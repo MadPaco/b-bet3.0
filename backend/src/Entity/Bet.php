@@ -7,7 +7,6 @@ use App\Entity\Game;
 use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: "App\Repository\BetRepository")]
-
 class Bet
 {
     #[ORM\Id]
