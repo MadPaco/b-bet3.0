@@ -435,3 +435,30 @@ export async function fetchFavTeamBanner(username: string) {
   );
   return response;
 }
+
+export async function addPreseasonPrediction(username: string, data: any) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/preseasonPrediction/${username}/add`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+
+      },
+      body: JSON.stringify(data),
+    },
+  );
+  return response;
+}
+
+export async function fetchPreseasonPrediction(username: string) {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/preseasonPrediction/${username}/fetch`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}

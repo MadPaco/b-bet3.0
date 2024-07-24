@@ -42,7 +42,7 @@ const Sidebar: React.FC = () => {
     { icon: faFootballBall, text: 'Predictions', onClick: () => navigate('/predictions'), path: '/predictions' },
     { icon: faGlobe, text: 'All Bets', onClick: () => navigate('/allBets'), path: '/allBets' },
     { icon: faRankingStar, text: 'Leaderboard', onClick: () => navigate('/leaderboard'), path: '/leaderboard' },
-    { icon: faBolt, text: '1 vs. 1', onClick: () => navigate('/1vs1'), path: '/1vs1' },
+    { icon: faBolt, text: 'Preseason Predictions', onClick: () => navigate('/preseasonPredictions'), path: '/preseasonPredictions' },
     { icon: faTrophy, text: 'Achievements', onClick: () => navigate('/achievements'), path: '/achievements' },
     { icon: faChartLine, text: 'Stats', onClick: () => navigate('/stats'), path: '/stats' },
     { icon: faUsers, text: 'Users', onClick: () => navigate('/allUsers'), path: '/allUsers' },

@@ -14,7 +14,7 @@ const AdminPage = lazy(() => import('./pages/AdminPage'));
 const SchedulePage = lazy(() => import('./pages/SchedulePage'));
 const AllBetsPage = lazy(() => import('./pages/AllBetsPage'));
 const AllUsersPage = lazy(() => import('./pages/AllUsersPage'));
-const HeadToHeadPage = lazy(() => import('./pages/HeadToHeadPage'));
+const PreseasonPredictionPage = lazy(() => import('./pages/PreseasonPredictionPage'));
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const PredictionsPage = lazy(() => import('./pages/PredictionsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
@@ -45,7 +45,7 @@ const App: React.FC = () => {
               <Route path="/schedule" element={<SchedulePage />} />
               <Route path="/allBets" element={<AllBetsPage />} />
               <Route path="/allUsers" element={<AllUsersPage />} />
-              <Route path="/1vs1" element={<HeadToHeadPage />} />
+              <Route path="/preseasonPredictions" element={<PreseasonPredictionPage />} />
               <Route path="/achievements" element={<AchievementsPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/predictions" element={<PredictionsPage />} />
