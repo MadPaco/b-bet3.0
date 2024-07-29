@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\User;
+use App\Entity\PreseasonPrediction;
 use App\Repository\AchievementRepository;
 use App\Repository\BetRepositoryInterface;
 use App\Repository\GameRepositoryInterface;
@@ -15,7 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 // (DONE) First Down - Correctly predict your first game 
 // (DONE) Two-Minute Drill - Place a prediction at most 2 minutes before kickoff and hit on it 
 // (DONE) Trick Play - Change a prediction at least 4 times in a week and score points
-// Audible - Change the winner of a game 10 minutes before kickoff and win
+// (DONE) Audible - Change the winner of a game 10 minutes before kickoff and win
 // (DONE) Pigskin Prophet – Hit on all games in a week
 // (DONE) Touchdown - Score 7 points in a week
 // (DONE) Pick Six - Hit on 6 games in a single week
@@ -40,12 +41,12 @@ use Doctrine\ORM\EntityManagerInterface;
 // (DONE) Nail-Biter - Correctly predict the margin of 5 games where the margin of victory is 3 points or less
 // (DONE) Sweep - Correctly predict the margin of 5 games where the margin of victory is 14 points or more
 // (DONE) Hometown Hero – Hit on all games for your favorite team in the regular season
-// Super Bowl Prophet - Correctly predict the Super Bowl winner
+// (DONE) Super Bowl Prophet - Correctly predict the Super Bowl matchup and winner
 // (DONE) Primetime Player - Correctly predict all primetime games (games played after 1' clock german time) in a week
 // (DONE) Bye Week - Score 0 points in a week
-// Aaron Rodgers 2023 - Hit on the Thursday night game, but lose every other game this week
-// Fumble - change the winner of a match before the game and lose 
-// Punt Return - Change a prediction and end up with fewer points than if you hadn’t changed it
+// (DONE) Aaron Rodgers 2023 - Hit on the Thursday night game, but lose every other game this week
+// (DONE) Fumble - change the winner of a match before the game and lose 
+// () Punt Return - Change a prediction and end up with fewer points than if you hadn’t changed it
 
 
 
@@ -457,6 +458,108 @@ class ResultsAchievementChecker extends AchievementCheckerBase
         $this->awardAchievement($user, $achievement->getName());
     }
 
+    private function checkSuperBowlProphet(User $user)
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Super Bowl Prophet']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        // there are predictions for the AFC, NFC and superbowlchamp
+        // hand out the achievement if all three are correct
+        $prediction = $this->entityManager->getRepository(PreseasonPrediction::class)->findOneBy(['user' => $user]);
+        if (!$prediction) {
+            return;
+        }
+        if ($prediction->getAFCChampionPoints() > 0 && $prediction->getNFCChampionPoints() > 0 && $prediction->getSuperBowlWinnerPoints() > 0) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+    }
+
+    private function checkArod(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Aaron Rodgers 2023']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $latestWeek = $this->gameRepository->getLatestFinishedWeek();
+        $thursdayNightBet = $this->betRepository->getThursdayNightBet($user, $latestWeek);
+        if (!$thursdayNightBet) {
+            return;
+        }
+        $thursdayPoints = $thursdayNightBet->getPoints();
+        // check if the user has lost every other game this week
+        // if this is the case the total of the week is equal to the thursday night bet points
+        $totalPoints = $this->betRepository->getTotalPointsByUserForWeek($user, $latestWeek);
+        if ($totalPoints == $thursdayPoints) {
+            $this->awardAchievement($user, $achievement->getName());
+        }
+    }
+
+    private function checkAudible(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Audible']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $lastWeeksBets = $this->betRepository->findBetsByUserForWeek($user, $this->gameRepository->getLatestFinishedWeek());
+        $lastWeeksBets = array_filter($lastWeeksBets, function ($bet) {
+            return $bet->getPoints() > 0;
+        });
+        if (count($lastWeeksBets) == 0) {
+            return;
+        }
+        // check that the winner has changed, indicated by the previousAwayPrediction adn previousHomePrediction
+        // being different from the actual predictions and having the other team as the winner
+        foreach ($lastWeeksBets as $bet) {
+            $game = $bet->getGame();
+            if (($bet->getHomePrediction() > $bet->getAwayPrediction() && $bet->getPreviousAwayPrediction() > $bet->getPreviousHomePrediction())
+                || ($bet->getAwayPrediction() > $bet->getHomePrediction() && $bet->getPreviousHomePrediction() > $bet->getPreviousAwayPrediction())
+            ) {
+                // check that the lastEdit is within 10 minutes of the kickoff
+                $lastEdit = $bet->getLastEdit();
+                $kickoff = $game->getDate();
+                $diff = $lastEdit->diff($kickoff);
+                if ($diff->i <= 10) {
+                    $this->awardAchievement($user, $achievement->getName());
+                    return;
+                }
+            }
+        };
+        return;
+    }
+
+    public function checkFumble(User $user): void
+    {
+        // change the winner of a match before the game and lose
+
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Fumble']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $lastWeeksBets = $this->betRepository->findBetsByUserForWeek($user, $this->gameRepository->getLatestFinishedWeek());
+        $lastWeeksBets = array_filter($lastWeeksBets, function ($bet) {
+            return $bet->getPoints() == 0;
+        });
+        foreach ($lastWeeksBets as $bet) {
+            if (($bet->getHomePrediction() > $bet->getAwayPrediction() && $bet->getPreviousAwayPrediction() > $bet->getPreviousHomePrediction())
+                || ($bet->getAwayPrediction() > $bet->getHomePrediction() && $bet->getPreviousHomePrediction() > $bet->getPreviousAwayPrediction())
+            ) {
+                $this->awardAchievement($user, $achievement->getName());
+                return;
+            }
+        }
+    }
+
+    public function checkPuntReturn(User $user): void
+    {
+        $achievement = $this->achievementRepository->findOneBy(['name' => 'Punt Return']);
+        if (!$achievement || $this->hasAchievement($user, $achievement)) {
+            return;
+        }
+        $this->awardAchievement($user, $achievement->getName());
+    }
+    
+
     private function checkAllAchievements(User $user): void
     {
         // list of all checks
@@ -487,7 +590,11 @@ class ResultsAchievementChecker extends AchievementCheckerBase
             [$this, 'checkNailBiter'],
             [$this, 'checkSweep'],
             [$this, 'checkHometownHero'],
-            [$this, 'checkPrimetimePlayer']
+            [$this, 'checkPrimetimePlayer'],
+            [$this, 'checkSundayFunday'],
+            [$this, 'checkSuperBowlProphet'],
+            [$this, 'checkArod'],
+            [$this, 'checkAudible']
         ];
 
         foreach ($achievementChecks as $check) {

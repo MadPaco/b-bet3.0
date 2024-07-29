@@ -10,18 +10,18 @@ import { fetchPreseasonPrediction, addPreseasonPrediction } from '../utility/api
 
 const PreseasonPredictionsPage: React.FC = () => {
   const { username } = useAuth();
-  const [afcChampion, setAfcChampion] = useState(null);
-  const [nfcChampion, setNfcChampion] = useState(null);
-  const [superBowlChampion, setSuperBowlChampion] = useState(null);
-  const [mostPassingYards, setMostPassingYards] = useState(null);
-  const [mostRushingYards, setMostRushingYards] = useState(null);
-  const [firstPick, setfirstPick] = useState(null);
-  const [mostPointsScored, setMostPointsScored] = useState(null);
-  const [fewestPointsAllowed, setFewestPointsAllowed] = useState(null);
-  const [highestMarginOfVictory, setHighestMarginOfVictory] = useState(null);
-  const [teamWithOROY, setTeamWithOROY] = useState(null);
-  const [teamWithDROY, setTeamWithDROY] = useState(null);
-  const [teamWithMVP, setTeamWithMVP] = useState(null);
+  const [afcChampion, setAfcChampion] = useState<string | null>(null);
+  const [nfcChampion, setNfcChampion] = useState<string | null>(null);
+  const [superBowlChampion, setSuperBowlChampion] = useState<string | null>(null);
+  const [mostPassingYards, setMostPassingYards] = useState<string | null>(null);
+  const [mostRushingYards, setMostRushingYards] = useState<string | null>(null);
+  const [firstPick, setfirstPick] = useState<string | null>(null);
+  const [mostPointsScored, setMostPointsScored] = useState<string | null>(null);
+  const [fewestPointsAllowed, setFewestPointsAllowed] = useState<string | null>(null);
+  const [highestMarginOfVictory, setHighestMarginOfVictory] = useState<string | null>(null);
+  const [teamWithOROY, setTeamWithOROY] = useState<string | null>(null);
+  const [teamWithDROY, setTeamWithDROY] = useState<string | null>(null);
+  const [teamWithMVP, setTeamWithMVP] = useState<string | null>(null);
 
   useEffect(() => {
     // fetch predictions
@@ -68,42 +68,47 @@ const PreseasonPredictionsPage: React.FC = () => {
     <LoggedInLayout>
       <div className="flex flex-col px-5 text-white items-center pt-5 min-h-screen text-center">
         <h1>Preseason Prediction</h1>
-        <p>Here you can place several predictions for the season. They will be evaluated at the end of the season. <br />
-          Each correct prediction will award you <b>5 points</b>.</p>
+        <p>Here you can place several predictions for the season. They will be evaluated at the end of the season. <br /> Good luck!</p>
         <div className='flex mt-3'>
           <FormCard>
             <TeamSelect
               label="AFC Champion"
+              points={3}
               value={afcChampion}
               onChange={(e) => setAfcChampion(e.target.value)}
               options={afcTeams}
             />
             <TeamSelect
               label="NFC Champion"
+              points={3}
               value={nfcChampion}
               onChange={(e) => setNfcChampion(e.target.value)}
               options={nfcTeams}
             />
             <TeamSelect
               label="Super Bowl Champion"
+              points={5}
               value={superBowlChampion}
               onChange={(e) => setSuperBowlChampion(e.target.value)}
               options={nflTeams}
             />
             <TeamSelect
               label="Most Passing Yards"
+              points={5}
               value={mostPassingYards}
               onChange={(e) => setMostPassingYards(e.target.value)}
               options={nflTeams}
             />
             <TeamSelect
               label="Most Rushing Yards"
+              points={5}
               value={mostRushingYards}
               onChange={(e) => setMostRushingYards(e.target.value)}
               options={nflTeams}
             />
             <TeamSelect
               label={"First Overall Pick Next Year"}
+              points={3}
               value={firstPick}
               onChange={(e) => setfirstPick(e.target.value)}
               options={nflTeams}
@@ -113,36 +118,42 @@ const PreseasonPredictionsPage: React.FC = () => {
 
             <TeamSelect
               label="Most Points Scored"
+              points={5}
               value={mostPointsScored}
               onChange={(e) => setMostPointsScored(e.target.value)}
               options={nflTeams}
             />
             <TeamSelect
               label="Fewest Points Allowed"
+              points={5}
               value={fewestPointsAllowed}
               onChange={(e) => setFewestPointsAllowed(e.target.value)}
               options={nflTeams}
             />
             <TeamSelect
               label="Highest Margin of Victory"
+              points={5}
               value={highestMarginOfVictory}
               onChange={(e) => setHighestMarginOfVictory(e.target.value)}
               options={nflTeams}
             />
             <TeamSelect
               label="Team with OROY"
+              points={3}
               value={teamWithOROY}
               onChange={(e) => setTeamWithOROY(e.target.value)}
               options={nflTeams}
             />
             <TeamSelect
               label="Team with DROY"
+              points={3}
               value={teamWithDROY}
               onChange={(e) => setTeamWithDROY(e.target.value)}
               options={nflTeams}
             />
             <TeamSelect
               label="Team with MVP"
+              points={3}
               value={teamWithMVP}
               onChange={(e) => setTeamWithMVP(e.target.value)}
               options={nflTeams}

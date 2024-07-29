@@ -43,7 +43,7 @@ class BetController extends AbstractController
             if ($validationResponse !== null) {
                 return $validationResponse;
             }
-            
+
             $game = $this->entityManager->getRepository(Game::class)->find($betData['gameID']);
 
             $bet = $this->entityManager->getRepository(Bet::class)->findOneBy(['game' => $game, 'user' => $user]);
@@ -56,8 +56,13 @@ class BetController extends AbstractController
                 $bet->setEditCount(0);
             }
 
-            if ($bet->getHomePrediction() !== $betData['homePrediction'] || $bet->getAwayPrediction() !== $betData['awayPrediction']) {
+            if (
+                ($bet->getHomePrediction() !== $betData['homePrediction'] && $bet->getHomePrediction() !== null)
+                || ($bet->getAwayPrediction() !== $betData['awayPrediction'] && $bet->getAwayPrediction() !== null)
+            ) {
                 $bet->setEditCount($bet->getEditCount() + 1);
+                $bet->setPreviousHomePrediction($bet->getHomePrediction());
+                $bet->setPreviousAwayPrediction($bet->getAwayPrediction());
             }
 
             //set the values in both cases if they differ from the old values
@@ -82,14 +87,14 @@ class BetController extends AbstractController
     public function fetchBets(Request $request): Response
     {
         $username = $request->query->get('user');
-        $user = $this->entityManager->getRepository(User::Class)->findOneBy(['username' => $username]);
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
         $userID = $user ? $user->getId() : null;
         $weekNumber = $request->query->get('weekNumber');
 
         if ($weekNumber) {
-            $bets = $this->entityManager->getRepository(Bet::Class)->findBetsByWeekNumber($weekNumber);
+            $bets = $this->entityManager->getRepository(Bet::class)->findBetsByWeekNumber($weekNumber);
         } else {
-            $bets = $this->entityManager->getRepository(Bet::Class)->findAll();
+            $bets = $this->entityManager->getRepository(Bet::class)->findAll();
         }
 
         if ($userID) {

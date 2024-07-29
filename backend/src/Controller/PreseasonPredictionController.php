@@ -94,6 +94,20 @@ class PreseasonPredictionController extends AbstractController
         $data['teamWithDROY'] != '' ? $preseasonPrediction->setDroy($this->getTeamByName($data['teamWithDROY'])) : $preseasonPrediction->setDroy(null);
         $data['teamWithMVP'] != '' ? $preseasonPrediction->setMvp($this->getTeamByName($data['teamWithMVP'])) : $preseasonPrediction->setMvp(null);
 
+        // initiate points with 0
+        $preseasonPrediction->setAFCChampionPoints(0);
+        $preseasonPrediction->setNFCChampionPoints(0);
+        $preseasonPrediction->setSuperBowlWinnerPoints(0);
+        $preseasonPrediction->setMostPassingYardsPoints(0);
+        $preseasonPrediction->setMostRushingYardsPoints(0);
+        $preseasonPrediction->setFirstPickPoints(0);
+        $preseasonPrediction->setMostPointsScoredPoints(0);
+        $preseasonPrediction->setFewestPointsAllowedPoints(0);
+        $preseasonPrediction->setHighestMarginOfVictoryPoints(0);
+        $preseasonPrediction->setOroyPoints(0);
+        $preseasonPrediction->setDroyPoints(0);
+        $preseasonPrediction->setMvpPoints(0);
+
         $this->entityManager->persist($preseasonPrediction);
         $this->entityManager->flush();
         return new JsonResponse(['message' => 'Prediction added successfully!'], 200);

@@ -22,49 +22,85 @@ class PreseasonPrediction
     #[ORM\JoinColumn(nullable: true)]
     private $AFCChampion;
 
+    #[ORM\Column(type: 'integer')]
+    private $AFCChampionPoints;
+
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $NFCChampion;
+
+    #[ORM\Column(type: 'integer')]
+    private $NFCChampionPoints;
 
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $SuperBowlWinner;
 
+    #[ORM\Column(type: 'integer')]
+    private $SuperBowlWinnerPoints;
+
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $mostPassingYards;
+
+    #[ORM\Column(type: 'integer')]
+    private $mostPassingYardsPoints;
 
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $mostRushingYards;
 
+    #[ORM\Column(type: 'integer')]
+    private $mostRushingYardsPoints;
+
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $firstPick;
+
+    #[ORM\Column(type: 'integer')]
+    private $firstPickPoints;
 
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $mostPointsScored;
 
+    #[ORM\Column(type: 'integer')]
+    private $mostPointsScoredPoints;
+
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $fewestPointsAllowed;
+
+    #[ORM\Column(type: 'integer')]
+    private $fewestPointsAllowedPoints;
 
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $highestMarginOfVictory;
 
+    #[ORM\Column(type: 'integer')]
+    private $highestMarginOfVictoryPoints;
+
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $oroy;
+
+    #[ORM\Column(type: 'integer')]
+    private $oroyPoints;
 
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $droy;
 
+    #[ORM\Column(type: 'integer')]
+    private $droyPoints;
+
     #[ORM\ManyToOne(targetEntity: NflTeam::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $mvp;
+
+    #[ORM\Column(type: 'integer')]
+    private $mvpPoints;
 
     public function getId(): ?int
     {
@@ -93,6 +129,17 @@ class PreseasonPrediction
         return $this;
     }
 
+    public function getAFCChampionPoints(): ?int
+    {
+        return $this->AFCChampionPoints;
+    }
+
+    public function setAFCChampionPoints(int $AFCChampionPoints): self
+    {
+        $this->AFCChampionPoints = $AFCChampionPoints;
+        return $this;
+    }
+
     public function getNFCChampion(): ?NflTeam
     {
         return $this->NFCChampion;
@@ -101,6 +148,17 @@ class PreseasonPrediction
     public function setNFCChampion(?NflTeam $NFCChampion): self
     {
         $this->NFCChampion = $NFCChampion;
+        return $this;
+    }
+
+    public function getNFCChampionPoints(): ?int
+    {
+        return $this->NFCChampionPoints;
+    }
+
+    public function setNFCChampionPoints(int $NFCChampionPoints): self
+    {
+        $this->NFCChampionPoints = $NFCChampionPoints;
         return $this;
     }
 
@@ -115,6 +173,17 @@ class PreseasonPrediction
         return $this;
     }
 
+    public function getSuperBowlWinnerPoints(): ?int
+    {
+        return $this->SuperBowlWinnerPoints;
+    }
+
+    public function setSuperBowlWinnerPoints(int $SuperBowlWinnerPoints): self
+    {
+        $this->SuperBowlWinnerPoints = $SuperBowlWinnerPoints;
+        return $this;
+    }
+
     public function getMostPassingYards(): ?NflTeam
     {
         return $this->mostPassingYards;
@@ -123,6 +192,17 @@ class PreseasonPrediction
     public function setMostPassingYards(?NflTeam $mostPassingYards): self
     {
         $this->mostPassingYards = $mostPassingYards;
+        return $this;
+    }
+
+    public function getMostPassingYardsPoints(): ?int
+    {
+        return $this->mostPassingYardsPoints;
+    }
+
+    public function setMostPassingYardsPoints(int $mostPassingYardsPoints): self
+    {
+        $this->mostPassingYardsPoints = $mostPassingYardsPoints;
         return $this;
     }
 
@@ -137,6 +217,17 @@ class PreseasonPrediction
         return $this;
     }
 
+    public function getMostRushingYardsPoints(): ?int
+    {
+        return $this->mostRushingYardsPoints;
+    }
+
+    public function setMostRushingYardsPoints(int $mostRushingYardsPoints): self
+    {
+        $this->mostRushingYardsPoints = $mostRushingYardsPoints;
+        return $this;
+    }
+
     public function getFirstPick(): ?NflTeam
     {
         return $this->firstPick;
@@ -145,6 +236,17 @@ class PreseasonPrediction
     public function setFirstPick(?NflTeam $firstPick): self
     {
         $this->firstPick = $firstPick;
+        return $this;
+    }
+
+    public function getFirstPickPoints(): ?int
+    {
+        return $this->firstPickPoints;
+    }
+
+    public function setFirstPickPoints(int $firstPickPoints): self
+    {
+        $this->firstPickPoints = $firstPickPoints;
         return $this;
     }
 
@@ -159,6 +261,17 @@ class PreseasonPrediction
         return $this;
     }
 
+    public function getMostPointsScoredPoints(): ?int
+    {
+        return $this->mostPointsScoredPoints;
+    }
+
+    public function setMostPointsScoredPoints(int $mostPointsScoredPoints): self
+    {
+        $this->mostPointsScoredPoints = $mostPointsScoredPoints;
+        return $this;
+    }
+
     public function getFewestPointsAllowed(): ?NflTeam
     {
         return $this->fewestPointsAllowed;
@@ -167,6 +280,17 @@ class PreseasonPrediction
     public function setFewestPointsAllowed(?NflTeam $fewestPointsAllowed): self
     {
         $this->fewestPointsAllowed = $fewestPointsAllowed;
+        return $this;
+    }
+
+    public function getFewestPointsAllowedPoints(): ?int
+    {
+        return $this->fewestPointsAllowedPoints;
+    }
+
+    public function setFewestPointsAllowedPoints(int $fewestPointsAllowedPoints): self
+    {
+        $this->fewestPointsAllowedPoints = $fewestPointsAllowedPoints;
         return $this;
     }
 
@@ -181,6 +305,17 @@ class PreseasonPrediction
         return $this;
     }
 
+    public function getHighestMarginOfVictoryPoints(): ?int
+    {
+        return $this->highestMarginOfVictoryPoints;
+    }
+
+    public function setHighestMarginOfVictoryPoints(int $highestMarginOfVictoryPoints): self
+    {
+        $this->highestMarginOfVictoryPoints = $highestMarginOfVictoryPoints;
+        return $this;
+    }
+
     public function getOroy(): ?NflTeam
     {
         return $this->oroy;
@@ -189,6 +324,17 @@ class PreseasonPrediction
     public function setOroy(?NflTeam $oroy): self
     {
         $this->oroy = $oroy;
+        return $this;
+    }
+
+    public function getOroyPoints(): ?int
+    {
+        return $this->oroyPoints;
+    }
+
+    public function setOroyPoints(int $oroyPoints): self
+    {
+        $this->oroyPoints = $oroyPoints;
         return $this;
     }
 
@@ -203,6 +349,17 @@ class PreseasonPrediction
         return $this;
     }
 
+    public function getDroyPoints(): ?int
+    {
+        return $this->droyPoints;
+    }
+
+    public function setDroyPoints(int $droyPoints): self
+    {
+        $this->droyPoints = $droyPoints;
+        return $this;
+    }
+
     public function getMvp(): ?NflTeam
     {
         return $this->mvp;
@@ -211,6 +368,17 @@ class PreseasonPrediction
     public function setMvp(?NflTeam $mvp): self
     {
         $this->mvp = $mvp;
+        return $this;
+    }
+
+    public function getMvpPoints(): ?int
+    {
+        return $this->mvpPoints;
+    }
+
+    public function setMvpPoints(int $mvpPoints): self
+    {
+        $this->mvpPoints = $mvpPoints;
         return $this;
     }
 }

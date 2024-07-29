@@ -1,15 +1,14 @@
+import React, { useEffect, useState, useRef } from 'react';
 import Panel from '../common/Panel';
 import { useAuth } from '../auth/AuthContext';
 import { fetchThreeLatestUserAchievement } from '../../utility/api';
-import { useEffect, useState } from 'react';
 
 interface Achievement {
   name: string;
   image: string;
   flavorText: string;
-  dateEarned: {
-    date: string;
-  };
+  dateEarned: string;
+  description: string;
 }
 
 interface AchievementPanelProps { }
@@ -17,6 +16,7 @@ interface AchievementPanelProps { }
 const AchievementPanel: React.FC<AchievementPanelProps> = () => {
   const { username } = useAuth();
   const [latestAchievements, setLatestAchievements] = useState<Achievement[]>([]);
+  const descriptionRefs = useRef<Array<HTMLParagraphElement | null>>([]);
 
   useEffect(() => {
     const fetchLatestAchievements = async () => {
@@ -33,6 +33,18 @@ const AchievementPanel: React.FC<AchievementPanelProps> = () => {
     fetchLatestAchievements();
   }, [username]);
 
+  useEffect(() => {
+    descriptionRefs.current.forEach((desc) => {
+      if (desc) {
+        let fontSize = parseInt(window.getComputedStyle(desc).fontSize);
+        while (desc.scrollHeight > desc.clientHeight && fontSize > 12) {
+          fontSize -= 1;
+          desc.style.fontSize = `${fontSize}px`;
+        }
+      }
+    });
+  }, [latestAchievements]);
+
   return (
     <Panel>
       {username ? (
@@ -43,16 +55,28 @@ const AchievementPanel: React.FC<AchievementPanelProps> = () => {
               latestAchievements.map((achievement, index) => (
                 <div
                   key={index}
-                  className="xl:w-1/4 text-center bg-gray-700 p-3 rounded-xl shadow-inner shadow-white flex flex-col m-2 items-center justify-between h-full"
+                  className="xl:w-1/4 text-center bg-gray-700 p-3 rounded-xl shadow-inner shadow-white flex flex-col m-2 items-center"
+                  style={{ minHeight: '400px' }} // Ensuring minimum height
                 >
                   <p className="font-bold">{achievement.name}</p>
-                  <div className="flex-grow flex items-center justify-center">
-                    <img className="lg:w-3/4 m-2 rounded-md" src={`/assets/images/achievements/${achievement.image}`} alt={achievement.name} />
+                  <div className="w-full h-48 flex items-center justify-center overflow-hidden">
+                    <img
+                      className="w-full h-full object-cover object-top rounded-md"
+                      src={`/assets/images/achievements/${achievement.image}`}
+                      alt={achievement.name}
+                    />
                   </div>
                   <div className="h-24 flex items-center justify-center overflow-hidden italic">
                     <p>{achievement.flavorText}</p>
                   </div>
-                  <p className="text-sm text-gray-400">{achievement.dateEarned.date}</p>
+                  <p
+                    ref={(el) => (descriptionRefs.current[index] = el)}
+                    className="text-sm mb-3 text-gray-400 overflow-hidden"
+                    style={{ maxHeight: '3em' }} // Limiting height to approximately 3 lines
+                  >
+                    {achievement.description}
+                  </p>
+                  <p className="text-sm text-gray-400">{achievement.dateEarned}</p>
                 </div>
               ))
             ) : (

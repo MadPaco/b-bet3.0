@@ -68,7 +68,7 @@ const UserInfoPanel: React.FC<UserInfoPanelProps> = () => {
               <div>
                 <p>Points: {stats.totalPoints}</p>
                 <p>Rank: {stats.currentPlace}</p>
-                <p>Hitrate: {stats.hitRate * 100}%</p>
+                <p>Hitrate: {(stats.hitRate * 100).toFixed(2)}%</p>
               </div>
 
             ) : null}

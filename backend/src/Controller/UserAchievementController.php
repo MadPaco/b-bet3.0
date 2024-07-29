@@ -50,8 +50,9 @@ class UserAchievementController extends AbstractController
         for ($i = 0; $i < 3; $i++) {
             $threeLatestAchievements[$i] = [
                 'name' => $latestUserAchievements[$i]->getAchievement()->getName(),
-                'dateEarned' => $latestUserAchievements[$i]->getDateEarned(),
+                'dateEarned' => $latestUserAchievements[$i]->getDateEarned()->format('d-m-Y H:i'),
                 'flavorText' => $latestUserAchievements[$i]->getAchievement()->getFlavorText(),
+                'description' => $latestUserAchievements[$i]->getAchievement()->getDescription(),
                 'image' => $latestUserAchievements[$i]->getAchievement()->getImage(),
             ];
         }

@@ -174,7 +174,11 @@ class ResultsController extends AbstractController
                     continue;
                 }
 
-                $points = $this->calculatePoints($prediction, $game);
+                $points = $this->calculatePoints($prediction, $game, false);
+                $previousPoints = $this->calculatePoints($prediction, $game, true);
+                if ($previousPoints > $points) {
+                    $this->achievementChecker->checkPuntReturn($user);
+                }
                 $prediction->setPoints($points);
                 $this->entityManager->persist($prediction);
             }
@@ -182,16 +186,28 @@ class ResultsController extends AbstractController
         $this->entityManager->flush();
     }
 
-    private function calculatePoints(Bet $prediction, Game $game): int
+    private function calculatePoints(Bet $prediction, Game $game, bool $previous): int
     {
-        if ($prediction->getHomePrediction() === $game->getHomeScore() && $prediction->getAwayPrediction() === $game->getAwayScore()) {
+        // if flag is true, calculate points for previous prediction
+        // else calculate points for current prediction
+        if ($previous) {
+            $homePrediction = $prediction->getPreviousHomePrediction();
+            $awayPrediction = $prediction->getPreviousAwayPrediction();
+        } else {
+            $homePrediction = $prediction->getHomePrediction();
+            $awayPrediction = $prediction->getAwayPrediction();
+        }
+        $homeScore = $game->getHomeScore();
+        $awayScore = $game->getAwayScore();
+
+        if ($homePrediction === $homeScore && $awayPrediction === $awayScore) {
             // award nostradamus achievement
             $this->achievementChecker->checkNostradamus($prediction->getUser());
             return 5;
-        } elseif ($prediction->getHomePrediction() - $prediction->getAwayPrediction() === $game->getHomeScore() - $game->getAwayScore()) {
+        } elseif ($homePrediction - $awayPrediction === $homeScore - $awayScore) {
             return 3;
-        } elseif (($prediction->getHomePrediction() > $prediction->getAwayPrediction() && $game->getHomeScore() > $game->getAwayScore())
-            || ($prediction->getHomePrediction() < $prediction->getAwayPrediction() && $game->getHomeScore() < $game->getAwayScore())
+        } elseif (($homePrediction > $awayPrediction && $homeScore > $awayScore)
+            || ($homePrediction < $awayPrediction && $homeScore < $awayScore)
         ) {
             return 1;
         } else {

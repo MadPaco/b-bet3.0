@@ -13,9 +13,12 @@ use App\Service\ResultsAchievementChecker;
 use App\Service\ResultValidator;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use App\Entity\UserAchievement;
+use App\Entity\Achievement;
 
 use function PHPUnit\Framework\assertEmpty;
 use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertNotNull;
 use function PHPUnit\Framework\assertNull;
 
 class ResultsControllerTest extends WebTestCase
@@ -28,6 +31,8 @@ class ResultsControllerTest extends WebTestCase
         // Authenticated Admin client
         $this->client = static::createClient();
         $this->logIn();
+
+        $this->entityManager = self::$kernel->getContainer()->get('doctrine')->getManager();
     }
 
     private function logIn()

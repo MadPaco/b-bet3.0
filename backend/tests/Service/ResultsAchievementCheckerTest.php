@@ -12,8 +12,11 @@ use App\Repository\BetRepositoryInterface;
 use App\Repository\UserRepository;
 use App\Entity\Bet;
 use App\Entity\Game;
+use App\Entity\PreseasonPrediction;
 use App\Entity\Achievement;
 use App\Repository\GameRepositoryInterface;
+use App\Controller\ResultsController;
+use App\Service\ResultValidator;
 
 use function PHPUnit\Framework\assertNotNull;
 use function PHPUnit\Framework\assertNull;
@@ -30,12 +33,12 @@ class ResultsAchievementCheckerTest extends WebTestCase
     private $betRepository;
     private $userRepository;
     private $gameRepository;
+    private $validator;
 
     protected function setUp(): void
     {
         parent::setUp();
         date_default_timezone_set('Europe/Berlin');
-        // Boot the kernel to get the container
         self::bootKernel();
 
         // Fetch the required services from the container
@@ -55,6 +58,9 @@ class ResultsAchievementCheckerTest extends WebTestCase
 
         //get a user to run the tests on
         $this->user = $this->userRepository->findOneBy(['username' => 'admin']);
+
+        // Instantiate the validator
+        $this->validator = new ResultValidator($this->entityManager);
     }
 
     protected function tearDown(): void
@@ -778,5 +784,367 @@ class ResultsAchievementCheckerTest extends WebTestCase
 
         $checkSundayFundayReflection->invoke($this->achievementChecker, $this->user);
         $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckSuperBowlProphet()
+    {
+        $checkSuperBowlProphetReflection = $this->setUpReflection('checkSuperBowlProphet');
+        $achievement = $this->setUpAchievement('Super Bowl Prophet');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $prediction = new PreseasonPrediction();
+        $prediction->setUser($this->user);
+
+        $prediction->setAFCChampionPoints(3);
+        $prediction->setNFCChampionPoints(3);
+        $prediction->setSuperBowlWinnerPoints(5);
+        $prediction->setMostPassingYardsPoints(0);
+        $prediction->setMostRushingYardsPoints(0);
+        $prediction->setFirstPickPoints(0);
+        $prediction->setMostPointsScoredPoints(0);
+        $prediction->setFewestPointsAllowedPoints(0);
+        $prediction->setHighestMarginOfVictoryPoints(0);
+        $prediction->setOROYPoints(0);
+        $prediction->setDROYPoints(0);
+        $prediction->setMVPPoints(0);
+
+        $this->entityManager->persist($prediction);
+        $this->entityManager->flush();
+
+        $checkSuperBowlProphetReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckSuperBowlProphetOneMissing()
+    {
+        $checkSuperBowlProphetReflection = $this->setUpReflection('checkSuperBowlProphet');
+        $achievement = $this->setUpAchievement('Super Bowl Prophet');
+
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $prediction = new PreseasonPrediction();
+        $prediction->setUser($this->user);
+
+        $prediction->setAFCChampionPoints(0);
+        $prediction->setNFCChampionPoints(3);
+        $prediction->setSuperBowlWinnerPoints(5);
+        $prediction->setMostPassingYardsPoints(0);
+        $prediction->setMostRushingYardsPoints(0);
+        $prediction->setFirstPickPoints(0);
+        $prediction->setMostPointsScoredPoints(0);
+        $prediction->setFewestPointsAllowedPoints(0);
+        $prediction->setHighestMarginOfVictoryPoints(0);
+        $prediction->setOROYPoints(0);
+        $prediction->setDROYPoints(0);
+        $prediction->setMVPPoints(0);
+
+        $this->entityManager->persist($prediction);
+        $this->entityManager->flush();
+
+        $checkSuperBowlProphetReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckArod()
+    {
+        $checkArodReflection = $this->setUpReflection('checkArod');
+        $achievement = $this->setUpAchievement('Aaron Rodgers 2023');
+        $game = new Game();
+        $game->setWeekNumber(1);
+        //thursday night game, friday morning german time
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $bet = new Bet();
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(1);
+        $this->entityManager->persist($game);
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+        $this->betRepository->method('getThursdayNightBet')->willReturn($bet);
+        $this->betRepository->method('getTotalPointsByUserForWeek')->with($this->user, 1)->willReturn(1);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        //check the happy path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $checkArodReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckArodWrongDate()
+    {
+        $checkArodReflection = $this->setUpReflection('checkArod');
+        $achievement = $this->setUpAchievement('Aaron Rodgers 2023');
+        $this->betRepository->method('getThursdayNightBet')->willReturn(null);
+        $this->betRepository->method('getTotalPointsByUserForWeek')->with($this->user, 1)->willReturn(5);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        //check the sad path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $checkArodReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckArodAnotherWin()
+    {
+        $checkArodReflection = $this->setUpReflection('checkArod');
+        $achievement = $this->setUpAchievement('Aaron Rodgers 2023');
+
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $bet = new Bet();
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(5);
+        $this->entityManager->persist($game);
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+        $this->betRepository->method('getThursdayNightBet')->willReturn($bet);
+        $this->betRepository->method('getTotalPointsByUserForWeek')->with($this->user, 1)->willReturn(6);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        //check the sad path
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $checkArodReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckAudible()
+    {
+        $checkAudibleReflection = $this->setUpReflection('checkAudible');
+        $achievement = $this->setUpAchievement('Audible');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(1);
+        $bet->setHomePrediction(1);
+        $bet->setAwayPrediction(2);
+        $bet->setPreviousHomePrediction(2);
+        $bet->setPreviousAwayPrediction(1);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:10:00'));
+        $this->betRepository->method('findBetsByUserForWeek')->with($this->user, 1)->willReturn([$bet]);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        $checkAudibleReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckAudibleTooEarly()
+    {
+        $checkAudibleReflection = $this->setUpReflection('checkAudible');
+        $achievement = $this->setUpAchievement('Audible');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(1);
+        $bet->setHomePrediction(1);
+        $bet->setAwayPrediction(2);
+        $bet->setPreviousHomePrediction(2);
+        $bet->setPreviousAwayPrediction(1);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:00:00'));
+        $this->betRepository->method('findBetsByUserForWeek')->with($this->user, 1)->willReturn([$bet]);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        $checkAudibleReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckAudibleDidntChangeWinner()
+    {
+        $checkAudibleReflection = $this->setUpReflection('checkAudible');
+        $achievement = $this->setUpAchievement('Audible');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(1);
+        $bet->setHomePrediction(1);
+        $bet->setAwayPrediction(3);
+        $bet->setPreviousHomePrediction(1);
+        $bet->setPreviousAwayPrediction(2);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:00:00'));
+        $this->betRepository->method('findBetsByUserForWeek')->with($this->user, 1)->willReturn([$bet]);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        $checkAudibleReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckAudibleNoChange()
+    {
+        $checkAudibleReflection = $this->setUpReflection('checkAudible');
+        $achievement = $this->setUpAchievement('Audible');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(1);
+        $bet->setHomePrediction(1);
+        $bet->setAwayPrediction(3);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:10:00'));
+        $this->betRepository->method('findBetsByUserForWeek')->with($this->user, 1)->willReturn([$bet]);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        $checkAudibleReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, false);
+    }
+
+    public function testCheckFumble()
+    {
+        $checkFumbleReflection = $this->setUpReflection('checkFumble');
+        $achievement = $this->setUpAchievement('Fumble');
+
+        $this->assertUserAchievement($this->user, $achievement, false);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(0);
+        $bet->setHomePrediction(1);
+        $bet->setAwayPrediction(3);
+        $bet->setPreviousHomePrediction(3);
+        $bet->setPreviousAwayPrediction(1);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:10:00'));
+        $this->betRepository->method('findBetsByUserForWeek')->with($this->user, 1)->willReturn([$bet]);
+        $this->gameRepository->method('getLatestFinishedWeek')->willReturn(1);
+        $checkFumbleReflection->invoke($this->achievementChecker, $this->user);
+        $this->assertUserAchievement($this->user, $achievement, true);
+    }
+
+    public function testCheckPuntReturn()
+    {
+        // construct needs this:
+        //EntityManagerInterface $entityManager, ResultsAchievementChecker $achievementChecker, ResultValidator $validator
+        $resultsController = new ResultsController($this->entityManager, $this->achievementChecker, $this->validator);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $game->setHomeScore(3);
+        $game->setAwayScore(1);
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(0);
+        $bet->setHomePrediction(1);
+        $bet->setAwayPrediction(3);
+        $bet->setPreviousHomePrediction(3);
+        $bet->setPreviousAwayPrediction(1);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:10:00'));
+
+        $this->entityManager->persist($game);
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+
+        $this->assertUserAchievement($this->user, $this->setUpAchievement('Punt Return'), false);
+        $resultsController->updatePoints([$game]);
+        $this->assertUserAchievement($this->user, $this->setUpAchievement('Punt Return'), true);
+    }
+
+    public function testCheckPuntReturnNoHit()
+    {
+        // construct needs this:
+        //EntityManagerInterface $entityManager, ResultsAchievementChecker $achievementChecker, ResultValidator $validator
+        $resultsController = new ResultsController($this->entityManager, $this->achievementChecker, $this->validator);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $game->setHomeScore(3);
+        $game->setAwayScore(1);
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(0);
+        $bet->setHomePrediction(1);
+        $bet->setAwayPrediction(3);
+        $bet->setPreviousHomePrediction(1);
+        $bet->setPreviousAwayPrediction(5);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:10:00'));
+
+        $this->entityManager->persist($game);
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+
+        $this->assertUserAchievement($this->user, $this->setUpAchievement('Punt Return'), false);
+        $resultsController->updatePoints([$game]);
+        $this->assertUserAchievement($this->user, $this->setUpAchievement('Punt Return'), false);
+    }
+
+    public function testCheckNostradamus()
+    {
+        // construct needs this:
+        //EntityManagerInterface $entityManager, ResultsAchievementChecker $achievementChecker, ResultValidator $validator
+        $resultsController = new ResultsController($this->entityManager, $this->achievementChecker, $this->validator);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $game->setHomeScore(3);
+        $game->setAwayScore(1);
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(0);
+        $bet->setHomePrediction(3);
+        $bet->setAwayPrediction(1);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:10:00'));
+
+        $this->entityManager->persist($game);
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+
+        $this->assertUserAchievement($this->user, $this->setUpAchievement('Nostradamus'), false);
+        $resultsController->updatePoints([$game]);
+        $this->assertUserAchievement($this->user, $this->setUpAchievement('Nostradamus'), true);
+    }
+
+    public function testCheckNostradamusNoHit()
+    {
+        // construct needs this:
+        //EntityManagerInterface $entityManager, ResultsAchievementChecker $achievementChecker, ResultValidator $validator
+        $resultsController = new ResultsController($this->entityManager, $this->achievementChecker, $this->validator);
+        $bet = new Bet();
+        $game = new Game();
+        $game->setWeekNumber(1);
+        $game->setDate(new \DateTime('2024-09-06 02:15:00'));
+        $game->setLocation('heaven');
+        $game->setHomeScore(3);
+        $game->setAwayScore(1);
+        $bet->setGame($game);
+        $bet->setUser($this->user);
+        $bet->setPoints(0);
+        $bet->setHomePrediction(4);
+        $bet->setAwayPrediction(1);
+        $bet->setLastEdit(new \DateTime('2024-09-06 02:10:00'));
+
+        $this->entityManager->persist($game);
+        $this->entityManager->persist($bet);
+        $this->entityManager->flush();
+
+        $this->assertUserAchievement($this->user, $this->setUpAchievement('Nostradamus'), false);
+        $resultsController->updatePoints([$game]);
+        $this->assertUserAchievement($this->user, $this->setUpAchievement('Nostradamus'), false);
     }
 }

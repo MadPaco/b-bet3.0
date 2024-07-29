@@ -398,4 +398,33 @@ class BetRepository extends ServiceEntityRepository implements BetRepositoryInte
             ->getQuery()
             ->getResult();
     }
+
+    public function getThursdayNightBet(User $user, int $week): ?Bet
+    {
+        //thursday night games are on friday 2 am german time
+        return $this->createQueryBuilder('bet')
+            ->select('bet')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user =:user')
+            ->andWhere('game.weekNumber =:week')
+            ->andWhere('DAYOFWEEK(game.date) = 6')
+            ->andWhere('HOUR(game.date) <= 3')
+            ->setParameter('user', $user)
+            ->setParameter('week', $week)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findBetsByUserForWeek(User $user, int $week): array
+    {
+        return $this->createQueryBuilder('bet')
+            ->select('bet')
+            ->innerJoin('bet.game', 'game')
+            ->where('bet.user =:user')
+            ->andWhere('game.weekNumber =:week')
+            ->setParameter('user', $user)
+            ->setParameter('week', $week)
+            ->getQuery()
+            ->getResult();
+    }
 }

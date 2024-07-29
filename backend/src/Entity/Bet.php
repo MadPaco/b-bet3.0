@@ -37,6 +37,12 @@ class Bet
     #[ORM\Column(type: 'integer', nullable: true)]
     private $editCount;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $previousHomePrediction;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $previousAwayPrediction;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -116,6 +122,28 @@ class Bet
     public function setEditCount(int $editCount): self
     {
         $this->editCount = $editCount;
+        return $this;
+    }
+
+    public function getPreviousHomePrediction(): ?int
+    {
+        return $this->previousHomePrediction;
+    }
+
+    public function setPreviousHomePrediction(?int $previousHomePrediction): self
+    {
+        $this->previousHomePrediction = $previousHomePrediction;
+        return $this;
+    }
+
+    public function getPreviousAwayPrediction(): ?int
+    {
+        return $this->previousAwayPrediction;
+    }
+
+    public function setPreviousAwayPrediction(?int $previousAwayPrediction): self
+    {
+        $this->previousAwayPrediction = $previousAwayPrediction;
         return $this;
     }
 }

@@ -10,9 +10,11 @@ interface BetRepositoryInterface
 {
     //find bets
     public function findBetsByWeeknumber($weekNumber): array;
+    public function findBetsByUserForWeek(User $user, int $week): array;
     public function findNumberOfRegularSeasonBets(User $user): int;
     public function getPrimetimeBetsForWeek(User $user, int $week): array;
     public function getSundayBetsForWeek(User $user, int $week): array;
+    public function getThursdayNightBet(User $user, int $week): ?Bet;
 
     //find hits
     public function findHitsByUser(User $user);
