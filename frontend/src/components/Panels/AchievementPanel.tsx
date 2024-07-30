@@ -72,7 +72,7 @@ const AchievementPanel: React.FC<AchievementPanelProps> = () => {
                   <p
                     ref={(el) => (descriptionRefs.current[index] = el)}
                     className="text-sm mb-3 text-gray-400 overflow-hidden"
-                    style={{ maxHeight: '3em' }} // Limiting height to approximately 3 lines
+                    style={{ maxHeight: '3em' }}
                   >
                     {achievement.description}
                   </p>

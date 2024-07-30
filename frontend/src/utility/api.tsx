@@ -390,7 +390,43 @@ export async function fetchLeadboard() {
 
 export async function fetchAllAchievements() {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/achievements/fetchAll`,
+    `http://127.0.0.1:8000/api/achievements/fetchNonHidden`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
+
+export async function fetchHiddenAchievements() {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/achievements/fetchHidden`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
+
+export async function fetchHiddenCompletion() {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/userAchievement/fetchHiddenCompletion`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
+
+export async function fetchNonHiddenCompletion() {
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/userAchievement/fetchNonHiddenCompletion`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,

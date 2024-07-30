@@ -1,33 +1,82 @@
+import AchievementRow from "../components/common/AchievementRow";
+import AchievementCard from "../components/common/AchievementCard";
 import LoggedInLayout from "../components/layout/LoggedInLayout";
-import { fetchAllAchievements } from "../utility/api";
+import AchievementEarnedOverview from "../components/common/AchievementEarnedOverview";
+import { fetchAllAchievements, fetchHiddenAchievements } from "../utility/api";
 import { useEffect, useState } from "react";
+
 
 const AchievementsPage: React.FC = () => {
     const [achievements, setAchievements] = useState([]);
+    const [isMobile, setIsMobile] = useState(false);
+    const [hiddenAchievements, setHiddenAchievements] = useState([]);
+
+
     useEffect(() => {
         fetchAllAchievements().then((response) => {
             response.json().then((data) => {
                 setAchievements(data);
             });
         });
+
+        fetchHiddenAchievements().then((response) => {
+            response.json().then((data) => {
+                setHiddenAchievements(data);
+            });
+        }
+        );
+
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        handleResize();
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
     }, []);
 
     return (
         <LoggedInLayout>
-            <div className="container mx-auto p-4">
-                <div className="text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="container mx-auto p-4 text-white">
+                <h1 className="text-3xl font-bold text-center">Achievements</h1>
+                <AchievementEarnedOverview />
+                <div className="flex">
+                    <label className="text-center">
+                        Search Achievements
+                        <input type="text" placeholder="Search Achievements" className="w-full bg-gray-700 text-white p-2 rounded-lg my-2" />
+                    </label>
+                </div>
+
+
+                <label >
+                    Show earned
+                    <input type="checkbox" placeholder="Show earned" className="w-full bg-gray-700 text-white p-2 rounded-lg my-2" />
+                </label>
+
+                <div className="text-center flex flex-col items-center gap-2">
                     {achievements.map((achievement: any) => (
-                        <div key={achievement.id} className="bg-gray-700 text-white shadow-md rounded-lg p-4">
-                            <h1 className="text-xl font-bold mb-2">{achievement.name}</h1>
-                            <img className="w-full h-2/3 object-cover mb-2 rounded-lg" src={`/assets/images/achievements/${achievement.image}`} alt={achievement.name} />
-                            <p className="mb-2">{achievement.description}</p>
-                            <p className="mb-3 italic font-bold">{achievement.flavorText}</p>
-                            <p className="text-xs">{achievement.category}</p>
-                        </div>
+                        isMobile ?
+                            <AchievementCard key={achievement.id} achievement={achievement} isMobile={isMobile} />
+                            :
+                            <AchievementRow key={achievement.id} achievement={achievement} />
                     ))}
                 </div>
+                <div>
+                    <h1 className="text-2xl font-bold text-center">Hidden Achievements</h1>
+                    <div className="text-center flex flex-col items-center gap-2">
+                        {hiddenAchievements.map((achievement: any) => (
+                            isMobile ?
+                                <AchievementCard key={achievement.id} achievement={achievement} isMobile={isMobile} />
+                                :
+                                <AchievementRow key={achievement.id} achievement={achievement} />
+                        ))}
+                    </div>
+                </div>
             </div>
-        </LoggedInLayout>
+        </LoggedInLayout >
     );
 }
 
