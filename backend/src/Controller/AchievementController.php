@@ -35,13 +35,39 @@ class AchievementController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/api/achievements/fetchAll', name: 'fetch_all_achievements', methods: ['GET'])]
-    public function getAllAchievements(): JsonResponse
+    private function getEarnedPercentage(Achievement $achievement): float
     {
+        $userCount = $this->entityManager->getRepository(User::class)->count([]);
+        $userAchievements = $this->entityManager->getRepository(UserAchievement::class)->findBy([
+            'achievement' => $achievement
+        ]);
+        if ($userCount === 0) {
+            return 0;
+        }
+        return count($userAchievements) / $userCount * 100;
+    }
+
+    #[Route('/api/achievements/fetchNonHidden', name: 'fetch_all_achievements', methods: ['GET'])]
+    public function fetchAllAchievements(): JsonResponse
+    {
+        // by default only send the achievements that are not hidden
         $achievements = $this->entityManager->getRepository(Achievement::class)->findAll();
         $response = [];
 
+
         foreach ($achievements as $achievement) {
+
+            if ($achievement->getHidden()) {
+                continue;
+            }
+
+            $userAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy([
+                'user' => $this->getUser(),
+                'achievement' => $achievement
+            ]);
+
+            $earnedPercentage = $this->getEarnedPercentage($achievement);
+
             $response[] = [
                 'id' => $achievement->getId(),
                 'name' => $achievement->getName(),
@@ -49,6 +75,64 @@ class AchievementController extends AbstractController
                 'image' => $achievement->getImage(),
                 'flavorText' => $achievement->getFlavorText(),
                 'category' => $achievement->getCategory(),
+                'hidden' => $achievement->getHidden(),
+                'dateEarned' => $userAchievement ? $userAchievement->getDateEarned()->format('d-m-Y H:i') : null,
+                'earnedPercentage' => $earnedPercentage
+            ];
+        }
+
+        // order them so the earned achievements are at the top
+        usort($response, function ($a, $b) {
+            if ($a['dateEarned'] === null && $b['dateEarned'] === null) {
+                return 0;
+            }
+            if ($a['dateEarned'] === null) {
+                return 1;
+            }
+            if ($b['dateEarned'] === null) {
+                return -1;
+            }
+            return strtotime($b['dateEarned']) - strtotime($a['dateEarned']);
+        });
+        return new JsonResponse($response, 200);
+    }
+
+    #[Route('api/achievements/fetchHidden', name: 'fetch_hidden_achievements', methods: ['GET'])]
+    public function fetchHiddenAchievements(): JsonResponse
+    {
+        // only send the achievements that the user currently has achieved
+        // this should prevent to show the hidden achievements to the user
+        // even is he inspects the network traffic
+        // I doubt someone would do that but better safe than sorry
+        $achievements = $this->entityManager->getRepository(Achievement::class)->findAll();
+        $response = [];
+
+        foreach ($achievements as $achievement) {
+            if (!$achievement->getHidden()) {
+                continue;
+            }
+
+            $userAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy([
+                'user' => $this->getUser(),
+                'achievement' => $achievement
+            ]);
+
+            if (!$userAchievement) {
+                continue;
+            }
+
+            $earnedPercentage = $this->getEarnedPercentage($achievement);
+
+            $response[] = [
+                'id' => $achievement->getId(),
+                'name' => $achievement->getName(),
+                'description' => $achievement->getDescription(),
+                'image' => $achievement->getImage(),
+                'flavorText' => $achievement->getFlavorText(),
+                'category' => $achievement->getCategory(),
+                'hidden' => $achievement->getHidden(),
+                'dateEarned' => $userAchievement ? $userAchievement->getDateEarned()->format('d-m-Y H:i') : null,
+                'earnedPercentage' => $earnedPercentage
             ];
         }
 

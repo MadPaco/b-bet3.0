@@ -29,6 +29,9 @@ class Achievement
     #[ORM\Column(type: 'string', length: 255)]
     private $category;
 
+    #[ORM\Column(type: 'boolean')]
+    private $hidden;
+
     #[ORM\OneToMany(targetEntity: UserAchievement::class, mappedBy: "achievement")]
     private $userAchievements;
 
@@ -96,6 +99,17 @@ class Achievement
     public function setCategory(string $category): self
     {
         $this->category = $category;
+        return $this;
+    }
+
+    public function getHidden(): ?bool
+    {
+        return $this->hidden;
+    }
+
+    public function setHidden(bool $hidden): self
+    {
+        $this->hidden = $hidden;
         return $this;
     }
 
