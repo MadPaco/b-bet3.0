@@ -4,30 +4,34 @@ import LoggedInLayout from "../components/layout/LoggedInLayout";
 import AchievementEarnedOverview from "../components/common/AchievementEarnedOverview";
 import { fetchAllAchievements, fetchHiddenAchievements } from "../utility/api";
 import { useEffect, useState } from "react";
-
+import AchievementFilters from "../components/common/AchievementFilters";
 
 const AchievementsPage: React.FC = () => {
     const [achievements, setAchievements] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
-    const [hiddenAchievements, setHiddenAchievements] = useState([]);
-
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filters, setFilters] = useState({
+        showEarned: true,
+        showNotEarned: true,
+        showHidden: true,
+        showNonHidden: true,
+        showAmount: true,
+        showTiming: true,
+        showWeekly: true,
+        showStreaks: true,
+        showSpecial: true,
+        showMocking: true,
+    });
 
     useEffect(() => {
-        fetchAllAchievements().then((response) => {
-            response.json().then((data) => {
-                setAchievements(data);
+        Promise.all([fetchAllAchievements(), fetchHiddenAchievements()]).then(([allResponse, hiddenResponse]) => {
+            Promise.all([allResponse.json(), hiddenResponse.json()]).then(([allData, hiddenData]) => {
+                setAchievements([...allData, ...hiddenData]);
             });
         });
 
-        fetchHiddenAchievements().then((response) => {
-            response.json().then((data) => {
-                setHiddenAchievements(data);
-            });
-        }
-        );
-
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768);
+            setIsMobile(window.innerWidth <= 1000);
         };
 
         window.addEventListener("resize", handleResize);
@@ -38,45 +42,53 @@ const AchievementsPage: React.FC = () => {
         };
     }, []);
 
+    const toggleFilter = (key: string) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [key]: !prevFilters[key],
+        }));
+    };
+
+    const filteredAchievements = achievements.filter((achievement: any) => {
+        if (!filters.showEarned && achievement.dateEarned !== null) return false;
+        if (!filters.showNotEarned && achievement.dateEarned === null) return false;
+        if (!filters.showHidden && achievement.hidden === true) return false;
+        if (!filters.showNonHidden && achievement.hidden === false) return false;
+        if (!filters.showAmount && achievement.category === "Amount of Predictions") return false;
+        if (!filters.showTiming && achievement.category === "Timing and Strategy") return false;
+        if (!filters.showWeekly && achievement.category === "Weekly and Cumulative Performance") return false;
+        if (!filters.showStreaks && achievement.category === "Streaks and Trends") return false;
+        if (!filters.showSpecial && achievement.category === "Special Predictions") return false;
+        if (!filters.showMocking && achievement.category === "Mocking Achievements") return false;
+        if (searchQuery
+            && !achievement.name.toLowerCase().includes(searchQuery.toLowerCase())
+            && !achievement.description.toLowerCase().includes(searchQuery.toLowerCase())
+        ) return false;
+
+        // Add additional filtering logic based on categories as needed
+        return true;
+    });
+
     return (
         <LoggedInLayout>
             <div className="container mx-auto p-4 text-white">
                 <h1 className="text-3xl font-bold text-center">Achievements</h1>
                 <AchievementEarnedOverview />
-                <div className="flex">
-                    <label className="text-center">
-                        Search Achievements
-                        <input type="text" placeholder="Search Achievements" className="w-full bg-gray-700 text-white p-2 rounded-lg my-2" />
-                    </label>
-                </div>
-
-
-                <label >
-                    Show earned
-                    <input type="checkbox" placeholder="Show earned" className="w-full bg-gray-700 text-white p-2 rounded-lg my-2" />
-                </label>
-
+                <AchievementFilters
+                    filters={filters}
+                    toggleFilter={toggleFilter}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery} />
                 <div className="text-center flex flex-col items-center gap-2">
-                    {achievements.map((achievement: any) => (
+                    {filteredAchievements.map((achievement: any) => (
                         isMobile ?
                             <AchievementCard key={achievement.id} achievement={achievement} isMobile={isMobile} />
                             :
                             <AchievementRow key={achievement.id} achievement={achievement} />
                     ))}
                 </div>
-                <div>
-                    <h1 className="text-2xl font-bold text-center">Hidden Achievements</h1>
-                    <div className="text-center flex flex-col items-center gap-2">
-                        {hiddenAchievements.map((achievement: any) => (
-                            isMobile ?
-                                <AchievementCard key={achievement.id} achievement={achievement} isMobile={isMobile} />
-                                :
-                                <AchievementRow key={achievement.id} achievement={achievement} />
-                        ))}
-                    </div>
-                </div>
             </div>
-        </LoggedInLayout >
+        </LoggedInLayout>
     );
 }
 

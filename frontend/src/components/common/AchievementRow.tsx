@@ -13,6 +13,7 @@ interface AchievementRowProps {
         category: string;
         dateEarned: string;
         earnedPercentage: number;
+        hidden: boolean;
     };
 }
 
@@ -29,7 +30,7 @@ const AchievementRow: React.FC<AchievementRowProps> = ({ achievement }) => {
 
     return (
         <>
-            <div key={achievement.id} onClick={handleClick} className="bg-gray-700 text-white shadow-md rounded-lg px-3 py-5 flex m-2 cursor-pointer md:w-2/3">
+            <div key={achievement.id} onClick={handleClick} className={`bg-gray-700 text-white shadow-md rounded-lg px-3 py-5 flex m-2 cursor-pointer md:w-2/3 ${achievement.hidden ? 'border border-yellow-300' : ''}`}>
                 <div className="flex flex-col md:w-1/12 align-middle justify-center">
                     <img
                         className={`w-full h-full object-cover rounded-lg ${achievement.dateEarned ? '' : 'filter grayscale'}`}
@@ -45,7 +46,7 @@ const AchievementRow: React.FC<AchievementRowProps> = ({ achievement }) => {
                     {achievement.dateEarned === null ? <p>Not Earned</p> : <p> Earned: {achievement.dateEarned}</p>}
                     {achievement.earnedPercentage ? <p>{achievement.earnedPercentage.toFixed(2)}% of players have this achievement</p> : <p>No player has this achievement yet</p>}
                 </div>
-            </div>
+            </div >
             {showPopover && (
                 <div className="h-full w-full fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="relative rounded-lg shadow-lg p-4 w-3/4 md:w-1/3 bg-gray-500">
@@ -55,7 +56,8 @@ const AchievementRow: React.FC<AchievementRowProps> = ({ achievement }) => {
                         <AchievementCard achievement={achievement} isMobile={false} />
                     </div>
                 </div>
-            )}
+            )
+            }
         </>
     );
 };
