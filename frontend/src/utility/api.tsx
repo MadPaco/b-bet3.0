@@ -1,7 +1,10 @@
+const BASE_URL = 'http://127.0.0.1:8000/api';
+
 export async function fetchTeamInfo(team: string) {
+
   const token = localStorage.getItem('token');
   const response = await fetch(
-    `http://127.0.0.1:8000/api/team/fetchTeaminfo/?favTeam=${team}`,
+    `${BASE_URL}/team/fetchTeaminfo/?favTeam=${team}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -17,7 +20,7 @@ export async function fetchTeamInfo(team: string) {
 export async function fetchAllTeamLogos() {
   const token = localStorage.getItem('token');
   const response = await fetch(
-    'http://127.0.0.1:8000/api/team/fetchAllLogos',
+    `${BASE_URL}/team/fetchAllLogos`,
     {
       headers: {
         Authorization: `Bearer ${token}`
@@ -39,7 +42,7 @@ export async function fetchPrimaryColor(team: string | null): Promise<string> {
   const token = localStorage.getItem('token');
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/team/fetchTeaminfo/?favTeam=${team}`,
+      `${BASE_URL}/team/fetchTeaminfo/?favTeam=${team}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -65,7 +68,7 @@ export async function fetchTeamStats(team: string | null): Promise<string> {
   const token = localStorage.getItem('token');
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/team/fetchTeamStats/${team}/`,
+      `${BASE_URL}/team/fetchTeamStats/${team}/`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -86,7 +89,7 @@ export async function fetchTeamStats(team: string | null): Promise<string> {
 export async function fetchDivisionStandings(conference: string, division: string) {
   const token = localStorage.getItem('token');
   const response = await fetch(
-    `http://127.0.0.1:8000/api/team/fetchDivisionStandings/${conference}/${division}/`,
+    `${BASE_URL}/team/fetchDivisionStandings/${conference}/${division}/`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -102,7 +105,7 @@ export async function fetchDivisionStandings(conference: string, division: strin
 export async function fetchUserInfo(username: string) {
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/user/fetchUser/?username=${username}`,
+      `${BASE_URL}/user/fetchUser/?username=${username}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -122,7 +125,7 @@ export async function fetchUserInfo(username: string) {
 
 export async function fetchAllUsers() {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/api/user/fetchAll`, {
+    const response = await fetch(`${BASE_URL}/user/fetchAll`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
@@ -141,7 +144,7 @@ export async function fetchAllUsers() {
 export async function fetchAllTeamNames() {
   try {
     const response = await fetch(
-      'http://127.0.0.1:8000/api/team/fetchAllTeamNames',
+      `${BASE_URL}/team/fetchAllTeamNames`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -165,7 +168,7 @@ export async function fetchNewToken(): Promise<void> {
     throw new Error('No refresh token found');
   }
 
-  return fetch('http://127.0.0.1:8000/api/token/refresh', {
+  return fetch(`${BASE_URL}/token/refresh`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -180,6 +183,10 @@ export async function fetchNewToken(): Promise<void> {
     })
     .then((data) => {
       localStorage.setItem('token', data.token);
+      // ***************REWORK THIS****************
+      // I know reloading is nasty, but for now it'll do
+      // will write a wrapper for fetch that will handle this
+      window.location.reload();
     })
     .catch((error) => {
       console.error('There has been a problem with your fetch operation:', error);
@@ -193,7 +200,7 @@ export async function fetchNewToken(): Promise<void> {
 
 export async function updateUser(initialUsername: string, formData: FormData) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/user/editUser?username=${initialUsername}`,
+    `${BASE_URL}/user/editUser?username=${initialUsername}`,
     {
       method: 'POST',
       headers: {
@@ -211,7 +218,7 @@ export async function updateUser(initialUsername: string, formData: FormData) {
 
 export async function fetchSchedule(weekNumber: number) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/game/fetchWeek?weekNumber=${weekNumber}`,
+    `${BASE_URL}/game/fetchWeek?weekNumber=${weekNumber}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -234,7 +241,7 @@ interface GameBody {
 
 export async function updateGame(id: number, postBody: GameBody) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/game/editGame?gameID=${id}`,
+    `${BASE_URL}/game/editGame?gameID=${id}`,
     {
       method: 'POST',
       headers: {
@@ -254,7 +261,7 @@ export async function updateGame(id: number, postBody: GameBody) {
 }
 
 export async function addGame(postBody: GameBody) {
-  const response = await fetch(`http://127.0.0.1:8000/api/game/addGame`, {
+  const response = await fetch(`${BASE_URL}/game/addGame`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -269,7 +276,7 @@ export async function addGame(postBody: GameBody) {
 
 export async function deleteGame(id: number) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/game/deleteGame?gameID=${id}`,
+    `${BASE_URL}/game/deleteGame?gameID=${id}`,
     {
       method: 'POST',
       headers: {
@@ -287,7 +294,7 @@ interface BetBody {
 }
 
 export async function addBets(postBody: BetBody[]) {
-  const response = await fetch(`http://127.0.0.1:8000/api/bet/addBets`, {
+  const response = await fetch(`${BASE_URL}/bet/addBets`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -314,7 +321,7 @@ export async function fetchBets(
   }
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/bet/fetchBets${query}`,
+    `${BASE_URL}/bet/fetchBets${query}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -326,7 +333,7 @@ export async function fetchBets(
 
 export async function fetchResults(weekNumber: number) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/game/fetchResults?weekNumber=${weekNumber}`,
+    `${BASE_URL}/game/fetchResults?weekNumber=${weekNumber}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -339,7 +346,7 @@ export async function fetchResults(weekNumber: number) {
 export async function submitResults(scores: {
   [gameId: number]: { homeTeamScore: number; awayTeamScore: number };
 }) {
-  const response = await fetch(`http://127.0.0.1:8000/api/game/submitResults`, {
+  const response = await fetch(`${BASE_URL}/game/submitResults`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -354,7 +361,7 @@ export async function submitResults(scores: {
 
 export async function fetchUserStats(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/stats/userStats/${username}`,
+    `${BASE_URL}/stats/userStats/${username}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -366,7 +373,7 @@ export async function fetchUserStats(username: string) {
 
 export async function fetchShortUserStats(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/stats/userStats/${username}/short`,
+    `${BASE_URL}/stats/userStats/${username}/short`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -378,7 +385,7 @@ export async function fetchShortUserStats(username: string) {
 
 export async function fetchLeadboard() {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/stats/leaderboard`,
+    `${BASE_URL}/stats/leaderboard`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -388,9 +395,9 @@ export async function fetchLeadboard() {
   return response;
 }
 
-export async function fetchAllAchievements() {
+export async function fetchAllAchievements(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/achievements/fetchNonHidden`,
+    `${BASE_URL}/achievements/${username}/fetchNonHidden`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -400,9 +407,9 @@ export async function fetchAllAchievements() {
   return response;
 }
 
-export async function fetchHiddenAchievements() {
+export async function fetchHiddenAchievements(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/achievements/fetchHidden`,
+    `${BASE_URL}/achievements/${username}/fetchHidden`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -412,9 +419,9 @@ export async function fetchHiddenAchievements() {
   return response;
 }
 
-export async function fetchHiddenCompletion() {
+export async function fetchHiddenCompletion(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/userAchievement/fetchHiddenCompletion`,
+    `${BASE_URL}/userAchievement/${username}/fetchHiddenCompletion`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -424,9 +431,9 @@ export async function fetchHiddenCompletion() {
   return response;
 }
 
-export async function fetchNonHiddenCompletion() {
+export async function fetchNonHiddenCompletion(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/userAchievement/fetchNonHiddenCompletion`,
+    `${BASE_URL}/userAchievement/${username}/fetchNonHiddenCompletion`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -438,7 +445,7 @@ export async function fetchNonHiddenCompletion() {
 
 export async function fetchThreeLatestUserAchievement(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/userAchievement/${username}/fetchThreeLatest`,
+    `${BASE_URL}/userAchievement/${username}/fetchThreeLatest`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -450,7 +457,7 @@ export async function fetchThreeLatestUserAchievement(username: string) {
 
 export async function fetchUpcomingGames() {
   const response = await fetch(
-    'http://127.0.0.1:8000/api/schedule/upcomingGames',
+    `${BASE_URL}/schedule/upcomingGames`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -462,7 +469,7 @@ export async function fetchUpcomingGames() {
 
 export async function fetchFavTeamBanner(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/user/${username}/fetchFavTeamBanner`,
+    `${BASE_URL}/user/${username}/fetchFavTeamBanner`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -474,7 +481,7 @@ export async function fetchFavTeamBanner(username: string) {
 
 export async function addPreseasonPrediction(username: string, data: any) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/preseasonPrediction/${username}/add`,
+    `${BASE_URL}/preseasonPrediction/${username}/add`,
     {
       method: 'POST',
       headers: {
@@ -489,7 +496,19 @@ export async function addPreseasonPrediction(username: string, data: any) {
 
 export async function fetchPreseasonPrediction(username: string) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/preseasonPrediction/${username}/fetch`,
+    `${BASE_URL}/preseasonPrediction/${username}/fetch`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    },
+  );
+  return response;
+}
+
+export async function getCurrentWeek() {
+  const response = await fetch(
+    `${BASE_URL}/schedule/getCurrentWeek`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,

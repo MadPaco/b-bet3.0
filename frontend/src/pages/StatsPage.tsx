@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import LoggedInLayout from '../components/layout/LoggedInLayout';
 import { fetchUserStats, fetchLeadboard, fetchAllTeamLogos } from '../utility/api';
-import { useAuth } from '../components/auth/AuthContext';
 import PointsPerWeekChart from '../components/charts/PointsPerWeekChart';
 import TotalPointsChart from '../components/charts/TotalPointsChart';
 import PointDistributionChart from '../components/charts/PointDistributionChart';
@@ -10,7 +10,7 @@ import LeaderboardEvolutionChart from '../components/charts/LeaderboardEvolution
 import HitRateEvolutionChart from '../components/charts/HitRateEvolutionChart';
 
 const StatsPage: React.FC = () => {
-  const { username } = useAuth();
+  const { username } = useParams<{ username: string }>();
   const [stats, setStats] = useState<any>(null);
   const [leaderboard, setLeaderboard] = useState<any>(null);
   const [teamLogos, setTeamLogos] = useState<any>(null);

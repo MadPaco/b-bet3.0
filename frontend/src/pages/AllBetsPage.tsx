@@ -11,16 +11,27 @@ const AllBetsPage: React.FC = () => {
   const [weekNumber, setWeekNumber] = useState<number>(1);
   const [games, setGames] = useState<Game[]>([]);
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
+
   const NFLWEEKS = 22;
+
+  const weekLabels: { [key: number]: string } = {
+    19: 'Wild Card',
+    20: 'Divisional',
+    21: 'Conference',
+    22: 'Super Bowl',
+  };
+
+
   const weeks = [];
   for (let i = 1; i <= NFLWEEKS; i++) {
-    weeks.push(<option value={i} key={i}>Week {i}</option>);
+    const label = weekLabels[i] || `Week ${i}`;
+    weeks.push(<option value={i} key={i}>{label}</option>);
   }
 
   useEffect(() => {
     const getAllBets = async () => {
       const fetchedBets = await fetchBets(weekNumber);
-      const data = await fetchedBets.json(); // Await the json method
+      const data = await fetchedBets.json();
       setBets(data);
     };
 
@@ -58,7 +69,7 @@ const AllBetsPage: React.FC = () => {
             <h1 className="text-white text-2xl">All Bets</h1>
             <select
               className="bg-gray-600 text-white p-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
-              value={weekNumber || ''}
+              value={weekNumber}
               onChange={(e) => setWeekNumber(Number(e.target.value))}
             >
               <option value="" disabled>Select a week</option>
@@ -80,7 +91,6 @@ const AllBetsPage: React.FC = () => {
                     />
                     <span className='text-center'>{game.awayTeam}</span>
                   </div>
-                  {/* "at" text */}
                   <div className='w-1/3 text-center'>
                     at
                   </div>

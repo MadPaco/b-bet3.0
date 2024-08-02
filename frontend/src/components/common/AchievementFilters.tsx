@@ -56,6 +56,7 @@ const AchievementFilters: React.FC<AchievementFiltersProps> = ({ filters, toggle
                         <input
                             className="rounded-lg text-white bg-gray-700 mx-3 px-2"
                             type='text'
+                            placeholder='enter search query'
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />

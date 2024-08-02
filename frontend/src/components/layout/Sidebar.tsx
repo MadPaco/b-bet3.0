@@ -21,7 +21,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar: React.FC = () => {
-  const { roles } = useAuth();
+
+  const { roles, username } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
@@ -43,10 +44,10 @@ const Sidebar: React.FC = () => {
     { icon: faGlobe, text: 'All Bets', onClick: () => navigate('/allBets'), path: '/allBets' },
     { icon: faRankingStar, text: 'Leaderboard', onClick: () => navigate('/leaderboard'), path: '/leaderboard' },
     { icon: faBolt, text: 'Preseason Predictions', onClick: () => navigate('/preseasonPredictions'), path: '/preseasonPredictions' },
-    { icon: faTrophy, text: 'Achievements', onClick: () => navigate('/achievements'), path: '/achievements' },
-    { icon: faChartLine, text: 'Stats', onClick: () => navigate('/stats'), path: '/stats' },
-    { icon: faUsers, text: 'Users', onClick: () => navigate('/allUsers'), path: '/allUsers' },
-    { icon: faUser, text: 'Edit Profile', onClick: () => navigate('/editProfile'), path: '/editProfile' },
+    { icon: faTrophy, text: 'Achievements', onClick: () => navigate(`/users/${username}/achievements`), path: `/users/${username}/achievements` },
+    { icon: faChartLine, text: 'Stats', onClick: () => navigate(`/users/${username}/stats`), path: `/users/${username}/stats` },
+    { icon: faUsers, text: 'Users', onClick: () => navigate('/users/all'), path: '/users/all' },
+    { icon: faUser, text: 'Edit Profile', onClick: () => navigate(`/users/${username}/profile/edit`), path: `/users/${username}/edit` },
     { icon: faBook, text: 'Rules', onClick: () => navigate('/rules'), path: '/rules' },
     { icon: faRightFromBracket, text: 'Logout', onClick: handleLogout, path: '/login' },
   ];

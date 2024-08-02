@@ -17,7 +17,7 @@ const AllUsersPage = lazy(() => import('./pages/AllUsersPage'));
 const PreseasonPredictionPage = lazy(() => import('./pages/PreseasonPredictionPage'));
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const PredictionsPage = lazy(() => import('./pages/PredictionsPage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const EditProfilePage = lazy(() => import('./pages/EditProfilePage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const RulesPage = lazy(() => import('./pages/RulesPage'));
 const StatsPage = lazy(() => import('./pages/StatsPage'));
@@ -44,15 +44,15 @@ const App: React.FC = () => {
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/schedule" element={<SchedulePage />} />
               <Route path="/allBets" element={<AllBetsPage />} />
-              <Route path="/allUsers" element={<AllUsersPage />} />
+              <Route path="/users/all" element={<AllUsersPage />} />
               <Route path="/preseasonPredictions" element={<PreseasonPredictionPage />} />
-              <Route path="/achievements" element={<AchievementsPage />} />
+              <Route path="/users/:username/achievements" element={<AchievementsPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/predictions" element={<PredictionsPage />} />
-              <Route path="/editProfile" element={<ProfilePage />} />
-              <Route path="/users/:username" element={<UserProfilePage />} />
+              <Route path="/users/:username/profile/edit" element={<EditProfilePage />} />
+              <Route path="/users/:username/profile" element={<UserProfilePage />} />
               <Route path="/rules" element={<RulesPage />} />
-              <Route path="/stats" element={<StatsPage />} />
+              <Route path="/users/:username/stats" element={<StatsPage />} />
             </Routes>
           </Suspense>
         </ColorProvider>

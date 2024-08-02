@@ -5,8 +5,10 @@ import AchievementEarnedOverview from "../components/common/AchievementEarnedOve
 import { fetchAllAchievements, fetchHiddenAchievements } from "../utility/api";
 import { useEffect, useState } from "react";
 import AchievementFilters from "../components/common/AchievementFilters";
+import { useParams } from "react-router-dom";
 
 const AchievementsPage: React.FC = () => {
+    const { username } = useParams<{ username: string }>();
     const [achievements, setAchievements] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -24,7 +26,7 @@ const AchievementsPage: React.FC = () => {
     });
 
     useEffect(() => {
-        Promise.all([fetchAllAchievements(), fetchHiddenAchievements()]).then(([allResponse, hiddenResponse]) => {
+        Promise.all([fetchAllAchievements(username), fetchHiddenAchievements(username)]).then(([allResponse, hiddenResponse]) => {
             Promise.all([allResponse.json(), hiddenResponse.json()]).then(([allData, hiddenData]) => {
                 setAchievements([...allData, ...hiddenData]);
             });
@@ -72,7 +74,7 @@ const AchievementsPage: React.FC = () => {
     return (
         <LoggedInLayout>
             <div className="container mx-auto p-4 text-white">
-                <h1 className="text-3xl font-bold text-center">Achievements</h1>
+                <h1 className="text-3xl font-bold text-center">Achievements of {username}</h1>
                 <AchievementEarnedOverview />
                 <AchievementFilters
                     filters={filters}

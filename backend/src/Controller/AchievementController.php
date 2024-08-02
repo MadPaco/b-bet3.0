@@ -47,8 +47,8 @@ class AchievementController extends AbstractController
         return count($userAchievements) / $userCount * 100;
     }
 
-    #[Route('/api/achievements/fetchNonHidden', name: 'fetch_all_achievements', methods: ['GET'])]
-    public function fetchAllAchievements(): JsonResponse
+    #[Route('/api/achievements/{username}/fetchNonHidden', name: 'fetch_all_achievements', methods: ['GET'])]
+    public function fetchAllAchievements($username): JsonResponse
     {
         // by default only send the achievements that are not hidden
         $achievements = $this->entityManager->getRepository(Achievement::class)->findAll();
@@ -62,7 +62,7 @@ class AchievementController extends AbstractController
             }
 
             $userAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy([
-                'user' => $this->getUser(),
+                'user' => $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]),
                 'achievement' => $achievement
             ]);
 
@@ -97,8 +97,8 @@ class AchievementController extends AbstractController
         return new JsonResponse($response, 200);
     }
 
-    #[Route('api/achievements/fetchHidden', name: 'fetch_hidden_achievements', methods: ['GET'])]
-    public function fetchHiddenAchievements(): JsonResponse
+    #[Route('api/achievements/{username}/fetchHidden', name: 'fetch_hidden_achievements', methods: ['GET'])]
+    public function fetchHiddenAchievements($username): JsonResponse
     {
         // only send the achievements that the user currently has achieved
         // this should prevent to show the hidden achievements to the user
@@ -113,7 +113,7 @@ class AchievementController extends AbstractController
             }
 
             $userAchievement = $this->entityManager->getRepository(UserAchievement::class)->findOneBy([
-                'user' => $this->getUser(),
+                'user' => $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]),
                 'achievement' => $achievement
             ]);
 

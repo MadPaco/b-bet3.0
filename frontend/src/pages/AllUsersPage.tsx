@@ -45,7 +45,7 @@ const AllUsersPage: React.FC = () => {
   };
 
   const handleUserClick = (username: string) => {
-    navigate(`/users/${username}`); // Navigate to the user's profile page
+    navigate(`/users/${username}/profile`);
   };
 
   return (
@@ -55,7 +55,7 @@ const AllUsersPage: React.FC = () => {
           <Panel key={user.username}>
             <div
               className="bg-gray-700 rounded-lg shadow-lg p-4 cursor-pointer hover:bg-gray-500"
-              onClick={() => handleUserClick(user.username)} // Handle click
+              onClick={() => handleUserClick(user.username)}
             >
               <img
                 src={profilePictures[user.username] || 'assets/images/defaultUser.webp'}

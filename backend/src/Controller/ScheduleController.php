@@ -86,4 +86,12 @@ class ScheduleController extends AbstractController
         }
         return new JsonResponse($result, 200);
     }
+
+    #[Route('/api/schedule/getCurrentWeek', name: 'get_current_week', methods: ['GET'])]
+    public function getCurrentWeek(): JsonResponse
+    {
+        $latestFinishedWeek = $this->entityManager->getRepository(Game::class)->getLatestFinishedWeek();
+        $currentWeek = $latestFinishedWeek + 1;
+        return new JsonResponse(['currentWeek' => $currentWeek], 200);
+    }
 }

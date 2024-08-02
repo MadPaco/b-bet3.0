@@ -1,6 +1,7 @@
 
 import { fetchHiddenCompletion, fetchNonHiddenCompletion } from '../../utility/api';
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 interface completion {
     earned: number;
@@ -10,11 +11,12 @@ interface completion {
 
 
 const AchievementEarnedOverview: React.FC = () => {
+    const { username } = useParams<{ username: string }>();
     const [hiddenCompletion, setHiddenCompletion] = useState<completion | null>(null);
     const [nonHiddenCompletion, setNonHiddenCompletion] = useState<completion | null>(null);
 
     useEffect(() => {
-        fetchHiddenCompletion().then((response) => {
+        fetchHiddenCompletion(username).then((response) => {
             response.json().then((data) => {
                 setHiddenCompletion(data);
             });
@@ -22,7 +24,7 @@ const AchievementEarnedOverview: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        fetchNonHiddenCompletion().then((response) => {
+        fetchNonHiddenCompletion(username).then((response) => {
             response.json().then((data) => {
                 setNonHiddenCompletion(data);
             });

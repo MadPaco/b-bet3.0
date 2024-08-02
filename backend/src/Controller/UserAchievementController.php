@@ -59,10 +59,10 @@ class UserAchievementController extends AbstractController
         return new JsonResponse($threeLatestAchievements);
     }
 
-    #[Route('api/userAchievement/fetchNonHiddenCompletion', name: 'fetch_non_hidden_completion', methods: ['GET'])]
-    public function fetchNonHiddenCompletion()
+    #[Route('api/userAchievement/{username}/fetchNonHiddenCompletion', name: 'fetch_non_hidden_completion', methods: ['GET'])]
+    public function fetchNonHiddenCompletion($username)
     {
-        $user = $this->getUser();
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
 
         $nonHiddenAchievements = $this->entityManager->getRepository(Achievement::class)->findBy(['hidden' => false]);
         $nonHiddenAchievementsCount = count($nonHiddenAchievements);
@@ -76,10 +76,10 @@ class UserAchievementController extends AbstractController
         return new JsonResponse(['earned' => $userNonHiddenAchievements, 'total' => $nonHiddenAchievementsCount]);
     }
 
-    #[Route('api/userAchievement/fetchHiddenCompletion', name: 'fetch_hidden_completion', methods: ['GET'])]
-    public function fetchHiddenCompletion()
+    #[Route('api/userAchievement/{username}/fetchHiddenCompletion', name: 'fetch_hidden_completion', methods: ['GET'])]
+    public function fetchHiddenCompletion($username)
     {
-        $user = $this->getUser();
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
 
         $hiddenAchievements = $this->entityManager->getRepository(Achievement::class)->findBy(['hidden' => true]);
         $hiddenAchievementsCount = count($hiddenAchievements);
