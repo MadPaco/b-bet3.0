@@ -4,12 +4,9 @@ import { useColor } from '../context/ColorContext';
 import { colorClasses } from '../data/colorClasses';
 import { fetchSchedule } from '../utility/api';
 import { Game } from '../utility/types';
+import { generateWeekOptions } from '../data/weekLabels';
 
 const SchedulePage: React.FC = () => {
-  const NFLWEEKS = 22;
-
-
-
   const [schedule, setSchedule] = useState<Game[]>([]);
   const [weekNumber, setWeekNumber] = useState(1);
   const { primaryColor } = useColor();
@@ -27,18 +24,16 @@ const SchedulePage: React.FC = () => {
     getSchedule();
   }, [weekNumber]);
 
-  const options = [];
-  for (let i = 1; i <= NFLWEEKS; i++) {
-    options.push(<option value={i}>Week {i}</option>);
-  }
+  const options = generateWeekOptions();
+
   return (
     <LoggedInLayout>
       <div className="flex flex-col items-center justify-center pt-2">
+        <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>Schedule</h1>
         <div className="text-white lg:w-1/3">
           <div className="flex items-center flex-col mb-4">
-            <h1>Schedule Page</h1>
             <select
-              className="bg-gray-600 text-white p-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+              className="bg-gray-900 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-highlightGold focus:ring-opacity-50 border-highlightCream border-solid border-2"
               value={weekNumber}
               onChange={(e) => setWeekNumber(Number(e.target.value))}
             >
@@ -49,10 +44,10 @@ const SchedulePage: React.FC = () => {
           {schedule.map((game, index) => (
             <div
               key={index}
-              className={`${colorClass} game flex flex-col items-center bg-opacity-90 rounded-lg p-1 m-3`}
+              className='bg-gray-900 flex flex-col items-center rounded-lg p-2 m-3 border-solid border-2 border-highlightCream'
             >
               {/* Start of date row */}
-              <div className="time text-lg font-bold">
+              <div className="time text-lg font-bold text-highlightGold">
                 {new Intl.DateTimeFormat('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(game.date))}
               </div>
 

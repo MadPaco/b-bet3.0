@@ -9,12 +9,12 @@ interface AccordionProps {
 const Accordion: React.FC<AccordionProps> = ({ title, children, isOpen, toggleAccordion, currentWeek }) => {
 
   return (
-    <div className="border-b text-white bg-gray-800">
+    <div className="border-b text-white bg-gray-900">
       <button
         className="w-full flex justify-center items-center py-2 px-4 text-center focus:outline-none"
         onClick={toggleAccordion}
       >
-        <span className={`text-lg font-medium ${currentWeek === true ? 'text-highlightBlue' : ''}`}>{title}</span>
+        <span className={`text-lg font-medium ${currentWeek === true ? 'text-highlightGold' : ''}`}>{title}</span>
       </button>
       <div className="flex justify-center">
         <svg

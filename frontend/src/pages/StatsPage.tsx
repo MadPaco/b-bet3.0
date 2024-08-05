@@ -67,9 +67,9 @@ const StatsPage: React.FC = () => {
                 <p className='mt-3'>Bets Placed: {stats.betsPlaced}</p>
                 <p className='mt-3'>Total points {stats.totalPoints}</p>
                 <p className='mt-3'>Current place: {stats.currentPlace}</p>
-                <p className='mt-3'>Best week: {stats.highesScoringWeek}</p>
+                <p className='mt-3'>Best week: {stats.highestScoringWeek}</p>
                 <p className='mt-3'>Worst week: {stats.lowestScoringWeek}</p>
-                <p>Hit-rate: {(stats.hitRate * 100).toFixed(2)} %</p>
+                <p className='mt-3'>Hit-rate: {(stats.hitRate * 100).toFixed(2)} %</p>
               </div>
 
               <div className="bg-gray-800 p-6 rounded-lg shadow-lg">

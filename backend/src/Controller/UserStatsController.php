@@ -307,7 +307,7 @@ class UserStatsController extends AbstractController
             'totalPoints' => $this->getTotalPoints($user),
             'currentPlace' => array_search($user->getUsername(), array_column($this->calculateLeaderboard(), 'username')) + 1,
             'pointDistribution' => $this->getPointDistribution($user),
-            'highesScoringWeek' => $this->getHighestScoringWeek($user),
+            'highestScoringWeek' => $this->getHighestScoringWeek($user),
             'lowestScoringWeek' => $this->getLowestScoringWeek($user),
             'latestWeek' => $this->entityManager->getRepository(Game::class)->findLatestWeekWithResults(),
             'averagePointsPerWeek' => $this->getAveragePointsPerWeek($user),
@@ -329,6 +329,9 @@ class UserStatsController extends AbstractController
             'totalPoints' => $this->getTotalPoints($user),
             'currentPlace' => array_search($user->getUsername(), array_column($this->calculateLeaderboard(), 'username')) + 1,
             'hitRate' => $this->calculateHitrate($user),
+            'betsPlaced' => $this->entityManager->getRepository(Bet::class)->count(['user' => $user]),
+            'highestScoringWeek' => $this->getHighestScoringWeek($user),
+            'lowestScoringWeek' => $this->getLowestScoringWeek($user),
         ], 200);
     }
 

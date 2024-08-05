@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchUserInfo, fetchShortUserStats, fetchTeamInfo } from '../utility/api';
+import { fetchUserInfo, fetchShortUserStats, fetchTeamInfo, fetchHiddenCompletion, fetchNonHiddenCompletion } from '../utility/api';
 import LoggedInLayout from '../components/layout/LoggedInLayout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrophy, faCrosshairs, faCoins } from '@fortawesome/free-solid-svg-icons';
@@ -10,6 +10,19 @@ interface stats {
   totalPoints: number;
   currentPlace: number;
   hitRate: number;
+  betsPlaced: number;
+  highestScoringWeek: number;
+  lowestScoringWeek: number;
+}
+
+interface hiddenCompletion {
+  earned: number;
+  total: number;
+}
+
+interface nonHiddenCompletion {
+  earned: number;
+  total: number;
 }
 
 const UserProfilePage: React.FC = () => {
@@ -18,6 +31,8 @@ const UserProfilePage: React.FC = () => {
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
   const [stats, setStats] = useState<stats | null>(null);
+  const [nonHiddenCompletion, setNonHiddenCompletion] = useState<nonHiddenCompletion | null>(null);
+  const [hiddenCompletion, setHiddenCompletion] = useState<hiddenCompletion | null>(null);
   const [teamInfo, setTeamInfo] = useState<any>(null);
 
   useEffect(() => {
@@ -53,6 +68,23 @@ const UserProfilePage: React.FC = () => {
         } else {
           console.error('Error fetching user stats:', statsResponse.statusText);
         }
+
+        const nonHiddenResponse = await fetchNonHiddenCompletion(username);
+        if (nonHiddenResponse.ok) {
+          const nonHiddenData = await nonHiddenResponse.json()
+          setNonHiddenCompletion(nonHiddenData);
+        } else {
+          console.error('Error fetching user stats:', statsResponse.statusText);
+        }
+
+        const hiddenResponse = await fetchHiddenCompletion(username);
+        if (hiddenResponse.ok) {
+          const hiddenData = await hiddenResponse.json()
+          setHiddenCompletion(hiddenData)
+        } else {
+          console.error('Error fetching user stats:', statsResponse.statusText);
+        }
+
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -95,22 +127,22 @@ const UserProfilePage: React.FC = () => {
         >
           <div className='bg-gray-700 w-full bg-opacity-90 rounded-xl mb-2'>
             <h2 className="text-2xl font-bold text-center mb-2 text-highlightGold">{user.username}</h2>
-            <p className="text-center">{user.favTeam}</p>
+            <p className="text-center text-highlightCream">{user.favTeam}</p>
             <p className="text-center mt-4">{user.bio}</p>
           </div>
 
-          <div className='flex w-full bg-gray-700 pt-2 rounded-xl'>
+          <div className='flex w-full bg-gray-700 pt-2 rounded-xl text-highlightGold'>
             <div className='flex w-1/3 flex-col items-center'>
               <FontAwesomeIcon icon={faTrophy} />
-              <p className='text-center m-1'>Rank: {stats ? stats.currentPlace : ''}</p>
+              <p className='text-center m-1 text-highlightCream'>Rank: {stats ? stats.currentPlace : ''}</p>
             </div>
             <div className='flex w-1/3 flex-col items-center'>
               <FontAwesomeIcon icon={faCoins} />
-              <p className='text-center m-1'>Points: {stats ? stats.totalPoints : ''}</p>
+              <p className='text-center m-1 text-highlightCream'>Points: {stats ? stats.totalPoints : ''}</p>
             </div>
             <div className='flex w-1/3 flex-col items-center'>
               <FontAwesomeIcon icon={faCrosshairs} />
-              <p className='text-center m-1'>HitRate: {stats ? (stats.hitRate * 100).toFixed(2) : ''}%</p>
+              <p className='text-center m-1 text-highlightCream'>HitRate: {stats ? (stats.hitRate * 100).toFixed(2) : ''}%</p>
             </div>
           </div>
 
@@ -120,15 +152,38 @@ const UserProfilePage: React.FC = () => {
             <img
               src={profilePictureUrl || '/assets/images/defaultUser.webp'}
               alt={`${user.username}'s profile`}
-              className="w-32 h-32 rounded-full border-4 border-white"
+              className="w-32 h-32 rounded-full border-4 border-highlightCream"
             />
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center bg-gray-700 text-white h-2/3 pt-16">
+        <div className="flex flex-col items-center bg-gray-700 text-white h-2/3 pt-24">
+          <div className='w-full flex justify-evenly align-top mx-2 mb-4 font-bold text-highlightGold'>
+            <h1 className='w-1/2 text-center'>Stats</h1>
+            <h1 className='w-1/2 text-center'>Achievements</h1>
+          </div>
+          <div className="flex w-full text-highlightCream">
+            <div className='w-full flex items-center align-top mx-2'>
+              {stats && (<div className='w-1/2 text-center'>
 
-          <div className="flex flex-col mt-4">
-            <a href={`/users/${username}/stats`} className="text-center mb-2">Stats</a>
-            <a href={`/users/${username}/achievements`} className="text-center">Achievements</a>
+                <p>Bets placed: {stats.betsPlaced}</p>
+                <p>Best week: {stats.highestScoringWeek}</p>
+                <p>Worst week: {stats.lowestScoringWeek}</p>
+              </div>)}
+              {hiddenCompletion && nonHiddenCompletion && (
+                <div className='w-1/2  text-center'>
+
+                  <p>Non-Hidden: {nonHiddenCompletion.earned}/{nonHiddenCompletion.total}</p>
+                  <p>Hidden: {hiddenCompletion.earned}/{hiddenCompletion.total}</p>
+                </div>)}
+            </div>
+          </div>
+          <div className='w-full flex'>
+            <div className='w-1/2 flex flex-col items-center h-full align-top mx-2'>
+              <a href={`/users/${username}/stats`} className="text-center w-full m-2 mb-2 bg-highlightCream text-black rounded-xl">All Stats</a>
+            </div>
+            <div className='w-1/2 flex flex-col items-center h-full align-top mx-2'>
+              <a href={`/users/${username}/achievements`} className="text-center w-full m-2 mb-2 bg-highlightCream text-black rounded-xl">Achievements</a>
+            </div>
           </div>
         </div>
       </div>

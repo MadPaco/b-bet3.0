@@ -68,7 +68,7 @@ const AllBetsPage: React.FC = () => {
           <div className='flex flex-col items-center mb-3 '>
             <h1 className="text-white text-2xl">All Bets</h1>
             <select
-              className="bg-gray-600 text-white p-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+              className="bg-gray-900 text-white p-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
               value={weekNumber}
               onChange={(e) => setWeekNumber(Number(e.target.value))}
             >

@@ -86,7 +86,7 @@ const LeaderboardPage: React.FC = () => {
                   return scoreB - scoreA;
                 })
                 .map((user) => (
-                  <div key={user.username} className="flex justify-between items-center p-2 bg-gray-900 hover:bg-gray-800 transition-colors duration-300">
+                  <div key={user.username} className="flex justify-between items-center p-2 bg-gray-900 hover:bg-gray-800 transition-colors duration-400">
                     <span className={user.username === currentUser.username ? "text-highlightGold font-medium" : "text-gray-400 font-medium"}>{user.username}</span>
                     <span className={user.username === currentUser.username ? "text-highlightGold" : "text-gray-400"}>{leaderboardData[user.username]?.Overall || 0}</span>
                   </div>
@@ -112,7 +112,7 @@ const LeaderboardPage: React.FC = () => {
                 })
                 .map((username) => (
                   <div key={username} className="flex justify-between items-center p-2 bg-gray-900 hover:bg-gray-800 transition-colors duration-300">
-                    <span className="font-medium text-gray-200">{username}</span>
+                    <span className={username === currentUser.username ? "text-highlightGold font-medium" : "text-gray-400 font-medium"}>{username}</span>
                     <span className={username === currentUser.username ? "text-highlightGold" : "text-gray-400"}>{leaderboardData[username][`Week ${week}`] || 0}</span>
                   </div>
                 ))}
