@@ -6,10 +6,13 @@ import nfcTeams from '../data/nfcTeams';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../components/auth/AuthContext';
 import TeamSelect from '../components/form/TeamSelect';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { fetchPreseasonPrediction, addPreseasonPrediction } from '../utility/api';
 
 const PreseasonPredictionsPage: React.FC = () => {
   const { username } = useAuth();
+  const [showPopup, setShowPopup] = useState(false);
   const [afcChampion, setAfcChampion] = useState<string | null>(null);
   const [nfcChampion, setNfcChampion] = useState<string | null>(null);
   const [superBowlChampion, setSuperBowlChampion] = useState<string | null>(null);
@@ -61,15 +64,20 @@ const PreseasonPredictionsPage: React.FC = () => {
       teamWithMVP,
     };
     await addPreseasonPrediction(username || '', predictions);
+    setShowPopup(true);
+    setTimeout(() => setShowPopup(false), 1000);
   }
 
 
   return (
     <LoggedInLayout>
       <div className="flex flex-col px-5 text-white items-center pt-5 min-h-screen text-center">
-        <h1>Preseason Prediction</h1>
-        <p>Here you can place several predictions for the season. They will be evaluated at the end of the season. <br /> Good luck!</p>
-        <div className='flex mt-3'>
+        <div className='bg-gray-900 p-2 rounded-xl border-2 border-highlightCream bg-opacity-90'>
+          <h1 className=' text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>Preseason Predictions</h1>
+          <p className='text-highlightCream'>Here you can place several predictions for the season. They will be evaluated at the end of the season. <br /> Good luck!</p>
+        </div>
+
+        <div className='flex mt-3 border-2 border-highlightCream rounded-xl'>
           <FormCard>
             <TeamSelect
               label="AFC Champion"
@@ -159,7 +167,14 @@ const PreseasonPredictionsPage: React.FC = () => {
               options={nflTeams}
             />
           </FormCard></div>
-        <button onClick={handleSubmit} className="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Submit</button>
+        <button onClick={handleSubmit} className="bg-gray-900 px-6 py-2 rounded-lg my-3 shadow hover:bg-gray-700 border-2 border-highlightGold text-highlightGold transition-colors duration-300">Submit</button>
+        {showPopup && (
+          <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center">
+            <div className="bg-green-500 p-4 rounded shadow-lg text-black">
+              Saved <FontAwesomeIcon icon={faCheck} />
+            </div>
+          </div>
+        )}
       </div>
     </LoggedInLayout>
   );

@@ -67,16 +67,16 @@ const LeaderboardPage: React.FC = () => {
 
   return (
     <LoggedInLayout>
-      <div className="flex flex-col lg:pt-10 lg:px-10 items-center">
-        <h1 className="text-center text-3xl font-bold mb-8 text-gray-100">Leaderboard Page</h1>
+      <div className="flex flex-col p-2 items-center">
+        <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>Leaderboard</h1>
 
-        <div className="mb-5 bg-gray-800 rounded-lg shadow-md w-full lg:w-2/5 mx-auto">
+        <div className="mb-5 rounded-lg shadow-md w-full lg:w-2/5 mx-auto">
           <Accordion
-            title="Overall Leaderboard"
+            title="Total Points"
             isOpen={openAccordion === -1}
             toggleAccordion={() => setOpenAccordion(prev => (prev === -1 ? null : -1))}
           >
-            <div className="bg-gray-700 rounded-md p-4">
+            <div className="p-4 rounded-xl">
               {users
                 // Sort in descending order
                 .slice()
@@ -86,16 +86,16 @@ const LeaderboardPage: React.FC = () => {
                   return scoreB - scoreA;
                 })
                 .map((user) => (
-                  <div key={user.username} className="flex justify-between items-center p-2 bg-gray-900 hover:bg-gray-800 transition-colors duration-400">
-                    <span className={user.username === currentUser.username ? "text-highlightGold font-medium" : "text-gray-400 font-medium"}>{user.username}</span>
-                    <span className={user.username === currentUser.username ? "text-highlightGold" : "text-gray-400"}>{leaderboardData[user.username]?.Overall || 0}</span>
+                  <div key={user.username} className="flex w-full text-highlightCream justify-between items-center p-2transition-colors duration-400">
+                    <span className={user.username === currentUser.username ? "text-highlightGold font-medium" : ""}>{user.username}</span>
+                    <span className={user.username === currentUser.username ? "text-highlightGold" : ""}>{leaderboardData[user.username]?.Overall || 0}</span>
                   </div>
                 ))}
             </div>
           </Accordion>
         </div>
         {Array.from({ length: NFLWEEKS }, (_, i) => i + 1).map((week) => (
-          <div key={week} className="bg-gray-800 rounded-lg shadow-md w-full lg:w-2/5 mx-auto">
+          <div key={week} className="rounded-lg shadow-md w-full lg:w-2/5 mx-auto">
             <Accordion
               title={`Week ${week}`}
               isOpen={openAccordion === week}
@@ -111,9 +111,9 @@ const LeaderboardPage: React.FC = () => {
                   return scoreB - scoreA;
                 })
                 .map((username) => (
-                  <div key={username} className="flex justify-between items-center p-2 bg-gray-900 hover:bg-gray-800 transition-colors duration-300">
-                    <span className={username === currentUser.username ? "text-highlightGold font-medium" : "text-gray-400 font-medium"}>{username}</span>
-                    <span className={username === currentUser.username ? "text-highlightGold" : "text-gray-400"}>{leaderboardData[username][`Week ${week}`] || 0}</span>
+                  <div key={username} className="flex justify-between items-center p-2 text-highlightCream hover:bg-gray-800 transition-colors duration-300">
+                    <span className={username === currentUser.username ? "text-highlightGold font-medium" : ""}>{username}</span>
+                    <span className={username === currentUser.username ? "text-highlightGold" : ""}>{leaderboardData[username][`Week ${week}`] || 0}</span>
                   </div>
                 ))}
             </Accordion>

@@ -19,10 +19,32 @@ const TotalPointsChart: React.FC<TotalPointsChartProps> = ({ leaderboard }) => {
         plugins: {
             legend: {
                 position: 'top' as const,
+                labels: {
+                    color: '#E09F1F',
+                },
             },
             title: {
                 display: true,
                 text: 'Total Points',
+                color: '#E09F1F',
+            },
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: '#FFF7D6',
+                },
+                grid: {
+                    color: 'rgba(255, 247, 214, 0.4)'
+                },
+            },
+            y: {
+                ticks: {
+                    color: '#FFF7D6',
+                },
+                grid: {
+                    color: 'rgba(255, 247, 214, 0.4)'
+                },
             },
         },
     };
@@ -41,7 +63,7 @@ const TotalPointsChart: React.FC<TotalPointsChartProps> = ({ leaderboard }) => {
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-lg">
+        <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
             <Bar
                 options={totalPointsOptions}
                 data={totalPointsData}

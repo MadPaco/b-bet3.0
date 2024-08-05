@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import LoggedInLayout from '../components/layout/LoggedInLayout';
-import { useColor } from '../context/ColorContext';
-import { colorClasses } from '../data/colorClasses';
 import { fetchSchedule } from '../utility/api';
 import { Game } from '../utility/types';
 import { generateWeekOptions } from '../data/weekLabels';
@@ -9,10 +7,6 @@ import { generateWeekOptions } from '../data/weekLabels';
 const SchedulePage: React.FC = () => {
   const [schedule, setSchedule] = useState<Game[]>([]);
   const [weekNumber, setWeekNumber] = useState(1);
-  const { primaryColor } = useColor();
-  const colorClass = primaryColor
-    ? colorClasses[primaryColor as keyof typeof colorClasses]
-    : 'bg-gray-400 hover:bg-gray-300';
 
   useEffect(() => {
     const getSchedule = async () => {
@@ -44,7 +38,7 @@ const SchedulePage: React.FC = () => {
           {schedule.map((game, index) => (
             <div
               key={index}
-              className='bg-gray-900 flex flex-col items-center rounded-lg p-2 m-3 border-solid border-2 border-highlightCream'
+              className='bg-gray-900 bg-opacity-90 flex flex-col items-center rounded-lg p-2 m-3 border-solid border-2 border-highlightCream'
             >
               {/* Start of date row */}
               <div className="time text-lg font-bold text-highlightGold">

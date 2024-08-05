@@ -1,7 +1,5 @@
 import LoggedInLayout from '../components/layout/LoggedInLayout';
-import { useColor } from '../context/ColorContext';
 import { fetchSchedule, addBets, fetchBets } from '../utility/api';
-import { colorClasses } from '../data/colorClasses';
 import { useAuth } from '../components/auth/AuthContext';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -85,10 +83,10 @@ const PredictionsPage: React.FC = () => {
 
   return (
     <LoggedInLayout>
-      <div className="flex flex-col lg:pt-10 text-white items-center justify-center min-h-screen">
+      <div className="flex flex-col p-2 text-white items-center justify-center min-h-screen">
         <div className='w-full lg:w-1/3 rounded-xl shadow-lg'>
           <form
-            className="flex flex-col justify-center items-center p-2"
+            className="flex flex-col justify-center items-center"
             onSubmit={(e) => {
               e.preventDefault();
               handleSubmit(predictions);
@@ -96,7 +94,7 @@ const PredictionsPage: React.FC = () => {
           >
             <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>Predictions</h1>
             <select
-              className="bg-gray-900 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-highlightGold focus:ring-opacity-50"
+              className="bg-gray-900 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-highlightGold focus:ring-opacity-50 border-highlightCream border-solid border-2"
               value={weekNumber}
               onChange={(e) => setWeekNumber(Number(e.target.value))}
             >
@@ -110,7 +108,7 @@ const PredictionsPage: React.FC = () => {
               schedule.map((game) => (
                 <div
                   key={game.id}
-                  className='bg-gray-900 flex flex-col items-center bg-opacity-90 rounded-lg p-2 m-5 w-full border-solid border-2 border-highlightCream'
+                  className='bg-gray-900 m-3 flex flex-col items-center bg-opacity-90 rounded-lg p-2 w-full border-solid border-2 border-highlightCream'
                 >
                   <div className="text-lg font-bold mb-2 text-highlightGold text-center">{new Intl.DateTimeFormat('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(game.date))}</div>
                   <div className="flex items-center justify-center py-3 w-full">
@@ -183,7 +181,7 @@ const PredictionsPage: React.FC = () => {
               ))
             )}
             {schedule.length > 0 && (
-              <button type="submit" className="bg-green-500 px-6 py-2 rounded-lg mt-5 shadow hover:bg-green-400 transition-colors duration-300">
+              <button type="submit" className="bg-gray-900 px-6 py-2 rounded-lg my-3 shadow hover:bg-gray-700 border-2 border-highlightGold text-highlightGold transition-colors duration-300">
                 Submit
               </button>
             )}

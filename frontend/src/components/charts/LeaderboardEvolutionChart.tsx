@@ -50,10 +50,14 @@ const LeaderboardEvolutionChart: React.FC<LeaderboardEvolutionChartProps> = ({ l
         plugins: {
             legend: {
                 position: 'top' as const,
+                labels: {
+                    color: '#FFF7D6',
+                },
             },
             title: {
                 display: true,
                 text: 'Rankings Over Time',
+                color: '#E09F1F',
             },
         },
         scales: {
@@ -62,13 +66,26 @@ const LeaderboardEvolutionChart: React.FC<LeaderboardEvolutionChartProps> = ({ l
                 reverse: true, // Reverse the y-axis to show rank 1 at the top
                 ticks: {
                     stepSize: 1,
+                    color: '#FFF7D6',
                 },
+                grid: {
+                    color: 'rgba(255, 247, 214, 0.4)'
+                }
             },
+            x: {
+                ticks: {
+                    color: '#FFF7D6',
+                },
+                grid: {
+                    color: 'rgba(255, 247, 214, 0.4)'
+                }
+
+            }
         },
     };
 
     return (
-        <div className='bg-white'>
+        <div className='bg-gray-900 m-2 p-4 rounded-lg shadow-lg'>
             <Line
                 options={leaderboardEvolutionOptions}
                 data={leaderboardEvolutionData}

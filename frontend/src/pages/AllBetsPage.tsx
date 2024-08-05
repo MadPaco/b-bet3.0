@@ -3,6 +3,7 @@ import { fetchBets, fetchSchedule } from '../utility/api';
 import { useState, useEffect } from 'react';
 import Accordion from '../components/common/Accordion';
 import { Bet, Game } from '../utility/types';
+import { generateWeekOptions } from '../data/weekLabels';
 
 const AllBetsPage: React.FC = () => {
 
@@ -11,22 +12,7 @@ const AllBetsPage: React.FC = () => {
   const [weekNumber, setWeekNumber] = useState<number>(1);
   const [games, setGames] = useState<Game[]>([]);
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
-
-  const NFLWEEKS = 22;
-
-  const weekLabels: { [key: number]: string } = {
-    19: 'Wild Card',
-    20: 'Divisional',
-    21: 'Conference',
-    22: 'Super Bowl',
-  };
-
-
-  const weeks = [];
-  for (let i = 1; i <= NFLWEEKS; i++) {
-    const label = weekLabels[i] || `Week ${i}`;
-    weeks.push(<option value={i} key={i}>{label}</option>);
-  }
+  const weeks = generateWeekOptions();
 
   useEffect(() => {
     const getAllBets = async () => {
@@ -57,31 +43,29 @@ const AllBetsPage: React.FC = () => {
       case 1:
         return 'text-green-500';
       default:
-        return 'text-gray-500';
+        return 'text-highlightCream';
     }
   };
 
   return (
     <LoggedInLayout>
-      <div className="flex flex-col lg:pt-10 lg:px-20">
-        <div className="lg:col-span-1 lg:row-span-1 ">
-          <div className='flex flex-col items-center mb-3 '>
-            <h1 className="text-white text-2xl">All Bets</h1>
-            <select
-              className="bg-gray-900 text-white p-2 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
-              value={weekNumber}
-              onChange={(e) => setWeekNumber(Number(e.target.value))}
-            >
-              <option value="" disabled>Select a week</option>
-              {weeks}
-            </select>
-          </div>
-
+      <div className="flex flex-col p-2 text-white items-center justify-center min-h-screen">
+        <div className='flex flex-col items-center mb-3 w-full lg:w-1/3'>
+          <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>All Bets</h1>
+          <select
+            className="bg-gray-900 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-highlightGold focus:ring-opacity-50 border-highlightCream border-solid border-2"
+            value={weekNumber}
+            onChange={(e) => setWeekNumber(Number(e.target.value))}
+          >
+            {weeks}
+          </select>
+        </div>
+        <div className='w-full lg:w-1/3 border-highlightCream'>
           {games.map((game: Game) => {
             const gameBets = bets.filter((bet: Bet) => bet.gameID === game.id);
             const title = (
               <div>
-                <div className='flex items-center justify-between p-2'>
+                <div className='flex items-center justify-between p-2 '>
                   {/* Away team section */}
                   <div className='flex flex-col items-center w-1/3'>
                     <img
@@ -129,7 +113,7 @@ const AllBetsPage: React.FC = () => {
 
                   {gameBets.map((bet: Bet) => (
                     <div key={bet.id} className="p-2 flex space-between">
-                      <div className='mx-3'>
+                      <div className='mx-3 text-highlightCream'>
                         {bet.username}:
                       </div>
                       {game.homeScore !== null && game.awayScore !== null ?
@@ -149,6 +133,8 @@ const AllBetsPage: React.FC = () => {
             );
           })}
         </div>
+
+
       </div>
     </LoggedInLayout>
   );

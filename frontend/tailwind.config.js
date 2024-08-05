@@ -8,8 +8,8 @@ export default {
     extend: {
       keyframes: {
         pulseGlow: {
-          '0%, 100%': { boxShadow: '0 0 20px 5px rgba(224, 159, 31, 1)' },
-          '50%': { boxShadow: '0 0 10px 3px rgba(224, 159, 31, 0.5)' },
+          '50%': { boxShadow: '0 0 20px 10px rgba(224, 159, 31, 0.8)' },
+          '0%, 100%': { boxShadow: '0 0 10px 3px rgba(224, 159, 31, 0.5)' },
         },
 
       },

@@ -10,15 +10,15 @@ interface TeamSelectProps {
 
 const TeamSelect: React.FC<TeamSelectProps> = ({ label, points, value, onChange, options }) => {
     return (
-        <div className="mb-4">
+        <div className="mb-4 text-highlightGold">
             <label>
                 {label}
-                <div className='text-sm'>
+                <div className='text-sm text-white mb-2'>
                     {points} points
                 </div>
 
                 <select
-                    className="mb-2 w-full text-black"
+                    className="mb-2 w-full text-white bg-gray-900 border-2 rounded-xl border-highlightCream text-center"
                     value={value}
                     onChange={onChange}
                 >

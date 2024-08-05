@@ -36,15 +36,38 @@ const PointsPerWeekChart: React.FC<PointsPerWeekChartProps> = ({ pointsPerWeek, 
         plugins: {
             legend: {
                 position: 'top' as const,
+                labels: {
+                    color: '#FFF7D6',
+                },
             },
             title: {
                 display: true,
                 text: 'Points Per Week',
+                color: '#E09F1F',
+            },
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: '#FFF7D6',
+                },
+                grid: {
+                    color: 'rgba(255, 247, 214, 0.4)'
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#FFF7D6',
+                },
+                grid: {
+                    color: 'rgba(255, 247, 214, 0.4)'
+                }
             },
         },
     };
+
     return (
-        <div className="bg-white p-4 rounded-lg shadow-lg">
+        <div className="bg-gray-900 flex justify-center items-center p-4 rounded-lg shadow-lg">
             <Bar
                 options={pointsPerWeekOptions}
                 data={pointsPerWeekData}

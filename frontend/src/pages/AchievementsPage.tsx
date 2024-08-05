@@ -73,8 +73,8 @@ const AchievementsPage: React.FC = () => {
 
     return (
         <LoggedInLayout>
-            <div className="container mx-auto p-4 text-white">
-                <h1 className="text-3xl font-bold text-center">Achievements of {username}</h1>
+            <div className="container mx-auto p-4 text-white text-center">
+                <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>Achievements of {username}</h1>
                 <AchievementEarnedOverview />
                 <AchievementFilters
                     filters={filters}

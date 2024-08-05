@@ -30,13 +30,27 @@ const HitRateVsPointAverageChart: React.FC<HitRateVsPointAverageChartProps> = ({
             x: {
                 title: {
                     display: true,
-                    text: 'Hit Rate'
+                    text: 'Hit Rate',
+                    color: '#E09F1F',
+                },
+                ticks: {
+                    color: '#FFF7D6',
+                },
+                grid: {
+                    color: 'rgba(255, 247, 214, 0.4)'
                 }
             },
             y: {
                 title: {
                     display: true,
-                    text: 'Point Average'
+                    text: 'Point Average',
+                    color: '#E09F1F',
+                },
+                ticks: {
+                    color: '#FFF7D6',
+                },
+                grid: {
+                    color: 'rgba(255, 247, 214, 0.4)'
                 }
             }
         },
@@ -50,7 +64,8 @@ const HitRateVsPointAverageChart: React.FC<HitRateVsPointAverageChartProps> = ({
             },
             title: {
                 display: true,
-                text: 'Team Hit Rate vs Point Average'
+                text: 'Team Hit Rate vs Point Average',
+                color: '#E09F1F',
             },
             legend: {
                 display: false
@@ -70,7 +85,7 @@ const HitRateVsPointAverageChart: React.FC<HitRateVsPointAverageChartProps> = ({
         },
     };
     return (
-        <div className="bg-white p-4 rounded-lg shadow-lg">
+        <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
             <Scatter
                 data={scatterData}
                 options={scatterOptions}

@@ -48,7 +48,7 @@ const AchievementEarnedOverview: React.FC = () => {
                         </div>
                     )}
                 </div>
-                <h1 className='font-bold' >Earned <i>hidden</i> achievements: </h1>
+                <h1 className='font-bold' >Earned <span className='text-highlightGold'><i>hidden</i></span> achievements: </h1>
                 <div className="relative w-full lg:w-1/2 bg-gray-300 rounded-full h-6 mt-2 text-black">
                     {hiddenCompletion && hiddenCompletion.earned > 0 && (<div>{hiddenCompletion.earned} / {hiddenCompletion.total}</div>)}
 

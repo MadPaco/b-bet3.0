@@ -30,7 +30,7 @@ const AchievementRow: React.FC<AchievementRowProps> = ({ achievement }) => {
 
     return (
         <>
-            <div key={achievement.id} onClick={handleClick} className={`bg-gray-700 text-white shadow-md rounded-lg px-3 py-5 flex m-2 cursor-pointer md:w-2/3 ${achievement.hidden ? 'border border-yellow-300' : ''}`}>
+            <div key={achievement.id} onClick={handleClick} className={`bg-gray-900 border-2 rounded-xl border-hightlightCream text-highlightCream shadow-md px-3 py-5 flex m-2 cursor-pointer md:w-2/3 ${achievement.hidden ? 'border border-highlightGold' : ''}`}>
                 <div className="flex flex-col md:w-1/12 align-middle justify-center">
                     <img
                         className={`w-full h-full object-cover rounded-lg ${achievement.dateEarned ? '' : 'filter grayscale'}`}
@@ -39,7 +39,7 @@ const AchievementRow: React.FC<AchievementRowProps> = ({ achievement }) => {
                     />
                 </div>
                 <div className="flex w-8/12 flex-col text-left align-middle justify-center ml-3">
-                    <h1 className="text-xl font-bold">{achievement.name}</h1>
+                    <h1 className="text-xl text-highlightGold font-bold">{achievement.name}</h1>
                     <p className="mb-2">{achievement.description}</p>
                 </div>
                 <div className="w-3/12 flex text-center align-middle justify-center items-center flex-col">

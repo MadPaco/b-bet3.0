@@ -12,7 +12,7 @@ interface SidebarItemProps {
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, onClick, active, color }) => {
   return (
     <li
-      className={`flex items-center p-2 hover:bg-gray-700 rounded cursor-pointer ${active ? 'bg-gray-800' : ''}`}
+      className={`flex items-center p-2 hover:bg-gray-700 rounded cursor-pointer ${active ? 'bg-gray-800 text-highlightGold' : ''}`}
       onClick={onClick}
       style={{ color }}
     >

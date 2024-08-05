@@ -9,12 +9,16 @@ interface AccordionProps {
 const Accordion: React.FC<AccordionProps> = ({ title, children, isOpen, toggleAccordion, currentWeek }) => {
 
   return (
-    <div className="border-b text-white bg-gray-900">
+    <div className="border-b border-highlightCream text-white bg-gray-900 bg-opacity-90">
       <button
         className="w-full flex justify-center items-center py-2 px-4 text-center focus:outline-none"
         onClick={toggleAccordion}
       >
-        <span className={`text-lg font-medium ${currentWeek === true ? 'text-highlightGold' : ''}`}>{title}</span>
+        <span className={`text-lg font-medium 
+          ${currentWeek === true ? 'text-highlightGold' : ''} 
+          ${isOpen ? 'animate-pulse' : ''}`}
+        >{title}
+        </span>
       </button>
       <div className="flex justify-center">
         <svg
@@ -29,8 +33,8 @@ const Accordion: React.FC<AccordionProps> = ({ title, children, isOpen, toggleAc
         </svg>
       </div>
 
-      <div className={`flex w-full justify-center overflow-hidden transition-max-height duration-300 ${isOpen ? 'max-h-screen' : 'max-h-0'}`}>
-        <div className="py-2 px-4 w-2/3 md:w-2/5">
+      <div className={`flex w-full justify-center overflow-hidden transition-max-height duration-500 bg-opacity-90 ${isOpen ? 'max-h-screen border-solid border-2 bg-gray-700 border-highlightCream' : 'max-h-0'}`}>
+        <div className="py-2 px-4 w-full">
           {children}
         </div>
       </div>

@@ -58,18 +58,18 @@ const StatsPage: React.FC = () => {
 
   return (
     <LoggedInLayout>
-      <div className="flex flex-col lg:pt-10 text-white items-center w-full">
+      <div className="flex flex-col text-white items-center w-full">
         <div className="text-center w-full max-w-6xl">
-          <h1 className="text-3xl font-bold mb-6">Stats of {username}</h1>
+          <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>Stats of {username}</h1>
           {stats && (
             <div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6'>
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg col-span-1 md:col-span-2">
-                <p className='mt-3'>Bets Placed: {stats.betsPlaced}</p>
-                <p className='mt-3'>Total points {stats.totalPoints}</p>
-                <p className='mt-3'>Current place: {stats.currentPlace}</p>
-                <p className='mt-3'>Best week: {stats.highestScoringWeek}</p>
-                <p className='mt-3'>Worst week: {stats.lowestScoringWeek}</p>
-                <p className='mt-3'>Hit-rate: {(stats.hitRate * 100).toFixed(2)} %</p>
+              <div className="bg-gray-900 p-6 rounded-lg shadow-lg col-span-1 md:col-span-2 flex justify-evenly text-highlightCream">
+                <p className='m-3'>Bets Placed: {stats.betsPlaced}</p>
+                <p className='m-3'>Total points: {stats.totalPoints}</p>
+                <p className='m-3'>Current place: {stats.currentPlace}</p>
+                <p className='m-3'>Best week: {stats.highestScoringWeek}</p>
+                <p className='m-3'>Worst week: {stats.lowestScoringWeek}</p>
+                <p className='m-3'>Hit-rate: {(stats.hitRate * 100).toFixed(2)} %</p>
               </div>
 
               <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
