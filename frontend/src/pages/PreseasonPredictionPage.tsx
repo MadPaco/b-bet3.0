@@ -29,8 +29,7 @@ const PreseasonPredictionsPage: React.FC = () => {
   useEffect(() => {
     // fetch predictions
     const fetchPredictions = async () => {
-      const response = await fetchPreseasonPrediction(username || '');
-      const data = await response.json();
+      const data = await fetchPreseasonPrediction(username || '');
       console.log('Fetched data:', data);
       setAfcChampion(data.afcChampion);
       setNfcChampion(data.nfcChampion);

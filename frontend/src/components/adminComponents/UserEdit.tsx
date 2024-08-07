@@ -4,15 +4,10 @@ import {
   fetchAllTeamNames,
   updateUser,
 } from '../../utility/api';
+import { User } from '../../utility/types';
+
 interface UserEditProps {
   username: string;
-}
-
-interface User {
-  username: string;
-  favTeam: string;
-  email: string;
-  roles: string[];
 }
 
 const UserEdit: React.FC<UserEditProps> = ({ username }) => {

@@ -60,30 +60,14 @@ const UserProfilePage: React.FC = () => {
         setUser(userData);
         setProfilePicture(userData.profilePicture);
 
-        const statsResponse = await fetchShortUserStats(username);
-        if (statsResponse.ok) {
-          const statsData = await statsResponse.json();
-          setStats(statsData);
-        } else {
-          console.error('Error fetching user stats:', statsResponse.statusText);
-        }
+        const statsData = await fetchShortUserStats(username);
+        setStats(statsData);
 
-        const nonHiddenResponse = await fetchNonHiddenCompletion(username);
-        if (nonHiddenResponse.ok) {
-          const nonHiddenData = await nonHiddenResponse.json()
-          setNonHiddenCompletion(nonHiddenData);
-        } else {
-          console.error('Error fetching user stats:', statsResponse.statusText);
-        }
+        const nonHiddenData = await fetchNonHiddenCompletion(username);
+        setNonHiddenCompletion(nonHiddenData);
 
-        const hiddenResponse = await fetchHiddenCompletion(username);
-        if (hiddenResponse.ok) {
-          const hiddenData = await hiddenResponse.json()
-          setHiddenCompletion(hiddenData)
-        } else {
-          console.error('Error fetching user stats:', statsResponse.statusText);
-        }
-
+        const hiddenData = await fetchHiddenCompletion(username);
+        setHiddenCompletion(hiddenData);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -92,7 +76,7 @@ const UserProfilePage: React.FC = () => {
     if (username) {
       getUserData();
     }
-  }, [username]);
+  }, [username, location.pathname]);
 
   useEffect(() => {
     async function getTeamData(teamName: string) {

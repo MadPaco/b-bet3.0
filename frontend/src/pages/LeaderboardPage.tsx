@@ -26,8 +26,7 @@ const LeaderboardPage: React.FC = () => {
 
           for (let i = 1; i <= NFLWEEKS; i++) {
             try {
-              const response = await fetchBets(i, user.username);
-              const bets = await response.json();
+              const bets = await fetchBets(i, user.username);
               const points = calculatePoints(bets);
 
               // Store weekly points
@@ -52,8 +51,7 @@ const LeaderboardPage: React.FC = () => {
   useEffect(() => {
     const getCurrentWeekData = async () => {
       try {
-        const response = await getCurrentWeek();
-        const currentWeekData = await response.json();
+        const currentWeekData = await getCurrentWeek();
         // since currentWeek is the first week where no results have been set
         // we substract 1 to show the week which has points awarded
         // because this is what users will be interested in here

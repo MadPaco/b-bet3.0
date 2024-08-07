@@ -25,12 +25,22 @@ const AchievementsPage: React.FC = () => {
         showMocking: true,
     });
 
+    const loadAchievements = async () => {
+        try {
+            const [allData, hiddenData] = await Promise.all([
+                fetchAllAchievements(username),
+                fetchHiddenAchievements(username),
+            ]);
+
+            setAchievements([...allData, ...hiddenData]);
+        } catch (error) {
+            console.error('Error fetching achievements:', error);
+        }
+    };
+
     useEffect(() => {
-        Promise.all([fetchAllAchievements(username), fetchHiddenAchievements(username)]).then(([allResponse, hiddenResponse]) => {
-            Promise.all([allResponse.json(), hiddenResponse.json()]).then(([allData, hiddenData]) => {
-                setAchievements([...allData, ...hiddenData]);
-            });
-        });
+
+        loadAchievements();
 
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 1000);
@@ -42,7 +52,7 @@ const AchievementsPage: React.FC = () => {
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, []);
+    }, [username]);
 
     const toggleFilter = (key: string) => {
         setFilters((prevFilters) => ({

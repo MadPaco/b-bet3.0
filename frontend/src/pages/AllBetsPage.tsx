@@ -10,15 +10,12 @@ const AllBetsPage: React.FC = () => {
   const [weekNumber, setWeekNumber] = useState<number | null>(null);
   const [games, setGames] = useState<Game[]>([]);
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
-  const [currentWeek, setCurrentWeek] = useState<number | null>(null);
   const weeks = generateWeekOptions();
 
   useEffect(() => {
     const getCurrentWeek = async () => {
       const response = await fetchCurrentWeek();
-      const currentWeekData = await response.json();
-      setCurrentWeek(currentWeekData.currentWeek);
-      setWeekNumber(currentWeekData.currentWeek);
+      setWeekNumber(response.currentWeek);
     };
 
     getCurrentWeek();
@@ -26,8 +23,7 @@ const AllBetsPage: React.FC = () => {
 
   useEffect(() => {
     const getAllBets = async (week: number) => {
-      const fetchedBets = await fetchBets(week);
-      const data = await fetchedBets.json();
+      const data = await fetchBets(week);
       setBets(data);
     };
 
@@ -38,8 +34,7 @@ const AllBetsPage: React.FC = () => {
 
   useEffect(() => {
     const getGames = async (week: number) => {
-      const fetchedGames = await fetchSchedule(week);
-      const data = await fetchedGames.json();
+      const data = await fetchSchedule(week);
       setGames(data);
     };
 

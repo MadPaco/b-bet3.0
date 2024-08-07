@@ -21,12 +21,13 @@ const AchievementPanel: React.FC<AchievementPanelProps> = () => {
   useEffect(() => {
     const fetchLatestAchievements = async () => {
       if (username) {
-        const response = await fetchThreeLatestUserAchievement(username);
-        if (response.status === 200) {
-          const data = await response.json();
-          setLatestAchievements(data);
-        } else {
+        try {
+          const achievementData = await fetchThreeLatestUserAchievement(username);
+          setLatestAchievements(achievementData);
+        }
+        catch (error) {
           setLatestAchievements([]);
+          console.error('Failed to fetch achievements', error)
         }
       }
     };

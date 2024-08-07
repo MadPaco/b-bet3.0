@@ -1,7 +1,6 @@
 import { ReactNode, useEffect } from 'react';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
-import { useColor } from '../../context/ColorContext';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,7 +20,7 @@ const LoggedInLayout: React.FC<LoggedInLayoutProps> = ({ children }) => {
   return (
     <Layout
       content={
-        <div className="flex flex-col lg:flex-row w-full h-full">
+        <div className="flex flex-col lg:flex-row w-full">
           <Sidebar />
           <div className="flex-grow">{children}</div>
         </div>

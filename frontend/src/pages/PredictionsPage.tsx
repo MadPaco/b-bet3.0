@@ -12,7 +12,6 @@ const PredictionsPage: React.FC = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [showPopup, setShowPopup] = useState(false);
   const [weekNumber, setWeekNumber] = useState<number | null>(null);
-  const [currentWeek, setCurrentWeek] = useState<number | null>(null);
 
   type Game = {
     id: number;
@@ -39,9 +38,7 @@ const PredictionsPage: React.FC = () => {
   useEffect(() => {
     const getCurrentWeek = async () => {
       const response = await fetchCurrentWeek();
-      const currentWeekData = await response.json();
-      setCurrentWeek(currentWeekData.currentWeek);
-      setWeekNumber(currentWeekData.currentWeek);
+      setWeekNumber(response.currentWeek);
     };
 
     getCurrentWeek();
@@ -49,8 +46,7 @@ const PredictionsPage: React.FC = () => {
 
   useEffect(() => {
     const getSchedule = async (week: number) => {
-      const response = await fetchSchedule(week);
-      const data = await response.json();
+      const data = await fetchSchedule(week);
       setSchedule(data);
 
       setPredictions((prevPredictions) => {
@@ -69,8 +65,7 @@ const PredictionsPage: React.FC = () => {
 
   useEffect(() => {
     const getInitialPrediction = async () => {
-      const response = await fetchBets(weekNumber, username);
-      const data = await response.json();
+      const data = await fetchBets(weekNumber, username);
       setPredictions(data);
     };
 

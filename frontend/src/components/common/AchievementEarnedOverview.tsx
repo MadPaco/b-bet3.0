@@ -16,20 +16,30 @@ const AchievementEarnedOverview: React.FC = () => {
     const [nonHiddenCompletion, setNonHiddenCompletion] = useState<completion | null>(null);
 
     useEffect(() => {
-        fetchHiddenCompletion(username).then((response) => {
-            response.json().then((data) => {
+        const loadHiddenCompletion = async () => {
+            try {
+                const data = await fetchHiddenCompletion(username);
                 setHiddenCompletion(data);
-            });
-        });
-    }, []);
+            } catch (error) {
+                console.error('Error fetching hidden completion:', error);
+            }
+        };
+
+        loadHiddenCompletion();
+    }, [username]);
 
     useEffect(() => {
-        fetchNonHiddenCompletion(username).then((response) => {
-            response.json().then((data) => {
+        const loadNonHiddenCompletion = async () => {
+            try {
+                const data = await fetchNonHiddenCompletion(username);
                 setNonHiddenCompletion(data);
-            });
-        });
-    }, []);
+            } catch (error) {
+                console.error('Error fetching non-hidden completion:', error);
+            }
+        };
+
+        loadNonHiddenCompletion();
+    }, [username]);
 
     return (
         <>

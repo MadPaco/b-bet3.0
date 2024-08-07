@@ -1,9 +1,5 @@
 import React from 'react';
-
-interface User {
-  username: string;
-  favTeam: string;
-}
+import { User } from '../../utility/types';
 
 interface UserSelectProps {
   userList: User[];

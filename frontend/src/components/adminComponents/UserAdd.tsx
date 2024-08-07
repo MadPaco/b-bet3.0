@@ -3,6 +3,7 @@ import FormCard from '../form/FormCard';
 import FormInput from '../form/FormInput';
 import FormButton from '../form/FormButton';
 import nflTeams from '../../data/nflTeams';
+import { registerUser } from '../../utility/api';
 
 const UserAdd: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -21,19 +22,11 @@ const UserAdd: React.FC = () => {
       return;
     }
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, username, password, favTeam }),
-      });
-
-      if (res.ok) {
-        alert('Registration successful');
-      }
+      await registerUser(email, username, password, favTeam);
+      alert('Registration successful');
     } catch (error) {
       console.error('Error:', error);
+      setErrorMessage('Registration failed');
     }
   };
 

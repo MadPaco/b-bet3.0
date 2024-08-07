@@ -1,3 +1,4 @@
+// src/components/auth/AuthProvider.tsx
 import { useState, useEffect } from 'react';
 import { jwtDecode, JwtPayload as DefaultJwtPayload } from 'jwt-decode';
 import { AuthContext } from './AuthContext';
@@ -13,6 +14,8 @@ interface JwtPayload extends DefaultJwtPayload {
 interface AuthProviderProps {
   children: React.ReactNode;
 }
+
+const TOKEN_REFRESH_THRESHOLD = 60;
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [username, setUsername] = useState<string | null>(null);
@@ -30,6 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (!token) {
         setLoading(false);
+        navigate('/login');
         return;
       }
 
@@ -37,7 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const decoded = jwtDecode<JwtPayload>(token);
         const current_time = Date.now().valueOf() / 1000;
 
-        if (decoded.exp && decoded.exp < current_time) {
+        if (decoded.exp && decoded.exp < current_time + TOKEN_REFRESH_THRESHOLD) {
           if (!refreshToken) {
             setLoading(false);
             navigate('/login');

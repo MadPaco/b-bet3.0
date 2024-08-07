@@ -18,8 +18,7 @@ const StatsPage: React.FC = () => {
   useEffect(() => {
     const fetchTeamLogos = async () => {
       try {
-        const response = await fetchAllTeamLogos();
-        const data = await response.json();
+        const data = await fetchAllTeamLogos();
         setTeamLogos(data);
       } catch (error) {
         console.error('Failed to fetch team logos:', error);
@@ -32,8 +31,7 @@ const StatsPage: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetchUserStats(username);
-        const data = await response.json();
+        const data = await fetchUserStats(username);
         setStats(data);
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -46,8 +44,7 @@ const StatsPage: React.FC = () => {
   useEffect(() => {
     const fetchUserStandings = async () => {
       try {
-        const response = await fetchLeadboard();
-        const data = await response.json();
+        const data = await fetchLeadboard();
         setLeaderboard(data);
       } catch (error) {
         console.error('Failed to fetch leaderboard:', error);

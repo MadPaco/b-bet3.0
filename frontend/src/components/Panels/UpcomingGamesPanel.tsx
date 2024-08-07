@@ -12,9 +12,8 @@ const UpcomingGamesPanel: React.FC<UpcomingGamesPanelProps> = () => {
     useEffect(() => {
         const fetchGames = async () => {
             try {
-                const response = await fetchUpcomingGames();
-                const data = await response.json();
-                setUpcomingGames(data);
+                const gameData = await fetchUpcomingGames();
+                setUpcomingGames(gameData);
             } catch (err) {
                 setError('Failed to load upcoming games');
                 console.error(err);

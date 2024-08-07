@@ -4,7 +4,6 @@ import UserInfoPanel from '../components/Panels/UserInfoPanel';
 import UpcomingGamesPanel from '../components/Panels/UpcomingGamesPanel';
 import AchievementPanel from '../components/Panels/AchievementPanel';
 import ChatPanel from '../components/Panels/ChatPanel';
-import DivisionPanel from '../components/Panels/DivisionPanel';
 import LoggedInLayout from '../components/layout/LoggedInLayout';
 import { fetchFavTeamBanner } from '../utility/api'
 import { useState, useEffect } from 'react';
@@ -17,9 +16,8 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchBanner = async () => {
       try {
-        const response = await fetchFavTeamBanner(username);
-        const data = await response.json();
-        setBanner(data['banner']);
+        const bannerData = await fetchFavTeamBanner(username);
+        setBanner(bannerData['banner']);
       }
       catch (err) {
         console.log(err)
@@ -34,19 +32,16 @@ const Dashboard: React.FC = () => {
         <img className="object-fill object-center h-full w-full" src={`assets/images/${banner}`} alt="Team Banner"></img>
       </div>
 
-      <div className="flex flex-col xl:flex-row xl:space-x-6 xl:pt-2">
+      <div className="flex flex-col 2xl:flex-row 2xl:pt-2">
         {/* Left Column */}
-        <div className="flex flex-col xl:w-1/2 space-y-6">
+        <div className="flex flex-col 2xl:w-1/2 space-y-6">
           <div className="flex-1">
-            <div className='flex flex-wrap xl:h-1/3'>
-              <div className="w-full xl:w-1/3">
+            <div className='flex flex-wrap 2xl:h-1/3'>
+              <div className="w-full 2xl:w-1/2">
                 <TeamInfoPanel />
               </div>
-              <div className='w-full xl:w-1/3'>
+              <div className='w-full 2xl:w-1/2'>
                 <UserInfoPanel />
-              </div>
-              <div className='w-full xl:w-1/3'>
-                <DivisionPanel />
               </div>
             </div>
             <AchievementPanel />
@@ -54,7 +49,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Right Column */}
-        <div className="flex flex-col xl:h-1/3 xl:flex-1">
+        <div className="flex flex-col 2xl:h-1/3 2xl:flex-1">
           <div className="h-1/4">
             <ChatPanel />
           </div>

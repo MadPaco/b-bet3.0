@@ -43,8 +43,7 @@ const GameEdit = () => {
   const NFLWEEKS = 22;
 
   const getSchedule = async () => {
-    const response = await fetchSchedule(weekNumber);
-    const data = await response.json();
+    const data = await fetchSchedule(weekNumber);
     setSchedule(data);
   };
 

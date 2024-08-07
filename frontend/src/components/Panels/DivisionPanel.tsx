@@ -40,7 +40,7 @@ const NewsPanel: React.FC<DivisionPanelProps> = () => {
                   className={`flex items-center justify-between p-2 rounded-lg ${index % 2 === 0 ? 'bg-gray-500' : 'bg-gray-700'
                     }`}
                 >
-                  <span className="font-medium">
+                  <span className="text-sm">
                     {index + 1}. {team.name}
                   </span>
                   <span className="text-sm text-white">

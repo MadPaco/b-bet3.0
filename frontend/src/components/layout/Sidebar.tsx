@@ -57,7 +57,7 @@ const Sidebar: React.FC = () => {
   }
 
   return (
-    <div className="sticky top-0 z-10 flex flex-col lg:h-screen lg:w-64 w-full bg-gray-900 text-white shadow-lg">
+    <div className="sticky top-0 z-10 flex flex-col lg:h-screen lg:w-40 lg:min-w-40 w-full bg-gray-900 text-white shadow-lg">
       <button onClick={toggleDropdown} className="lg:hidden p-4">
         {isOpen ? 'Close Menu' : 'Open Menu'}
       </button>

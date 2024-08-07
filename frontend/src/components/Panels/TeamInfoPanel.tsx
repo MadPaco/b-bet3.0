@@ -50,23 +50,30 @@ const TeamInfoPanel: React.FC<TeamInfoPanelProps> = () => {
   return (
     <Panel>
       {teamInfo ? (
-        <div className="flex items-center">
-          <img
-            src={`/assets/images/teams/${teamInfo.logo}`}
-            alt={teamInfo.name}
-            className="w-24 h-24 object-contain mr-4"
-          />
-          <div className="flex items-center">
-            <div>
-              <p className='text-xl font-semibold mb-2' >{teamInfo.name} - {teamInfo.conference} {teamInfo.division}</p>
-              {teamStats && <p>Record: {teamStats.wins} - {teamStats.losses} {teamStats.ties > 0 ? '-' + teamStats.ties : ''}</p>}
-              {teamStats && <div>
-                <p></p>
-                <p>Points Scored: {teamStats.pointsFor}</p>
-                <p>Points Against: {teamStats.pointsAgainst}</p>
-                <p>Point Differential: {teamStats.netPoints > 0 ? `+${teamStats.netPoints}` : `${teamStats.netPoints}`}</p>
-                <p>Place in division: {placeInDivision}</p>
-              </div>}
+        <div className="flex items-center flex-col">
+          <div>
+            <p className='text-xl font-semibold mb-2' >{teamInfo.name} - {teamInfo.conference} {teamInfo.division}</p>
+          </div>
+          <div className='flex items-center'>
+            <div >
+              <img
+                src={`/assets/images/teams/${teamInfo.logo}`}
+                alt={teamInfo.name}
+                className="w-24 h-24 object-contain mr-4"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <div>
+                {teamStats && <p>Record: {teamStats.wins} - {teamStats.losses} {teamStats.ties > 0 ? '-' + teamStats.ties : ''}</p>}
+                {teamStats && <div>
+                  <p></p>
+                  <p>Points Scored: {teamStats.pointsFor}</p>
+                  <p>Points Against: {teamStats.pointsAgainst}</p>
+                  <p>Point Differential: {teamStats.netPoints > 0 ? `+${teamStats.netPoints}` : `${teamStats.netPoints}`}</p>
+                  <p>Place in division: {placeInDivision}</p>
+                </div>}
+              </div>
             </div>
           </div>
         </div>

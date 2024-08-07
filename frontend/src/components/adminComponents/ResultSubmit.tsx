@@ -1,22 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchSchedule, submitResults, fetchResults } from '../../utility/api';
-
-interface Game {
-  id: number;
-  date: string;
-  homeTeam: string;
-  awayTeam: string;
-  homeTeamScore: number;
-  awayTeamScore: number;
-}
-
-interface Result {
-  // in JS keys are always strings.... why? QQ
-  [gameID: string]: {
-    homeTeamScore: number;
-    awayTeamScore: number;
-  };
-}
+import { Result, Game } from '../../utility/types';
 
 const ResultSubmit: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
@@ -30,8 +14,7 @@ const ResultSubmit: React.FC = () => {
 
   useEffect(() => {
     const getGames = async () => {
-      const response = await fetchSchedule(weekNumber);
-      const games = await response.json();
+      const games = await fetchSchedule(weekNumber);
       setGames(games);
     };
 
@@ -40,8 +23,7 @@ const ResultSubmit: React.FC = () => {
 
   useEffect(() => {
     const getResults = async () => {
-      const response = await fetchResults(weekNumber);
-      const results = await response.json();
+      const results = await fetchResults(weekNumber);
       const scores = results.reduce(
         (accumulator: Array<Result>, result: Result) => {
           accumulator[Number(result.gameID)] = {
@@ -62,9 +44,11 @@ const ResultSubmit: React.FC = () => {
     return async (e: React.FormEvent) => {
       e.preventDefault();
       const response = await submitResults(scores);
-      if (response.status === 200) {
+      console.log(response)
+      if (response === 'success') {
         alert('Scores submitted successfully');
       } else {
+        console.log(response.status)
         alert('Error submitting scores');
       }
     };

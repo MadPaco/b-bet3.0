@@ -31,6 +31,7 @@ export type User = {
     favTeam: string;
     profilePicture: string;
     bio: string;
+    roles: string[];
 };
 
 export type TeamInfo = {
@@ -49,4 +50,11 @@ export type TeamInfo = {
     netPoints: number;
     shorthandName: string;
 };
+
+export type Result = {
+    [gameID: string]: {
+        homeTeamScore: number;
+        awayTeamScore: number;
+    };
+}
 
