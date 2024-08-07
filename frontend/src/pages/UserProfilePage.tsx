@@ -4,7 +4,6 @@ import { fetchUserInfo, fetchShortUserStats, fetchTeamInfo, fetchHiddenCompletio
 import LoggedInLayout from '../components/layout/LoggedInLayout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrophy, faCrosshairs, faCoins } from '@fortawesome/free-solid-svg-icons';
-import { color } from 'chart.js/helpers';
 
 interface stats {
   totalPoints: number;
@@ -116,73 +115,78 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <LoggedInLayout>
-      <div className="relative flex flex-col h-screen text-white">
-        <div
-          className="p-3 h-1/3 flex flex-col items-center justify-center"
-          style={{
-            backgroundImage: teamInfo ? `url(/assets/images/teams/${teamInfo.logo})` : 'none',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
-          <div className='bg-gray-700 w-full bg-opacity-90 rounded-xl mb-2'>
-            <h2 className="text-2xl font-bold text-center mb-2 text-highlightGold">{user.username}</h2>
-            <p className="text-center text-highlightCream">{user.favTeam}</p>
-            <p className="text-center mt-4">{user.bio}</p>
-          </div>
-
-          <div className='flex w-full bg-gray-700 pt-2 rounded-xl text-highlightGold'>
-            <div className='flex w-1/3 flex-col items-center'>
-              <FontAwesomeIcon icon={faTrophy} />
-              <p className='text-center m-1 text-highlightCream'>Rank: {stats ? stats.currentPlace : ''}</p>
-            </div>
-            <div className='flex w-1/3 flex-col items-center'>
-              <FontAwesomeIcon icon={faCoins} />
-              <p className='text-center m-1 text-highlightCream'>Points: {stats ? stats.totalPoints : ''}</p>
-            </div>
-            <div className='flex w-1/3 flex-col items-center'>
-              <FontAwesomeIcon icon={faCrosshairs} />
-              <p className='text-center m-1 text-highlightCream'>HitRate: {stats ? (stats.hitRate * 100).toFixed(2) : ''}%</p>
-            </div>
-          </div>
-
-          {/* Profile picture container */}
-          <div className="absolute top-1/3 transform -translate-y-1/3 flex justify-center w-full"
+      <div className='h-screen lg:flex lg:items-center lg:justify-center'>
+        <div className="relative flex flex-col h-screen lg:h-4/5 text-white lg:w-1/4 lg:bg-gray-900 lg:p-4 lg:justify-center lg:align-middle lg:rounded-xl lg:border-2 lg:border-highlightCream">
+          <div
+            className="p-3 h-1/3 flex flex-col items-center justify-center"
+            style={{
+              backgroundImage: teamInfo ? `url(/assets/images/teams/${teamInfo.logo})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
           >
-            <img
-              src={profilePictureUrl || '/assets/images/defaultUser.webp'}
-              alt={`${user.username}'s profile`}
-              className="w-32 h-32 rounded-full border-4 border-highlightCream"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col items-center bg-gray-700 text-white h-2/3 pt-24">
-          <div className='w-full flex justify-evenly align-top mx-2 mb-4 font-bold text-highlightGold'>
-            <h1 className='w-1/2 text-center'>Stats</h1>
-            <h1 className='w-1/2 text-center'>Achievements</h1>
-          </div>
-          <div className="flex w-full text-highlightCream">
-            <div className='w-full flex items-center align-top mx-2'>
-              {stats && (<div className='w-1/2 text-center'>
+            <div className='bg-gray-700 w-full bg-opacity-90 rounded-xl mb-2'>
+              <h2 className="text-2xl font-bold text-center mb-2 text-highlightGold">{user.username}</h2>
+              <p className="text-center text-highlightCream">{user.favTeam}</p>
+              <p className="text-center mt-4">{user.bio}</p>
+            </div>
 
-                <p>Bets placed: {stats.betsPlaced}</p>
-                <p>Best week: {stats.highestScoringWeek}</p>
-                <p>Worst week: {stats.lowestScoringWeek}</p>
-              </div>)}
-              {hiddenCompletion && nonHiddenCompletion && (
-                <div className='w-1/2  text-center'>
+            <div className='flex w-full bg-gray-700 pt-2 rounded-xl text-highlightGold'>
+              <div className='flex w-1/3 flex-col items-center'>
+                <FontAwesomeIcon icon={faTrophy} />
+                <p className='text-center m-1 text-highlightCream'>Rank: {stats ? stats.currentPlace : ''}</p>
+              </div>
+              <div className='flex w-1/3 flex-col items-center'>
+                <FontAwesomeIcon icon={faCoins} />
+                <p className='text-center m-1 text-highlightCream'>Points: {stats ? stats.totalPoints : ''}</p>
+              </div>
+              <div className='flex w-1/3 flex-col items-center'>
+                <FontAwesomeIcon icon={faCrosshairs} />
+                <p className='text-center m-1 text-highlightCream'>HitRate: {stats ? (stats.hitRate * 100).toFixed(2) : ''}%</p>
+              </div>
+            </div>
 
-                  <p>Non-Hidden: {nonHiddenCompletion.earned}/{nonHiddenCompletion.total}</p>
-                  <p>Hidden: {hiddenCompletion.earned}/{hiddenCompletion.total}</p>
+            {/* Profile picture container */}
+            <div className="absolute top-1/3 transform -translate-y-1/3 flex justify-center w-full"
+            >
+              <img
+                src={profilePictureUrl || '/assets/images/defaultUser.webp'}
+                alt={`${user.username}'s profile`}
+                className="w-32 h-32 rounded-full border-4 border-highlightCream"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col items-center bg-gray-700 text-white h-2/3 pt-24">
+            <div className='w-full flex justify-evenly align-top mx-2 mb-4 font-bold text-highlightGold'>
+              <h1 className='w-1/2 text-center'>Stats</h1>
+              <h1 className='w-1/2 text-center'>Achievements</h1>
+            </div>
+            <div className="flex w-full text-highlightCream">
+              <div className='w-full flex items-center align-top mx-2'>
+                {stats && (<div className='w-1/2 text-center'>
+
+                  <p>Bets placed: {stats.betsPlaced}</p>
+                  <p>Best week: {stats.highestScoringWeek}</p>
+                  <p>Worst week: {stats.lowestScoringWeek}</p>
                 </div>)}
+                {hiddenCompletion && nonHiddenCompletion && (
+                  <div className='w-1/2  text-center'>
+
+                    <p>Non-Hidden: {nonHiddenCompletion.earned}/{nonHiddenCompletion.total}</p>
+                    <p>Hidden: {hiddenCompletion.earned}/{hiddenCompletion.total}</p>
+                  </div>)}
+              </div>
             </div>
-          </div>
-          <div className='w-full flex'>
-            <div className='w-1/2 flex flex-col items-center h-full align-top mx-2'>
-              <a href={`/users/${username}/stats`} className="text-center w-full m-2 mb-2 bg-highlightCream text-black rounded-xl">All Stats</a>
+            <div className='w-full flex'>
+              <div className='w-1/2 flex flex-col items-center h-full align-top mx-2'>
+                <a href={`/users/${username}/stats`} className="text-center w-full m-2 mb-2 bg-highlightCream text-black rounded-xl">All Stats</a>
+              </div>
+              <div className='w-1/2 flex flex-col items-center h-full align-top mx-2'>
+                <a href={`/users/${username}/achievements`} className="text-center w-full m-2 mb-2 bg-highlightCream text-black rounded-xl">Achievements</a>
+              </div>
             </div>
-            <div className='w-1/2 flex flex-col items-center h-full align-top mx-2'>
-              <a href={`/users/${username}/achievements`} className="text-center w-full m-2 mb-2 bg-highlightCream text-black rounded-xl">Achievements</a>
+            <div className='w-full h-full flex items-center align-middle justify-center'>
+              <a href='/users/all' className="text-center w-1/2 m-2 mb-2 bg-highlightCream text-black rounded-xl">All Profiles</a>
             </div>
           </div>
         </div>

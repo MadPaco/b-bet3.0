@@ -63,7 +63,7 @@ const TotalPointsChart: React.FC<TotalPointsChartProps> = ({ leaderboard }) => {
     };
 
     return (
-        <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
+        <div className="bg-gray-900 p-4 rounded-lg shadow-lg border-2 border-highlightCream">
             <Bar
                 options={totalPointsOptions}
                 data={totalPointsData}

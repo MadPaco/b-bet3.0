@@ -9,7 +9,7 @@ interface AccordionProps {
 const Accordion: React.FC<AccordionProps> = ({ title, children, isOpen, toggleAccordion, currentWeek }) => {
 
   return (
-    <div className="border-b border-highlightCream text-white bg-gray-900 bg-opacity-90">
+    <div className="border-b border-highlightCream text-highlightCream bg-gray-900 bg-opacity-90">
       <button
         className="w-full flex justify-center items-center py-2 px-4 text-center focus:outline-none"
         onClick={toggleAccordion}

@@ -52,7 +52,7 @@ const PointDistributionChart: React.FC<PointDistributionChartProps> = ({ pointDi
     };
 
     return (
-        <div className="bg-gray-900 p-4 w-full h-full rounded-xl">
+        <div className="bg-gray-900 p-4 w-full h-full rounded-xl border-2 border-highlightCream">
             <Pie
                 options={pointDistributionOptions}
                 data={pointDistributionData}

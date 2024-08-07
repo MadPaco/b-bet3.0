@@ -38,19 +38,18 @@ const AchievementFilters: React.FC<AchievementFiltersProps> = ({ filters, toggle
 
     return (
         <div className="flex flex-col justify-center items-center">
-            <button onClick={handleClick} className="bg-gray-700 text-white p-2 rounded-lg my-2 lg:w-1/12 flex items-center">
+            <button onClick={handleClick} className="bg-gray-900 p-2 rounded-lg my-2 lg:w-1/12 flex items-center border-2 border-highlightCream text-highlightCream">
                 Show filter
                 <FontAwesomeIcon
                     icon={faFilter}
                     style={{
-                        color: "#bababa",
                         marginLeft: "8px",
                     }}
                     className={animate ? 'fa-beat' : ''}
                 />
             </button>
             {opened && (
-                <div className="lg:w-1/2 flex flex-col items-center my-3 bg-gray-600 p-3 rounded-3xl">
+                <div className="lg:w-1/2 flex flex-col items-center my-3 bg-gray-900 p-3 rounded-3xl border-2 border-highlightCream">
                     <div className="flex mb-5">
                         <h1>Search</h1>
                         <input

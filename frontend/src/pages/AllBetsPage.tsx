@@ -1,37 +1,51 @@
 import LoggedInLayout from '../components/layout/LoggedInLayout';
-import { fetchBets, fetchSchedule } from '../utility/api';
+import { fetchBets, fetchSchedule, getCurrentWeek as fetchCurrentWeek } from '../utility/api';
 import { useState, useEffect } from 'react';
 import Accordion from '../components/common/Accordion';
 import { Bet, Game } from '../utility/types';
 import { generateWeekOptions } from '../data/weekLabels';
 
 const AllBetsPage: React.FC = () => {
-
-
   const [bets, setBets] = useState<Bet[]>([]);
-  const [weekNumber, setWeekNumber] = useState<number>(1);
+  const [weekNumber, setWeekNumber] = useState<number | null>(null);
   const [games, setGames] = useState<Game[]>([]);
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
+  const [currentWeek, setCurrentWeek] = useState<number | null>(null);
   const weeks = generateWeekOptions();
 
   useEffect(() => {
-    const getAllBets = async () => {
-      const fetchedBets = await fetchBets(weekNumber);
+    const getCurrentWeek = async () => {
+      const response = await fetchCurrentWeek();
+      const currentWeekData = await response.json();
+      setCurrentWeek(currentWeekData.currentWeek);
+      setWeekNumber(currentWeekData.currentWeek);
+    };
+
+    getCurrentWeek();
+  }, []);
+
+  useEffect(() => {
+    const getAllBets = async (week: number) => {
+      const fetchedBets = await fetchBets(week);
       const data = await fetchedBets.json();
       setBets(data);
     };
 
-    getAllBets();
+    if (weekNumber !== null) {
+      getAllBets(weekNumber);
+    }
   }, [weekNumber]);
 
   useEffect(() => {
-    const getGames = async () => {
-      const fetchedGames = await fetchSchedule(weekNumber);
+    const getGames = async (week: number) => {
+      const fetchedGames = await fetchSchedule(week);
       const data = await fetchedGames.json();
       setGames(data);
     };
 
-    getGames();
+    if (weekNumber !== null) {
+      getGames(weekNumber);
+    }
   }, [weekNumber]);
 
   const getColorClass = (points: number) => {
@@ -54,7 +68,7 @@ const AllBetsPage: React.FC = () => {
           <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>All Bets</h1>
           <select
             className="bg-gray-900 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-highlightGold focus:ring-opacity-50 border-highlightCream border-solid border-2"
-            value={weekNumber}
+            value={weekNumber || 1}
             onChange={(e) => setWeekNumber(Number(e.target.value))}
           >
             {weeks}
@@ -99,8 +113,6 @@ const AllBetsPage: React.FC = () => {
                   }
                 </div>
               </div>
-
-
             );
 
             return (
@@ -110,7 +122,6 @@ const AllBetsPage: React.FC = () => {
                   isOpen={openAccordion === game.id}
                   toggleAccordion={() => setOpenAccordion(prev => prev === game.id ? null : game.id)}
                 >
-
                   {gameBets.map((bet: Bet) => (
                     <div key={bet.id} className="p-2 flex space-between">
                       <div className='mx-3 text-highlightCream'>
@@ -125,7 +136,6 @@ const AllBetsPage: React.FC = () => {
                           {bet.awayPrediction} - {bet.homePrediction}
                         </div>
                       }
-
                     </div>
                   ))}
                 </Accordion>
@@ -133,8 +143,6 @@ const AllBetsPage: React.FC = () => {
             );
           })}
         </div>
-
-
       </div>
     </LoggedInLayout>
   );

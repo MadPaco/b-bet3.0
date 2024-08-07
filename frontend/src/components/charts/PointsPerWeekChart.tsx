@@ -67,7 +67,7 @@ const PointsPerWeekChart: React.FC<PointsPerWeekChartProps> = ({ pointsPerWeek, 
     };
 
     return (
-        <div className="bg-gray-900 flex justify-center items-center p-4 rounded-lg shadow-lg">
+        <div className="bg-gray-900 flex justify-center items-center p-4 rounded-lg shadow-lg border-2 border-highlightCream">
             <Bar
                 options={pointsPerWeekOptions}
                 data={pointsPerWeekData}

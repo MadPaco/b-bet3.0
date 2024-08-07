@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import LoggedInLayout from '../components/layout/LoggedInLayout';
 import { fetchAllUsers } from '../utility/api';
 import Panel from '../components/common/Panel';
@@ -8,7 +8,7 @@ import { User } from '../utility/types';
 const AllUsersPage: React.FC = () => {
   const [userList, setUserList] = useState<User[]>([]);
   const [profilePictures, setProfilePictures] = useState<{ [key: string]: string }>({});
-  const navigate = useNavigate(); // Use navigate hook for navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function getUsers() {
@@ -50,25 +50,23 @@ const AllUsersPage: React.FC = () => {
 
   return (
     <LoggedInLayout>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+      <div className="flex p-4 h-screen flex-wrap">
         {userList.map((user) => (
-          <Panel key={user.username}>
-            <div
-              className="bg-gray-700 rounded-lg shadow-lg p-4 cursor-pointer hover:bg-gray-500"
-              onClick={() => handleUserClick(user.username)}
-            >
-              <img
-                src={profilePictures[user.username] || 'assets/images/defaultUser.webp'}
-                alt={`${user.username}'s profile`}
-                className="w-24 h-24 rounded-full mx-auto mb-4"
-              />
-              <div className="text-center">
-                <h3 className="text-xl font-bold mb-2">{user.username}</h3>
-                <p className="text-gray-200 mb-2">{user.favTeam}</p>
-                <p className="text-gray-300 text-sm">{user.bio}</p>
-              </div>
+          <div
+            className="bg-gray-900 rounded-lg shadow-lg p-4 cursor-pointer hover:bg-gray-500 w-full lg:w-1/5 lg:h-1/5 m-2 border-2 border-highlightCream"
+            onClick={() => handleUserClick(user.username)}
+          >
+            <img
+              src={profilePictures[user.username] || 'assets/images/defaultUser.webp'}
+              alt={`${user.username}'s profile`}
+              className="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-highlightCream"
+            />
+            <div className="text-center">
+              <h3 className="text-xl text-highlightGold font-bold mb-2">{user.username}</h3>
+              <p className="text-highlightCream mb-2">{user.favTeam}</p>
+              <p className="text-highlightCream text-sm">{user.bio}</p>
             </div>
-          </Panel>
+          </div>
         ))}
       </div>
     </LoggedInLayout>

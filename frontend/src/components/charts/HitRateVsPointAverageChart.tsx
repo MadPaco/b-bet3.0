@@ -13,8 +13,8 @@ const HitRateVsPointAverageChart: React.FC<HitRateVsPointAverageChartProps> = ({
             {
                 label: 'Team Hit Rate vs Point Average',
                 data: Object.keys(teamHitRate).map((team) => ({
-                    x: teamHitRate[team],
-                    y: teamPointAverage[team],
+                    x: (teamHitRate[team] * 100).toFixed(2),
+                    y: teamPointAverage[team].toFixed(2),
                     label: team,
                     logo: `/assets/images/teams/${teamLogos[team]}`
                 })),
@@ -30,7 +30,7 @@ const HitRateVsPointAverageChart: React.FC<HitRateVsPointAverageChartProps> = ({
             x: {
                 title: {
                     display: true,
-                    text: 'Hit Rate',
+                    text: 'Hit Rate in %',
                     color: '#E09F1F',
                 },
                 ticks: {
@@ -85,7 +85,7 @@ const HitRateVsPointAverageChart: React.FC<HitRateVsPointAverageChartProps> = ({
         },
     };
     return (
-        <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
+        <div className="bg-gray-900 p-4 rounded-lg shadow-lg border-2 border-highlightCream">
             <Scatter
                 data={scatterData}
                 options={scatterOptions}

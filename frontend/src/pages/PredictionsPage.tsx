@@ -1,5 +1,5 @@
 import LoggedInLayout from '../components/layout/LoggedInLayout';
-import { fetchSchedule, addBets, fetchBets } from '../utility/api';
+import { fetchSchedule, addBets, fetchBets, getCurrentWeek as fetchCurrentWeek } from '../utility/api';
 import { useAuth } from '../components/auth/AuthContext';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,7 +11,8 @@ const PredictionsPage: React.FC = () => {
   const [schedule, setSchedule] = useState<Game[]>([]);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [showPopup, setShowPopup] = useState(false);
-  const [weekNumber, setWeekNumber] = useState(1);
+  const [weekNumber, setWeekNumber] = useState<number | null>(null);
+  const [currentWeek, setCurrentWeek] = useState<number | null>(null);
 
   type Game = {
     id: number;
@@ -36,8 +37,19 @@ const PredictionsPage: React.FC = () => {
   const weeks = generateWeekOptions();
 
   useEffect(() => {
-    const getSchedule = async () => {
-      const response = await fetchSchedule(weekNumber);
+    const getCurrentWeek = async () => {
+      const response = await fetchCurrentWeek();
+      const currentWeekData = await response.json();
+      setCurrentWeek(currentWeekData.currentWeek);
+      setWeekNumber(currentWeekData.currentWeek);
+    };
+
+    getCurrentWeek();
+  }, []);
+
+  useEffect(() => {
+    const getSchedule = async (week: number) => {
+      const response = await fetchSchedule(week);
       const data = await response.json();
       setSchedule(data);
 
@@ -50,7 +62,9 @@ const PredictionsPage: React.FC = () => {
       });
     };
 
-    getSchedule();
+    if (weekNumber !== null) {
+      getSchedule(weekNumber);
+    }
   }, [weekNumber]);
 
   useEffect(() => {
@@ -59,8 +73,11 @@ const PredictionsPage: React.FC = () => {
       const data = await response.json();
       setPredictions(data);
     };
-    getInitialPrediction();
-  }, [weekNumber]);
+
+    if (weekNumber !== null) {
+      getInitialPrediction();
+    }
+  }, [weekNumber, username]);
 
   const handlePredictionChange = (gameID: number, value: number, type: 'awayPrediction' | 'homePrediction') => {
     setPredictions((prev) => {
@@ -95,7 +112,7 @@ const PredictionsPage: React.FC = () => {
             <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>Predictions</h1>
             <select
               className="bg-gray-900 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-highlightGold focus:ring-opacity-50 border-highlightCream border-solid border-2"
-              value={weekNumber}
+              value={weekNumber || 1}
               onChange={(e) => setWeekNumber(Number(e.target.value))}
             >
               {weeks}
@@ -108,57 +125,65 @@ const PredictionsPage: React.FC = () => {
               schedule.map((game) => (
                 <div
                   key={game.id}
-                  className='bg-gray-900 m-3 flex flex-col items-center bg-opacity-90 rounded-lg p-2 w-full border-solid border-2 border-highlightCream'
+                  className='bg-gray-900 m-3 flex flex-col items-center bg-opacity-90 rounded-lg py-2 lg:p-2 w-full border-solid border-2 border-highlightCream'
                 >
                   <div className="text-lg font-bold mb-2 text-highlightGold text-center">{new Intl.DateTimeFormat('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(game.date))}</div>
                   <div className="flex items-center justify-center py-3 w-full">
-                    <div className="flex flex-col items-center mx-3">
+                    <div className='w-1/5 lg:p-4'>
                       <img
-                        className="h-12 w-12 mb-2"
+                        className="mb-2"
                         src={`/assets/images/teams/${game.awayTeamLogo}`}
                         alt={game.awayTeam}
                       />
-                      <span className='text-center'>{game.awayTeam}</span>
-                      <input
-                        onChange={(e) =>
-                          handlePredictionChange(
-                            game.id,
-                            Number(e.target.value),
-                            'awayPrediction',
-                          )
-                        }
-                        name="awayPrediction"
-                        type="number"
-                        className="w-20 text-black text-center mt-2 p-1 rounded-md focus:animate-pulseGlow"
-                        value={
-                          predictions.find((p) => p.gameID === game.id)?.awayPrediction ?? ''
-                        }
-                      />
+                    </div>
+                    <div className='w-3/5 flex items-center justify-center'>
+                      <div className="flex flex-col items-center mx-3">
+
+                        <span className='text-center'>{game.awayTeam}</span>
+                        <input
+                          onChange={(e) =>
+                            handlePredictionChange(
+                              game.id,
+                              Number(e.target.value),
+                              'awayPrediction',
+                            )
+                          }
+                          name="awayPrediction"
+                          type="number"
+                          className="w-10 text-black text-center mt-2 p-1 rounded-md focus:animate-pulseGlow"
+                          value={
+                            predictions.find((p) => p.gameID === game.id)?.awayPrediction ?? ''
+                          }
+                        />
+                      </div>
+
+                      <span className="mx-5 text-3xl font-bold">at</span>
+
+                      <div className="flex flex-col items-center mx-3">
+                        <span className='text-center'>{game.homeTeam}</span>
+                        <input
+                          onChange={(e) =>
+                            handlePredictionChange(
+                              game.id,
+                              Number(e.target.value),
+                              'homePrediction',
+                            )
+                          }
+                          name="homePrediction"
+                          type="number"
+                          className="w-10 text-black text-center mt-2 p-1 rounded-md focus:animate-pulseGlow"
+                          value={
+                            predictions.find((p) => p.gameID === game.id)?.homePrediction ?? ''
+                          }
+                        />
+                      </div>
                     </div>
 
-                    <span className="mx-5 text-3xl font-bold">at</span>
-
-                    <div className="flex flex-col items-center mx-3">
+                    <div className='w-1/5 lg:p-4'>
                       <img
-                        className="h-auto w-12 mb-2"
+                        className="mb-2"
                         src={`/assets/images/teams/${game.homeTeamLogo}`}
                         alt={game.homeTeam}
-                      />
-                      <span className='text-center'>{game.homeTeam}</span>
-                      <input
-                        onChange={(e) =>
-                          handlePredictionChange(
-                            game.id,
-                            Number(e.target.value),
-                            'homePrediction',
-                          )
-                        }
-                        name="homePrediction"
-                        type="number"
-                        className="w-20 text-black text-center mt-2 p-1 rounded-md focus:animate-pulseGlow"
-                        value={
-                          predictions.find((p) => p.gameID === game.id)?.homePrediction ?? ''
-                        }
                       />
                     </div>
                   </div>

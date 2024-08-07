@@ -67,7 +67,7 @@ const HitRateEvolutionChart: React.FC<HitRateEvolutionChartProps> = ({ hitRateEv
         },
     };
     return (
-        <div className="bg-gray-900 m-2 p-4 rounded-lg shadow-lg">
+        <div className="bg-gray-900 m-2 p-4 rounded-lg shadow-lg border-2 border-highlightCream">
             <Bar
                 options={hitRateEvolutionOptions}
                 data={hitRateEvolutionData}

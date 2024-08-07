@@ -24,7 +24,7 @@ const AchievementTagButton: React.FC<AchievementTagButtonProps> = ({ tag, isClic
     return (
         <button
             onClick={combinedClickHandler}
-            className={`py-2 m-2 px-4 rounded-lg ${isClicked ? 'bg-gray-500' : 'bg-gray-700'}`}
+            className={`py-2 m-2 px-4 text-highlightCream rounded-lg border-highlightCream ${isClicked ? 'bg-gray-800 border-2' : 'bg-gray-700 border-2 border-dashed border-white text-white'}`}
         >
             {tag}
             {isClicked && (<FontAwesomeIcon

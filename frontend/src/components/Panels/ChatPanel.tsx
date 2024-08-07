@@ -138,7 +138,7 @@ const ChatPanel: React.FC = () => {
     : 'bg-gray-400 hover:bg-gray-300';
 
   return (
-    <div className="p-3 m-4 cursor-pointer rounded-md backdrop-blur-sm text-white bg-gray-500 shadow-inner shadow-white">
+    <div className="p-3 m-4 cursor-pointer rounded-md backdrop-blur-sm text-white bg-gray-900 shadow-inner shadow-white">
       <h2 className="text-xl font-semibold mb-2 text-center">Chat</h2>
       <div ref={container} className="overflow-auto h-80 mb-4 border-3 border-gray-900 p-4 bg-gray-700 rounded-md flex flex-col">
         {messages.map((message, index) => (

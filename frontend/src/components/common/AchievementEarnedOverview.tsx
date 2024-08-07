@@ -33,7 +33,7 @@ const AchievementEarnedOverview: React.FC = () => {
 
     return (
         <>
-            <div className="text-center flex flex-col items-center mb-3">
+            <div className="text-center flex flex-col items-center mb-3 text-highlightCream">
                 <h1 className='font-bold'>Earned total achievements</h1>
                 <div className="relative w-full lg:w-1/2 bg-gray-300 rounded-full h-6 my-2 text-black">
                     {nonHiddenCompletion && hiddenCompletion && nonHiddenCompletion.earned > 0 && (

@@ -10,7 +10,6 @@ interface LoggedInLayoutProps {
 }
 
 const LoggedInLayout: React.FC<LoggedInLayoutProps> = ({ children }) => {
-  const { primaryColor } = useColor();
   const { username } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
@@ -22,8 +21,8 @@ const LoggedInLayout: React.FC<LoggedInLayoutProps> = ({ children }) => {
   return (
     <Layout
       content={
-        <div className="flex flex-col lg:flex-row w-full">
-          <Sidebar color={primaryColor} />
+        <div className="flex flex-col lg:flex-row w-full h-full">
+          <Sidebar />
           <div className="flex-grow">{children}</div>
         </div>
       }

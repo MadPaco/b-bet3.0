@@ -54,6 +54,9 @@ const LeaderboardPage: React.FC = () => {
       try {
         const response = await getCurrentWeek();
         const currentWeekData = await response.json();
+        // since currentWeek is the first week where no results have been set
+        // we substract 1 to show the week which has points awarded
+        // because this is what users will be interested in here
         setCurrentWeek(currentWeekData.currentWeek - 1);
       } catch (error) {
         console.error('Error fetching current week:', error);

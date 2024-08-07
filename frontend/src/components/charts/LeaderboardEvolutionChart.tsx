@@ -85,7 +85,7 @@ const LeaderboardEvolutionChart: React.FC<LeaderboardEvolutionChartProps> = ({ l
     };
 
     return (
-        <div className='bg-gray-900 m-2 p-4 rounded-lg shadow-lg'>
+        <div className='bg-gray-900 m-2 p-4 rounded-lg shadow-lg border-2 border-highlightCream'>
             <Line
                 options={leaderboardEvolutionOptions}
                 data={leaderboardEvolutionData}

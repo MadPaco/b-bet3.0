@@ -48,7 +48,7 @@ const Sidebar: React.FC = () => {
     { icon: faChartLine, text: 'Stats', onClick: () => navigate(`/users/${username}/stats`), path: `/users/${username}/stats` },
     { icon: faUsers, text: 'Users', onClick: () => navigate('/users/all'), path: '/users/all' },
     { icon: faUser, text: 'Edit Profile', onClick: () => navigate(`/users/${username}/profile/edit`), path: `/users/${username}/edit` },
-    { icon: faBook, text: 'Rules', onClick: () => navigate('/rules'), path: '/rules' },
+    { icon: faBook, text: 'Rules, FAQ & Notes', onClick: () => navigate('/rules'), path: '/rules' },
     { icon: faRightFromBracket, text: 'Logout', onClick: handleLogout, path: '/login' },
   ];
 

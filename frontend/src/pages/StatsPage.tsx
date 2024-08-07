@@ -63,7 +63,7 @@ const StatsPage: React.FC = () => {
           <h1 className='my-3 text-highlightGold text-xl font-bold text-shadow-sm shadow-black'>Stats of {username}</h1>
           {stats && (
             <div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6'>
-              <div className="bg-gray-900 p-6 rounded-lg shadow-lg col-span-1 md:col-span-2 flex justify-evenly text-highlightCream">
+              <div className="bg-gray-900 p-6 rounded-lg shadow-lg col-span-1 md:col-span-2 flex justify-evenly text-highlightCream border-2 border-highlightCream">
                 <p className='m-3'>Bets Placed: {stats.betsPlaced}</p>
                 <p className='m-3'>Total points: {stats.totalPoints}</p>
                 <p className='m-3'>Current place: {stats.currentPlace}</p>
@@ -72,30 +72,26 @@ const StatsPage: React.FC = () => {
                 <p className='m-3'>Hit-rate: {(stats.hitRate * 100).toFixed(2)} %</p>
               </div>
 
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                {stats ? (
-                  <PointsPerWeekChart
-                    pointsPerWeek={stats.pointsPerWeek}
-                    averagePointsPerWeek={stats.averagePointsPerWeek}
-                  />
-                ) : 'Loading...'}
-              </div>
 
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                {leaderboard ? (
-                  <TotalPointsChart leaderboard={leaderboard} />
-                ) : 'Loading...'}
-              </div>
-
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex items-center justify-center">
-                {stats.pointDistribution ? (
-                  <PointDistributionChart
-                    pointDistribution={stats.pointDistribution} />
-                ) : 'Loading...'}
-              </div>
+              {stats ? (
+                <PointsPerWeekChart
+                  pointsPerWeek={stats.pointsPerWeek}
+                  averagePointsPerWeek={stats.averagePointsPerWeek}
+                />
+              ) : 'Loading...'}
 
 
-              <div className="bg-gray-800 p-6 align-center items-center rounded-lg shadow-lg ">
+              {leaderboard ? (
+                <TotalPointsChart leaderboard={leaderboard} />
+              ) : 'Loading...'}
+
+              {stats.pointDistribution ? (
+                <PointDistributionChart
+                  pointDistribution={stats.pointDistribution} />
+              ) : 'Loading...'}
+
+
+              <div>
                 {stats.hitRateEvolution ? (
                   <div className='mb-3'>
                     <HitRateEvolutionChart
@@ -113,15 +109,13 @@ const StatsPage: React.FC = () => {
 
               </div>
 
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg col-span-1 md:col-span-2">
-                {stats.teamHitRate && stats.teamPointAverage && teamLogos ? (
-                  <TeamHitRateVsTeamAverageChart
-                    teamHitRate={stats.teamHitRate}
-                    teamPointAverage={stats.teamPointAverage}
-                    teamLogos={teamLogos}
-                  />
-                ) : 'Loading...'}
-              </div>
+              {stats.teamHitRate && stats.teamPointAverage && teamLogos ? (
+                <TeamHitRateVsTeamAverageChart
+                  teamHitRate={stats.teamHitRate}
+                  teamPointAverage={stats.teamPointAverage}
+                  teamLogos={teamLogos}
+                />
+              ) : 'Loading...'}
             </div>
           )}
         </div>
